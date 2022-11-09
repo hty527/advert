@@ -4,6 +4,7 @@
 * demo中libs目录下的oaid_sdk_1.0.25.aar为可选SDK，适配Android10及以上系统建议集成<br>
 * 遇到问题请阅读[TopOn官方文档][1]<br>
 * 更多平台广告支持[第三方广告SDK下载][2]<br>
+
 [1]:https://docs.toponad.com/#/zh-cn/android/GetStarted/TopOn_Get_Started "TopOn官方文档"
 [2]:https://docs.toponad.com/#/zh-cn/android/GetStarted/TopOn_Get_Started "第三方广告SDK下载"
 
@@ -25,8 +26,8 @@
     }
 
     dependencies {
-		//复制libs_topon文件夹到app下后引入libs_topon目录下的所有.aar文件和.jar文件
-		implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs_topon')
+        //复制libs_topon文件夹到app下后引入libs_topon目录下的所有.aar文件和.jar文件
+        implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs_topon')
         //广告功能逻辑SDK
         implementation 'com.github.hty527.advert:topon:1.1.0'
     
