@@ -5,7 +5,7 @@
     "kind": "Directory"
   },
   "applicationId": "com.anythink.sdk.demo",
-  "variantName": "apkRelease",
+  "variantName": "appRelease",
   "elements": [
     {
       "type": "SINGLE",
@@ -14,7 +14,7 @@
       "versionCode": 11000,
       "versionName": "1.1.0",
       "enabled": true,
-      "outputFile": "app-topon-apk-release.apk"
+      "outputFile": "app-topon-app-release.apk"
     }
   ]
 }

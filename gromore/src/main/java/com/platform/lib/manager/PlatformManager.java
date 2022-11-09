@@ -217,9 +217,6 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
                     initSuccess();
                 }
             },3000);
-            if(!TextUtils.isEmpty(tag)&&PlatformUtils.getInstance().checkedPreferencesExist()){
-                com.anythink.natives.PreferencesUtils.getInstance().setTag(tag,true);
-            }
         }catch (Throwable e){
             e.printStackTrace();
             initSuccess();
@@ -1375,9 +1372,6 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     public void onActivityDestroyed( Activity activity) {}
 
     public void onTerminate(Application context){
-        if(PlatformUtils.getInstance().checkedPreferencesExist()){
-            com.anythink.natives.PreferencesUtils.getInstance().onTerminate();
-        }
         context.registerActivityLifecycleCallbacks(this);
     }
 }
