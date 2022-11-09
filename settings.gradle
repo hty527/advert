@@ -1,0 +1,5 @@
+rootProject.name = "advert"
+include ':app-topon'
+include ':app-gromore'
+include ':topon'
+include ':gromore'

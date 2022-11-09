@@ -1,0 +1,53 @@
+apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
+
+group='com.github.hty527'//xxx:代表你的github用户名
+
+android {
+    compileSdkVersion 29
+    buildToolsVersion '29.0.3'
+
+    defaultConfig {
+        minSdkVersion 17
+        targetSdkVersion 29
+        versionCode rootProject.ext.sdk.versionCode
+        versionName rootProject.ext.sdk.versionName
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+            zipAlignEnabled false
+            minifyEnabled false
+            signingConfig signingConfigs.debug
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        release {
+            debuggable false
+            zipAlignEnabled true
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.debug
+        }
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    //当library和主模块同时引用第三方aar文件时，library模块需要使用compileOnly关键字来引用aar
+    compileOnly fileTree(include: ['*.jar', '*.aar'], dir: 'libs_gromore')
+    //GroMore_sdk
+    compileOnly "com.gromore.cn:gromore-sdk:3.7.0.6"  //groMore sdk
+    //GroMore_sdk adapter
+    compileOnly "com.gromore.cn:gdt-adapter:4.491.1361.0"  //gdt adapter
+    compileOnly "com.gromore.cn:ks-adapter:3.3.31.0"  //ks adapter
+    compileOnly "com.gromore.cn:pangle-adapter:4.8.0.8.2" //穿山甲 adapter
+}

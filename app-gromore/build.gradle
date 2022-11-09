@@ -1,0 +1,117 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 29
+    buildToolsVersion "29.0.3"
+
+    defaultConfig {
+        applicationId rootProject.ext.gromore.applicationId
+        minSdkVersion 21
+        targetSdkVersion 29
+        versionCode rootProject.ext.gromore.versionCode
+        versionName rootProject.ext.gromore.versionName
+
+        multiDexEnabled true
+        ndk {
+            //穿山甲：arm64-v8a、armeabi-v7a
+            //快手广告：arm64-v8a、armeabi-v7a、armeabi、x86_64、x86
+            abiFilters   'armeabi-v7a','arm64-v8a'
+        }
+
+        packagingOptions {
+            doNotStrip "*/armeabi-v7a/*.so"
+            doNotStrip "*/arm64-v8a/*.so"
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    signingConfigs {
+        debug {
+            storeFile file('never_thumb.keystore')
+            storePassword "123456"
+            keyAlias "never_thumb"
+            keyPassword "123456"
+            v1SigningEnabled true
+            v2SigningEnabled false
+        }
+        release {
+            storeFile file('never_thumb.keystore')
+            storePassword "123456"
+            keyAlias "never_thumb"
+            keyPassword "123456"
+            v1SigningEnabled true
+            v2SigningEnabled false
+        }
+    }
+
+    buildTypes {
+        debug {
+            debuggable true
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        release {
+            debuggable false
+            zipAlignEnabled true
+            shrinkResources true
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+    }
+
+    flavorDimensions "app"
+    productFlavors {
+        app {
+            applicationId rootProject.ext.gromore.applicationId
+            versionCode rootProject.ext.gromore.versionCode
+            versionName rootProject.ext.gromore.versionName
+            dimension "app"
+            signingConfig signingConfigs.release
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
+    implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs_gromore')
+
+    //广告功能逻辑SDK
+    implementation project(':gromore')
+    //implementation 'com.github.hty527.advert:gromore:1.1.0'
+    //GroMore_sdk
+    implementation "com.gromore.cn:gromore-sdk:3.7.0.6"  //groMore sdk
+    //GroMore_sdk adapter
+    implementation "com.gromore.cn:gdt-adapter:4.491.1361.0"  //gdt adapter
+    implementation "com.gromore.cn:ks-adapter:3.3.31.0"  //ks adapter
+    implementation "com.gromore.cn:pangle-adapter:4.8.0.8.2" //穿山甲 adapter
+
+    /**
+     * 如果是Support环境
+     */
+    //implementation "com.android.support:appcompat-v7:+"
+    //implementation 'com.android.support:localbroadcastmanager:+'
+    //集成包含快手广告需要添加
+    //implementation 'com.android.support:design:+'
+    //implementation "com.android.support:recyclerview-v7:+"
+    //implementation 'com.android.support:multidex:1.0.3'
+
+    /**
+     * 如果是androidx环境
+     */
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+    //集成包含快手广告需要添加下列三个依赖库
+    implementation "androidx.recyclerview:recyclerview:1.2.0"
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.multidex:multidex:2.0.1'//当minSdkVersion>=21时会出现找不到androidx.multidex.MultiDexApplication
+}

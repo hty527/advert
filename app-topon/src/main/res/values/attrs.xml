@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--轻度加粗字体-->
+    <declare-styleable name="BoldTextView">
+        <!--字体粗细-->
+        <attr name="boldStorkeWidth" format="float"></attr>
+        <!--是否自动轮播-->
+        <attr name="boldMarquee" format="boolean"></attr>
+    </declare-styleable>
+</resources>

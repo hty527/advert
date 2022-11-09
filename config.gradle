@@ -1,0 +1,23 @@
+ext {
+    android = [
+            compileSdkVersion: 28,
+            buildToolsVersion: "28.0.3",
+            minSdkVersion    : 21,
+            targetSdkVersion : 26,
+            devMinSdk        : 21,
+    ]
+    sdk = [
+            versionCode  : 11000,
+            versionName  : "1.1.0"
+    ]
+    topon = [
+            applicationId: "com.anythink.sdk.demo",
+            versionCode  : 11000,
+            versionName  : "1.1.0"
+    ]
+    gromore = [
+            applicationId: "com.distributor.never.thumb",
+            versionCode  : 11000,
+            versionName  : "1.1.0"
+    ]
+}
