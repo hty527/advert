@@ -47,7 +47,7 @@ import com.platform.lib.utils.PlatformUtils;
 public class ExpressView extends FrameLayout {
 
 //    private static final String TAG = ExpressView.class.getSimpleName();
-    private String adSource =AdConstance.SOURCE_GM,adType, adCode,scene=AdConstance.SCENE_CACHE;
+    private String adSource =AdConstance.SOURCE_TO,adType, adCode,scene=AdConstance.SCENE_CACHE;
     private float adWidth,adHeight;
     //自定义渲染UI控制器
     private NativeRenderControl mRenderControl;

@@ -26,9 +26,19 @@ public abstract class OnPlayListener {
 
     /**
      * 广告被显示了
+     */
+    public void onShow(){}
+
+    /**
+     * 广告被显示了
      * @param atRewardVideoAd 仅激励视频并且非全自动时此对象可能不为空
      */
     public void onShow(ATRewardVideoAd atRewardVideoAd){}
+
+    /**
+     * 广告被点击了(播放激励视频时回调)
+     */
+    public void onClick(){}
 
     /**
      * 广告被点击了(播放激励视频时回调)

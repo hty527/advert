@@ -29,7 +29,7 @@
         //复制libs_topon文件夹到app下后引入libs_topon目录下的所有.aar文件和.jar文件
         implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs_gromore')
         //广告功能逻辑SDK
-        implementation 'com.github.hty527.advert:gromore:1.1.0'
+        implementation 'com.github.hty527.advert:gromore:1.1.1'
         //GroMore_sdk
         implementation "com.gromore.cn:gromore-sdk:3.7.0.6"  //groMore sdk
         //GroMore_sdk adapter

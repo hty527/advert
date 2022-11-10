@@ -52,6 +52,7 @@ public interface AdConstance {
     int CODE_EXIST_CACHE                = 14;//存在缓存广告
     int CODE_APPLY_FAIL                 = 15;//广告应用到布局失败
     int CODE_DEVELOP                    = 16;//开发者模式，跳过广告
+    int CODE_CONFIG_LOADING             = 17;//广告配置正在加载中
 
     /**
      * 错误描述信息
@@ -72,7 +73,7 @@ public interface AdConstance {
     String ERROR_EXIST_CACHE            = "exist_cache";//存在缓存广告
     String ERROR_APPLY_FAIL             = "express apply fail";//广告应用到布局失败
     String ERROR_DEVELOP                = "develop mode,skip";//开发者模式，跳过广告
-
+    String ERROR_CONFIG_LOADING         = "config loading";//广告配置正在加载中
 
     /**
      * 加载广告场景

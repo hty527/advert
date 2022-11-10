@@ -3,8 +3,7 @@ package com.platform.simple;
 import android.os.Bundle;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
-import com.anythink.splashad.api.ATSplashAd;
-import com.platform.lib.listener.OnSplashListener;
+import com.platform.lib.listener.OnSplashStatusListener;
 import com.platform.lib.widget.SplashView;
 
 /**
@@ -12,7 +11,7 @@ import com.platform.lib.widget.SplashView;
  * 2022/10/8
  * Desc:开屏广告演示
  */
-public class SplashActivity extends AppCompatActivity implements OnSplashListener {
+public class SplashActivity extends AppCompatActivity implements OnSplashStatusListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,23 +32,10 @@ public class SplashActivity extends AppCompatActivity implements OnSplashListene
         close();
     }
 
-    /**
-     * SplashView内部已自动渲染开品广告，请勿重新渲染!!!
-     * @param atSplashAd
-     */
-    @Override
-    public void onSuccess(ATSplashAd atSplashAd) {}
-
-    @Override
-    public void onTimeOut() {
-        close();
-    }
-
     @Override
     public void onClick() {
 
     }
-
 
     @Override
     public void onError(int code, String message, String adCode) {

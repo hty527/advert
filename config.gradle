@@ -7,17 +7,17 @@ ext {
             devMinSdk        : 21,
     ]
     sdk = [
-            versionCode  : 11000,
-            versionName  : "1.1.0"
+            versionCode  : 11010,
+            versionName  : "1.1.1"
     ]
     topon = [
             applicationId: "com.anythink.sdk.demo",
-            versionCode  : 11000,
-            versionName  : "1.1.0"
+            versionCode  : 11010,
+            versionName  : "1.1.1"
     ]
     gromore = [
             applicationId: "com.distributor.never.thumb",
-            versionCode  : 11000,
-            versionName  : "1.1.0"
+            versionCode  : 11010,
+            versionName  : "1.1.1"
     ]
 }
