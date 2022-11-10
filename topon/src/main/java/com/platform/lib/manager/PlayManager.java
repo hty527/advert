@@ -145,12 +145,24 @@ public final class PlayManager extends OnPlayListener {
     }
 
     @Override
+    public void onShow() {
+        if(null!=mListener) mListener.onShow();//为满足不同需求的开发者
+    }
+
+    @Override
     public void onShow(ATRewardVideoAd atRewardVideoAd) {
+        onShow();
         if(null!=mListener) mListener.onShow(atRewardVideoAd);
     }
 
     @Override
+    public void onClick() {
+        if(null!=mListener) mListener.onClick();//为满足不同需求的开发者
+    }
+
+    @Override
     public void onClick(ATAdInfo atAdInfo) {
+        onClick();
         if(null!=mListener) mListener.onClick(atAdInfo);
     }
 

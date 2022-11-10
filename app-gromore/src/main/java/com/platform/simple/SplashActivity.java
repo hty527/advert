@@ -3,8 +3,7 @@ package com.platform.simple;
 import android.os.Bundle;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
-import com.bytedance.msdk.api.v2.ad.splash.GMSplashAd;
-import com.platform.lib.listener.OnSplashListener;
+import com.platform.lib.listener.OnSplashStatusListener;
 import com.platform.lib.widget.SplashView;
 
 /**
@@ -12,7 +11,7 @@ import com.platform.lib.widget.SplashView;
  * 2022/10/8
  * Desc:开屏广告演示
  */
-public class SplashActivity extends AppCompatActivity implements OnSplashListener {
+public class SplashActivity extends AppCompatActivity implements OnSplashStatusListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,20 +29,6 @@ public class SplashActivity extends AppCompatActivity implements OnSplashListene
 
     @Override
     public void onClose() {
-        close();
-    }
-
-    /**
-     * SplashView内部已自动渲染开品广告，请勿重新渲染!!!
-     * @param gmSplashAd
-     */
-    @Override
-    public void onSuccess(GMSplashAd gmSplashAd) {
-
-    }
-
-    @Override
-    public void onTimeOut() {
         close();
     }
 

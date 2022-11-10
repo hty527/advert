@@ -91,15 +91,6 @@
      * @param listener 状态监听
      */
     splashAdView.loadSplashAd(AdConfig.AD_CODE_SPLASH_ID, new OnSplashListener() {
-        @Override
-        public void onSuccess(ATSplashAd atSplashAd) {
-            //广告已在内部自动渲染，这里支持回调获取广告成功了通知你，请勿重复将此atSplashAd添加到你的任何ViewGroup中
-        }
-
-        @Override
-        public void onTimeOut() {
-            //拉取广告超时了
-        }
 
         @Override
         public void onShow() {
@@ -129,6 +120,8 @@
      * @param context 上下文，可以是全局也可以是Activity的
      * @param id 广告位ID
      * @param scene 场景
+     * @param width 预期渲染的宽，单位：分辨率
+     * @param width 预期渲染的高，单位：分辨率
      * @param listener 状态监听，如果监听器为空内部回自动缓存一条开屏广告
      */
     PlatformManager.getInstance().loadSplash("ad_id", new OnSplashListener() {
@@ -309,8 +302,8 @@
     /**
      * 加载激励视频广告
      * 此方法已废弃不推荐使用
-     * 请使用{@link #initReward(Activity, String, ATRewardVideoAutoLoadListener)} + {@link #showAutoRewardVideo(Activity,String,String, OnRewardVideoListener)}
-     * @param context 上下文
+     * 请使用{@link #initReward(Activity activity, String id, OnInitListener listener)} 和 {@link #showAutoRewardVideo(Activity,String,String, OnRewardVideoListener)}
+     * @param context 上下文,推荐Activity类型
      * @param id 广告位ID
      * @param scene 播放广告的场景
      * @param listener 状态监听器，如果监听器为空内部回自动缓存一条激励视频广告
@@ -322,8 +315,8 @@
     /**
      * 加载激励视频广告
      * 此方法已废弃不推荐使用
-     * 请使用{@link #initReward(Activity, String, ATRewardVideoAutoLoadListener)} + {@link #showAutoRewardVideo(Activity,String,String, OnRewardVideoListener)}
-     * @param context 上下文
+     * 请使用{@link #initReward(Activity activity, String id, OnInitListener listener)} 和 {@link #showAutoRewardVideo(Activity,String,String, OnRewardVideoListener)}
+     * @param context 上下文,推荐Activity类型
      * @param id 广告位ID
      * @param scene 播放广告的场景
      * @param listener 状态监听器，如果监听器为空内部回自动缓存一条激励视频广告
@@ -470,8 +463,8 @@
     /**
      * 加载插屏广告
      * 此方法已废弃不推荐使用
-     * 请使用{@link #initInsert(Activity, String, ATInterstitialAutoLoadListener)} + {@link #showAutoInsert(Activity,String,String, OnTabScreenListener)}
-     * @param context 上下文
+     * 请使用{@link #initInsert(Activity activity, String id, OnInitListener listener)} + {@link #showAutoInsert(Activity,String,String, OnTabScreenListener)}
+     * @param context 上下文,推荐Activity类型
      * @param id 广告位ID
      * @param scene 播放广告的场景标识
      * @param listener 状态监听器，如果监听器为空内部回自动缓存一条插屏广告
@@ -483,8 +476,8 @@
     /**
      * 加载插屏广告
      * 此方法已废弃不推荐使用
-     * 请使用{@link #initInsert(Activity, String, ATInterstitialAutoLoadListener)} + {@link #showAutoInsert(Activity,String,String, OnTabScreenListener)}
-     * @param context 上下文
+     * 请使用{@link #initInsert(Activity activity, String id, OnInitListener listener)} + {@link #showAutoInsert(Activity,String,String, OnTabScreenListener)}
+     * @param context 上下文,推荐Activity类型
      * @param id 广告位ID
      * @param scene 播放广告的场景标识
      * @param listener 状态监听器，如果监听器为空内部回自动缓存一条插屏广告
@@ -632,6 +625,7 @@ public class CoustomNativeRender implements NativeRenderControl {
      * @param id 广告位ID
      * @param scene 广告播放场景标识
      * @param adWidth 期望的广告宽，单位：dp，传0表示宽度为屏幕宽
+     * @param adHeight 期望的广告高，单位：dp，传0表示高度随广告自动
      * @param listener 状态监听器
      */
     PlatformManager.getInstance().loadStream(this, AdConfig.AD_CODE_STREAM_ID, 1, getScreenWidth(), new OnExpressListener() {

@@ -107,15 +107,6 @@
      * @param listener 状态监听
      */
     splashAdView.loadSplashAd(AdConfig.AD_CODE_SPLASH_ID, new OnSplashListener() {
-        @Override
-        public void onSuccess(GMSplashAd gmSplashAd) {
-            //广告已在内部自动渲染，这里支持回调获取广告成功了通知你，请勿重复将此atSplashAd添加到你的任何ViewGroup中
-        }
-
-        @Override
-        public void onTimeOut() {
-            //拉取广告超时了
-        }
 
         @Override
         public void onShow() {

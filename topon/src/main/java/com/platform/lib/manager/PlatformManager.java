@@ -115,6 +115,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
         mUIText.put(AdConstance.CODE_EXIST_CACHE,AdConstance.ERROR_EXIST_CACHE);
         mUIText.put(AdConstance.CODE_APPLY_FAIL,AdConstance.ERROR_APPLY_FAIL);
         mUIText.put(AdConstance.CODE_DEVELOP,AdConstance.ERROR_DEVELOP);
+        mUIText.put(AdConstance.CODE_CONFIG_LOADING,AdConstance.ERROR_CONFIG_LOADING);
     }
 
     public static PlatformManager getInstance() {
@@ -335,6 +336,16 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
 
     /**
      * 加载开屏广告
+     * @param context 上下文,推荐Activity类型
+     * @param id 广告位ID
+     * @param listener 状态监听
+     */
+    public void loadSplash(Context context,String id, OnSplashListener listener){
+        loadSplash(context,id, AdConstance.SCENE_CACHE,listener);
+    }
+
+    /**
+     * 加载开屏广告
      * @param id 广告位ID
      * @param scene 场景
      * @param listener 状态监听
@@ -345,7 +356,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
 
     /**
      * 加载开屏广告
-     * @param context 上下文，可以是全局也可以是Activity的
+     * @param context 上下文,推荐Activity类型
      * @param id 广告位ID
      * @param scene 场景
      * @param listener 状态监听，如果监听器为空内部回自动缓存一条开屏广告
@@ -353,7 +364,6 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     public void loadSplash(Context context,final String id, final String scene, OnSplashListener listener){
         loadSplash(context,id,scene,PlatformUtils.getInstance().getScreenWidth(),PlatformUtils.getInstance().getScreenHeight(),listener);
     }
-
 
     /**
      * 加载开屏广告
@@ -493,7 +503,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
      */
     @Deprecated
     public void loadRewardVideo(String id, OnRewardVideoListener listener){
-        loadRewardVideo(id, AdConstance.SCENE_CACHE,listener);
+        loadRewardVideo(id,AdConstance.SCENE_CACHE,listener);
     }
 
     /**
@@ -505,7 +515,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
      * @param listener 状态监听器，如果监听器为空内部回自动缓存一条激励视频广告
      */
     @Deprecated
-    public void loadRewardVideo(String id, final String scene, OnRewardVideoListener listener){
+    public void loadRewardVideo(String id, String scene, OnRewardVideoListener listener){
         loadRewardVideo(PlatformUtils.getInstance().getContext(),id,scene,listener);
     }
 
@@ -513,7 +523,20 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
      * 加载激励视频广告
      * 此方法已废弃不推荐使用
      * 请使用{@link #initReward(Activity activity, String id, OnInitListener listener)} 和 {@link #showAutoRewardVideo(Activity,String,String, OnRewardVideoListener)}
-     * @param context 上下文
+     * @param context 上下文,推荐Activity类型
+     * @param id 广告位ID
+     * @param listener 状态监听器，如果监听器为空内部回自动缓存一条激励视频广告
+     */
+    @Deprecated
+    public void loadRewardVideo(Context context,String id, OnRewardVideoListener listener){
+        loadRewardVideo(context,id, AdConstance.SCENE_CACHE,listener);
+    }
+
+    /**
+     * 加载激励视频广告
+     * 此方法已废弃不推荐使用
+     * 请使用{@link #initReward(Activity activity, String id, OnInitListener listener)} 和 {@link #showAutoRewardVideo(Activity,String,String, OnRewardVideoListener)}
+     * @param context 上下文,推荐Activity类型
      * @param id 广告位ID
      * @param scene 播放广告的场景
      * @param listener 状态监听器，如果监听器为空内部回自动缓存一条激励视频广告
@@ -843,6 +866,19 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
      * 加载插屏广告
      * 此方法已废弃不推荐使用
      * 请使用{@link #initInsert(Activity activity, String id, OnInitListener listener)} + {@link #showAutoInsert(Activity,String,String, OnTabScreenListener)}
+     * @param context 上下文,推荐Activity类型
+     * @param id 广告位ID
+     * @param listener 状态监听器，如果监听器为空内部回自动缓存一条插屏广告
+     */
+    @Deprecated
+    public void loadInsert(Context context,String id, OnTabScreenListener listener){
+        loadInsert(context,id, AdConstance.SCENE_CACHE,listener);
+    }
+
+    /**
+     * 加载插屏广告
+     * 此方法已废弃不推荐使用
+     * 请使用{@link #initInsert(Activity activity, String id, OnInitListener listener)} + {@link #showAutoInsert(Activity,String,String, OnTabScreenListener)}
      * @param id 广告位ID
      * @param scene 播放广告的场景标识
      * @param listener 状态监听器，如果监听器为空内部回自动缓存一条插屏广告
@@ -856,7 +892,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
      * 加载插屏广告
      * 此方法已废弃不推荐使用
      * 请使用{@link #initInsert(Activity activity, String id, OnInitListener listener)} + {@link #showAutoInsert(Activity,String,String, OnTabScreenListener)}
-     * @param context 上下文
+     * @param context 上下文,推荐Activity类型
      * @param id 广告位ID
      * @param scene 播放广告的场景标识
      * @param listener 状态监听器，如果监听器为空内部回自动缓存一条插屏广告

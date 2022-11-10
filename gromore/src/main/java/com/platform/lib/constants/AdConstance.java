@@ -13,7 +13,7 @@ public interface AdConstance {
     String SOURCE_TT                    = "1";//穿山甲
     String SOURCE_TX                    = "3";//优量汇
     String SOURCE_KS                    = "5";//快手
-    String SOURCE_GM                    = "8";//GroMore聚合平台
+    String SOURCE_TO                    = "8";//GroMore聚合平台
 
     /**
      * 广告位类型

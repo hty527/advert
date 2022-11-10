@@ -7,6 +7,7 @@ import android.widget.FrameLayout;
 import com.bytedance.msdk.api.v2.ad.splash.GMSplashAd;
 import com.platform.lib.constants.AdConstance;
 import com.platform.lib.listener.OnSplashListener;
+import com.platform.lib.listener.OnSplashStatusListener;
 import com.platform.lib.manager.PlatformManager;
 import com.platform.lib.utils.PlatformUtils;
 
@@ -14,11 +15,12 @@ import com.platform.lib.utils.PlatformUtils;
  * created by hty
  * 2022/10/8
  * Desc:开屏广告容器包装,内部根据广告配置自动识别广告平台和渲染广告
- * 1、开始加载广告：{@link #loadSplashAd(String ad_code, OnSplashListener listener)}
+ * 1、开始加载广告：{@link #loadSplashAd(String ad_code, OnSplashStatusListener listener)}
  */
 public class SplashView extends FrameLayout implements OnSplashListener {
 
-    private OnSplashListener mListener;
+    private OnSplashStatusListener mListener;
+    private String mCurrentId;
 
     public SplashView(Context context) {
         super(context);
@@ -37,7 +39,7 @@ public class SplashView extends FrameLayout implements OnSplashListener {
      * @param ad_code 广告位ID
      * @param listener 状态监听
      */
-    public void loadSplashAd(String ad_code, OnSplashListener listener){
+    public void loadSplashAd(String ad_code, OnSplashStatusListener listener){
         loadSplashAd(ad_code,AdConstance.SCENE_CACHE,listener);
     }
 
@@ -47,7 +49,7 @@ public class SplashView extends FrameLayout implements OnSplashListener {
      * @param scene 场景
      * @param listener 状态监听
      */
-    public void loadSplashAd(String ad_code, String scene,OnSplashListener listener){
+    public void loadSplashAd(String ad_code, String scene,OnSplashStatusListener listener){
         loadSplashAd(ad_code,scene,PlatformUtils.getInstance().getScreenWidth(),PlatformUtils.getInstance().getScreenHeight(), listener);
     }
 
@@ -59,9 +61,10 @@ public class SplashView extends FrameLayout implements OnSplashListener {
      * @param width 预期渲染的高，单位：分辨率
      * @param listener 状态监听
      */
-    public void loadSplashAd(String ad_code, String scene,int width,int height,OnSplashListener listener){
+    public void loadSplashAd(String ad_code, String scene,int width,int height,OnSplashStatusListener listener){
         this.mListener=listener;
         if(!TextUtils.isEmpty(ad_code)){
+            this.mCurrentId=new StringBuilder(ad_code).toString();
             PlatformManager.getInstance().loadSplash(PlatformUtils.getInstance().getActivity(getContext()),ad_code,scene,width,height,SplashView.this);
         }else{
             if(null!=mListener) mListener.onError(AdConstance.CODE_ID_UNKNOWN, PlatformManager.getInstance().getText(AdConstance.CODE_ID_UNKNOWN),ad_code);
@@ -73,7 +76,6 @@ public class SplashView extends FrameLayout implements OnSplashListener {
 //        Logger.d("onSuccess-->ATSplashAd");
         if(null!=atSplashAd){
             removeAllViews();
-            if(null!=mListener) mListener.onSuccess(atSplashAd);
             atSplashAd.showAd(this);
         }else{
             onError(0,null,"");
@@ -96,7 +98,7 @@ public class SplashView extends FrameLayout implements OnSplashListener {
     @Override
     public void onTimeOut() {
 //        Logger.d("onTimeOut-->");
-        if(null!=mListener) mListener.onTimeOut();
+        onError(AdConstance.CODE_TIMOUT,PlatformManager.getInstance().getText(AdConstance.CODE_TIMOUT),mCurrentId);
     }
 
     @Override
