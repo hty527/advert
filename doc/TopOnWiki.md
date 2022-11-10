@@ -90,7 +90,7 @@
      * @param width 预期渲染的高，单位：分辨率
      * @param listener 状态监听
      */
-    splashAdView.loadSplashAd(AdConfig.AD_CODE_SPLASH_ID, new OnSplashListener() {
+    splashAdView.loadSplashAd(AdConfig.AD_CODE_SPLASH_ID, new OnSplashStatusListener() {
 
         @Override
         public void onShow() {
