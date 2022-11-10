@@ -25,3 +25,6 @@
 
 #### [TopOn SDK接入][5]
 [5]:https://github.com/hty527/advert/wiki/TopOnHome "TopOn SDK接入"
+
+### 六、日志过滤
+* 在控制台过滤"PlatformSDK"查看SDK日志输出，注意不需要""
