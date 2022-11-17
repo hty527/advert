@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
-//apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.github.dcendents.android-maven'
 
-//group='com.github.hty527'//xxx:代表你的github用户名
+group='com.github.hty527'//xxx:代表你的github用户名
 
 android {
     compileSdkVersion 29
