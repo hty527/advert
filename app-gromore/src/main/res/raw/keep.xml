@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:shrinkMode="safe"
+    tools:keep="@layout/getui_notification,
+    @layout/getui_notification,
+    @drawable/push,
+    @drawable/push_small,
+    @layout/ksad_*,@id/ksad_*,@style/ksad_*,
+    @drawable/ksad_*,@string/ksad_*,@color/ksad_*,@attr/ksad_*,@dimen/ksad_*
+    @id/tt_mediation_*,@color/tt_mediation_*,@string/tt_mediation_*
+    @drawable/mbridge*,@drawable-hdpi-v4/mbridge*,@drawable-hdpi/mbridge*,@layout/mbridge*,@values/mbridge*,@anim/mbridge*">
+    <!--个推配置，若开启资源压缩需处理-->
+    <!--快手广告SDK配置-->
+    <!--如果开启了资源优化shrinkResource=true,必须开启：shrinkMode=safe -->
+</resources>

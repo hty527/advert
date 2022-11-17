@@ -4,11 +4,15 @@ import android.content.Context;
 import android.os.Build;
 import android.webkit.WebView;
 import androidx.multidex.MultiDexApplication;
+
+import com.anythink.core.api.ATInitConfig;
 import com.platform.lib.constants.AdConstance;
 import com.platform.lib.listener.OnEventListener;
 import com.platform.lib.listener.OnInitListener;
 import com.platform.lib.manager.PlatformManager;
 import com.platform.lib.utils.Logger;
+
+import java.util.List;
 
 /**
  * created by hty
@@ -63,6 +67,16 @@ public class AdvertApplication extends MultiDexApplication {
          * @param listener 初始化状态监听器
          */
         PlatformManager.getInstance().initSdk(this, AdConfig.TO_APP_ID, AdConfig.TO_APP_KAY,null,"rongyao", BuildConfig.DEBUG, new OnInitListener() {
+
+            /**
+             * 如果需要初始化第三方广告平台SDK，可复写此方法并返回平台SDK配置。具体请阅读文档：https://docs.toponad.com/#/zh-cn/android/android_doc/android_sdk_init_network
+             * @return
+             */
+            @Override
+            public List<ATInitConfig> getSdkConfig() {
+                //返回null或者super.getSdkConfig既表示不初始化第三方广告SDK
+                return super.getSdkConfig();
+            }
 
             @Override
             public void onSuccess(String id) {

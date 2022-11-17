@@ -12,6 +12,8 @@ import com.anythink.banner.api.ATBannerView;
 import com.anythink.core.api.ATAdConst;
 import com.anythink.core.api.ATAdInfo;
 import com.anythink.core.api.ATAdStatusInfo;
+import com.anythink.core.api.ATInitConfig;
+import com.anythink.core.api.ATNetworkConfig;
 import com.anythink.core.api.ATSDK;
 import com.anythink.core.api.AdError;
 import com.anythink.interstitial.api.ATInterstitial;
@@ -42,11 +44,13 @@ import com.platform.lib.listener.OnInitListener;
 import com.platform.lib.listener.OnRewardVideoListener;
 import com.platform.lib.listener.OnSplashListener;
 import com.platform.lib.listener.OnTabScreenListener;
+import com.platform.lib.utils.InitHelper;
 import com.platform.lib.utils.Logger;
 import com.platform.lib.utils.PlatformPreferences;
 import com.platform.lib.utils.PlatformUtils;
 import com.qq.e.ads.nativ.ADSize;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -79,7 +83,6 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     private boolean isDevelop =false;//是否处于开发模式，开发模式情况下激励视频广告免播放，也不会去缓存激励视频广告
     private String appId, appSecrecy;//APP_ID\APP_KEY\媒体物料名称
     private boolean DEBUG = false;
-    private Activity mCurrentActivity;//当前正在活跃的Activity,用于显示插屏、加载信息流、Banner等广告
     private Map<Integer,String> mUIText=new HashMap<>();
     //激励视频
     private OnRewardVideoListener mRewardVideoListener;
@@ -94,6 +97,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     private String mSplashScene,mSplashCode,mVideoScene,mVideoCode,mVideoScene2,mVideoCode2,mInsertScene,mInsertCode,mInsertScene2,mInsertCode2;
     //全自动激励视频、插屏初始化监听器
     private OnInitListener mOnRewardInitListener,mOnInsertInitListener;
+    private boolean isExternalActivity=false;//Utils内部的Activity是否为外部传入的
 
     /**
      * 文案提示内容
@@ -190,17 +194,24 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
             ATSDK.setAdLogoVisible(DEBUG);
             Logger.setDebug(DEBUG);
             //初始化广告SDK
-            ATSDK.init(context, appId, appSecrecy);
-
+            List<ATInitConfig> sdkConfig=null;
+            if(null!=listener){
+                sdkConfig = listener.getSdkConfig();
+            }
+            if(null!=sdkConfig){
+                ATNetworkConfig.Builder builder=new ATNetworkConfig.Builder();
+                builder.withInitConfigList(sdkConfig);
+                ATSDK.init(context, appId, appSecrecy,builder.build());
+            }else{
+                ATSDK.init(context, appId, appSecrecy);
+            }
             if (!TextUtils.isEmpty(channel)) {
                 ATSDK.setChannel(channel);
             }
             if(context instanceof Application){
                 ((Application) context).registerActivityLifecycleCallbacks(this);
             }
-            if(!TextUtils.isEmpty(tag)&&PlatformUtils.getInstance().checkedPreferencesExist()){
-                com.anythink.natives.PreferencesUtils.getInstance().setTag(tag,true);
-            }
+            InitHelper.init(tag);
         }catch (Throwable e){
             e.printStackTrace();
         }finally {
@@ -269,10 +280,11 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     }
 
     /**
-     * Flutter等语言需要设置的Activity
+     * 非原生之外的第三方语言需要设置的Activity(解决优量汇广告强制传入Activity的问题)
      * @param activity
      */
     public void setActivity(Activity activity){
+        this.isExternalActivity=null!=activity;
         PlatformUtils.getInstance().setActivity(activity);
     }
 
@@ -396,7 +408,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
         this.mSplashCode=id;this.mSplashScene=scene;
         if(width<=0) width=PlatformUtils.getInstance().getScreenWidth();
         if(height<=0) height=PlatformUtils.getInstance().getScreenHeight();
-        mAdSdkSplash = new ATSplashAd(PlatformUtils.getInstance().getContext(), id, mATSplashAdListener);
+        mAdSdkSplash = new ATSplashAd(context, id, mATSplashAdListener);
         Map<String, Object> localMap = new HashMap<>();
         localMap.put(ATAdConst.KEY.AD_WIDTH, width);
         localMap.put(ATAdConst.KEY.AD_HEIGHT, height);
@@ -561,7 +573,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
             return;
         }
         this.mVideoCode=id;this.mVideoScene=scene;
-        mAtRewardVideoAd = new ATRewardVideoAd(PlatformUtils.getInstance().getContext(), id);
+        mAtRewardVideoAd = new ATRewardVideoAd(context, id);
         mAtRewardVideoAd.setAdListener(mATRewardVideoListener);
         mAtRewardVideoAd.load();
     }
@@ -871,7 +883,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
      * @param listener 状态监听器，如果监听器为空内部回自动缓存一条插屏广告
      */
     @Deprecated
-    public void loadInsert(Context context,String id, OnTabScreenListener listener){
+    public void loadInsert(Activity context,String id, OnTabScreenListener listener){
         loadInsert(context,id, AdConstance.SCENE_CACHE,listener);
     }
 
@@ -885,7 +897,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
      */
     @Deprecated
     public void loadInsert(String id, String scene, OnTabScreenListener listener){
-        loadInsert(PlatformUtils.getInstance().getContext(),id,scene,listener);
+        loadInsert(PlatformUtils.getInstance().getActivity(),id,scene,listener);
     }
 
     /**
@@ -898,7 +910,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
      * @param listener 状态监听器，如果监听器为空内部回自动缓存一条插屏广告
      */
     @Deprecated
-    public void loadInsert(Context context, final String id, final String scene, OnTabScreenListener listener){
+    public void loadInsert(Activity context, final String id, final String scene, OnTabScreenListener listener){
         Logger.d("loadInsert-->id:"+id+",scene:"+scene);
         if(null==context){
             if(null!=listener) listener.onError(AdConstance.CODE_CONTEXT_INVALID, getText(AdConstance.CODE_CONTEXT_INVALID), id);
@@ -917,7 +929,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
             return;
         }
         this.mInsertCode=id;this.mInsertScene=scene;
-        mInterstitialAD = new ATInterstitial(PlatformUtils.getInstance().getContext(), id);
+        mInterstitialAD = new ATInterstitial(context, id);
         mInterstitialAD.setAdListener(mATInterstitialListener);
         mInterstitialAD.load();
     }
@@ -1397,25 +1409,17 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
         }
     }
 
-    public Activity getTempActivity() {
-        return mCurrentActivity;
-    }
-
-    public void setCurrentActivity(Activity currentActivity) {
-        mCurrentActivity = currentActivity;
-    }
-
     @Override
     public void onActivityCreated(Activity activity, Bundle bundle) {}
 
     @Override
     public void onActivityStarted(Activity activity) {
-        this.mCurrentActivity=activity;
+        if(!isExternalActivity) PlatformUtils.getInstance().setActivity(activity);
     }
 
     @Override
     public void onActivityResumed(Activity activity) {
-        this.mCurrentActivity=activity;
+        if(!isExternalActivity) PlatformUtils.getInstance().setActivity(activity);
     }
 
     @Override
@@ -1431,9 +1435,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     public void onActivityDestroyed( Activity activity) {}
 
     public void onTerminate(Application context){
-        if(PlatformUtils.getInstance().checkedPreferencesExist()){
-            com.anythink.natives.PreferencesUtils.getInstance().onTerminate();
-        }
+        InitHelper.unInit();
         context.registerActivityLifecycleCallbacks(this);
     }
 }

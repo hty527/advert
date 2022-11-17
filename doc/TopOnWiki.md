@@ -8,7 +8,7 @@
     /**
      * 请尽可能早的在application中初始化
      * 为方便插屏广告展示，请尽量在初始化时传入Application，如果无法传入Application，则需要调用下列方法设置当前宿主Activity,插屏广告在展示的时候会实时使用当前Activity作为宿主展示，请注意更新Activity
-     * PlatformManager.getInstance().setCurrentActivity(activity);
+     * PlatformManager.getInstance().setActivity(activity);
      */
     private void initSDK() {
 
@@ -22,6 +22,17 @@
          * @param listener 初始化状态监听器
          */
         PlatformManager.getInstance().initSdk(this, AdConfig.TO_APP_ID, AdConfig.TO_APP_KAY,null,"rongyao", BuildConfig.DEBUG, new OnInitListener() {
+
+            /**
+             * 如果需要初始化第三方广告平台SDK，可复写此方法并返回平台SDK配置。具体请阅读文档：https://docs.toponad.com/#/zh-cn/android/android_doc/android_sdk_init_network
+             * @return
+             */
+            @Override
+            public List<ATInitConfig> getSdkConfig() {
+                //返回null或者super.getSdkConfig既表示不初始化第三方广告SDK
+                return super.getSdkConfig();
+            }
+
             @Override
             public void onSuccess() {
                 //广告SDK初始化成功
@@ -563,6 +574,9 @@
         }
     });
     expressView.requst();//开始请求广告并渲染
+    //生命周期处理,信息流广告可能存在视频类型的广告，需要在你的onResume和onPause中分别调用下列方法
+    //expressView.onResume();//在你生命周期对应方法中调用
+    //expressView.onPause();//在你生命周期对应方法中调用
 ```
 ##### 4.2、模板渲染信息流
 ```

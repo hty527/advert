@@ -53,6 +53,7 @@ import com.platform.lib.listener.OnInitListener;
 import com.platform.lib.listener.OnRewardVideoListener;
 import com.platform.lib.listener.OnSplashListener;
 import com.platform.lib.listener.OnTabScreenListener;
+import com.platform.lib.utils.InitHelper;
 import com.platform.lib.utils.Logger;
 import com.platform.lib.utils.PlatformPreferences;
 import com.platform.lib.utils.PlatformUtils;
@@ -88,7 +89,6 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     private boolean isDevelop =false;//是否处于开发模式，开发模式情况下激励视频广告免播放，也不会去缓存激励视频广告
     private String appId, appName,finalSplashCode;//APP_ID\APP_KEY\媒体物料名称\穿山甲的兜底开屏代码位
     private boolean DEBUG = false;
-    private Activity mCurrentActivity;//当前正在活跃的Activity,用于显示插屏、加载信息流、Banner等广告
     private Map<Integer,String> mUIText=new HashMap<>();
     //激励视频
     private OnRewardVideoListener mRewardVideoListener;
@@ -106,6 +106,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     private String mSplashScene,mSplashCode,mVideoScene,mVideoCode,mInsertScene,mInsertCode;
     //初始化监听器
     private OnInitListener mOnInitListener;
+    private boolean isExternalActivity=false;//Utils内部的Activity是否为外部传入的
 
     /**
      * 文案提示内容
@@ -207,19 +208,17 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
                 }
             });
             //初始化SDK
-            GMMediationAdSdk.initialize(context,null!=listener?listener.buildGromoreConfig(appId,appName,channel,debug):buildGromoreConfig(appId,appName,channel,debug));
+            GMMediationAdSdk.initialize(context,null!=listener?listener.getSdkConfig(appId,appName,channel,debug):buildGromoreConfig(appId,appName,channel,debug));
             if(context instanceof Application){
                 ((Application) context).registerActivityLifecycleCallbacks(this);
             }
+            InitHelper.init(tag);
             new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     initSuccess();
                 }
             },3000);
-            if(!TextUtils.isEmpty(tag)&&PlatformUtils.getInstance().checkedPreferencesExist()){
-                com.anythink.natives.PreferencesUtils.getInstance().setTag(tag,true);
-            }
         }catch (Throwable e){
             e.printStackTrace();
             initSuccess();
@@ -247,6 +246,15 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
 
     public boolean isDevelop() {
         return isDevelop;
+    }
+
+    /**
+     * 非原生之外的第三方语言需要设置的Activity(解决优量汇广告强制传入Activity的问题)
+     * @param activity
+     */
+    public void setActivity(Activity activity){
+        this.isExternalActivity=null!=activity;
+        PlatformUtils.getInstance().setActivity(activity);
     }
 
     /**
@@ -1341,25 +1349,17 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
         }
     }
 
-    public Activity getTempActivity() {
-        return mCurrentActivity;
-    }
-
-    public void setCurrentActivity(Activity currentActivity) {
-        mCurrentActivity = currentActivity;
-    }
-
     @Override
     public void onActivityCreated(Activity activity, Bundle bundle) {}
 
     @Override
     public void onActivityStarted(Activity activity) {
-        this.mCurrentActivity=activity;
+        if(!isExternalActivity) PlatformUtils.getInstance().setActivity(activity);
     }
 
     @Override
     public void onActivityResumed(Activity activity) {
-        this.mCurrentActivity=activity;
+        if(!isExternalActivity) PlatformUtils.getInstance().setActivity(activity);
     }
 
     @Override
@@ -1375,9 +1375,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     public void onActivityDestroyed( Activity activity) {}
 
     public void onTerminate(Application context){
-        if(PlatformUtils.getInstance().checkedPreferencesExist()){
-            com.anythink.natives.PreferencesUtils.getInstance().onTerminate();
-        }
+        InitHelper.unInit();
         context.registerActivityLifecycleCallbacks(this);
     }
 }

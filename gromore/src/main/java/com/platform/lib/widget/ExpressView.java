@@ -465,6 +465,23 @@ public class ExpressView extends FrameLayout {
             }
         });
     }
+    /**
+     * 主要针对部分平台信息流视频类型广告
+     */
+    public void onResume(){
+        if(null!=mNativeAd){
+            mNativeAd.resume();
+        }
+    }
+
+    /**
+     * 主要针对部分平台信息流视频类型广告
+     */
+    public void onPause(){
+        if(null!=mNativeAd){
+            mNativeAd.onPause();
+        }
+    }
 
     public void destroy() {
 //        Logger.d(TAG,"onDestroy-->");

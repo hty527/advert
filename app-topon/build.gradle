@@ -84,24 +84,26 @@ dependencies {
 
     //广告功能逻辑SDK
     implementation project(':topon')
-    //implementation 'com.github.hty527.advert:topon:1.1.1'
+    //implementation 'com.github.hty527.advert:topon:6.1.31'
 
     /**
      * 如果是Support环境
      */
     //implementation "com.android.support:appcompat-v7:28.0.0"
     //implementation 'com.android.support:localbroadcastmanager:28.0.0'
-    //集成包含快手广告需要添加
+    //集成包含快手广告需要添加下列1个依赖库
     //implementation "com.android.support:design:28.0.0"
+    //dex 分包，当minSdkVersion>=21时会出现找不到androidx.multidex.MultiDexApplication 解决办法
     //implementation 'com.android.support:multidex:1.0.3'
 
     /**
      * 如果是androidx环境
      */
     implementation 'androidx.appcompat:appcompat:1.0.2'
-    //集成包含快手广告需要添加下列三个依赖库
+    implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
+    //dex 分包，当minSdkVersion>=21时会出现找不到androidx.multidex.MultiDexApplication  解决办法
+    implementation 'androidx.multidex:multidex:2.0.1'
+    //集成包含快手广告需要添加下列2个依赖库
     implementation "androidx.recyclerview:recyclerview:1.2.0"
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'com.android.support:design:28.0.0'
-    implementation 'androidx.multidex:multidex:2.0.1'//当minSdkVersion>=21时会出现找不到androidx.multidex.MultiDexApplication
 }

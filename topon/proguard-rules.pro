@@ -75,6 +75,8 @@
 #保留ExpressView类的requst及destroy方法
 -keep class com.platform.lib.widget.ExpressView {
     public void requst();
+    public void onResume();
+    public void onPause();
     public void destroy();
     public void addErrorView(int, java.lang.String, java.lang.String);
 }

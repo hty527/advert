@@ -8,7 +8,7 @@
     /**
      * 请尽可能早的在application中初始化
      * 为方便插屏广告展示，请尽量在初始化时传入Application，如果无法传入Application，则需要调用下列方法设置当前宿主Activity,插屏广告在展示的时候会实时使用当前Activity作为宿主展示，请注意更新Activity
-     * PlatformManager.getInstance().setCurrentActivity(activity);
+     * PlatformManager.getInstance().setActivity(activity);
      */
     private void initSDK() {
 
@@ -24,6 +24,21 @@
          */
         PlatformManager.getInstance().initSdk(this, AdConfig.TO_APP_ID, AdConfig.APP_NAME,null,null, BuildConfig.DEBUG, new OnInitListener() {
 
+            /**
+             * 如果需要自定义GroMore初始化的参数信息，请复写此方法，返回你自定义的GMAdConfig对象给SDK用来初始化
+             * 具体请阅读文档：https://www.csjplatform.com/union/media/union/download/detail?id=84&docId=27212&osType=android
+             * @param appId 应用ID，在gromore后台获取
+             * @param appName 应用名称
+             * @param channel 渠道名称
+             * @param debug 是否开启调试模式，true：开启调试模式，false：关闭调试模式
+             * @return
+             */
+            @Override
+            public GMAdConfig getSdkConfig(String appId, String appName, String channel, boolean debug) {
+                //返回null或者super.getSdkConfig既表示使用SDK内部的GMAdConfig初始化SDK
+                return super.getSdkConfig(appId, appName, channel, debug);
+            }
+
             @Override
             public void onSuccess(String id) {
                 //广告SDK初始化成功
@@ -32,20 +47,6 @@
             @Override
             public void onError(int code, String message) {
                 //广告SDK初始化出错了
-            }
-
-            /**
-             * 如果需要自定义GroMore初始化的参数信息，请复写此方法，返回你自定义的GMAdConfig对象给SDK用来初始化
-             * @param appId 应用ID，在gromore后台获取
-             * @param appName 应用名称
-             * @param channel 渠道名称
-             * @param debug 是否开启调试模式，true：开启调试模式，false：关闭调试模式
-             * @return
-             */
-            @Override
-            public GMAdConfig buildGromoreConfig(String appId, String appName, String channel, boolean debug) {
-                //返回null或者super.buildGromoreConfig既表示使用SDK内部的GMAdConfig初始化SDK
-                return super.buildGromoreConfig(appId, appName, channel, debug);
             }
         });
 
@@ -393,6 +394,9 @@
         }
     });
     expressView.requst();//开始请求广告并渲染
+    //生命周期处理,信息流广告可能存在视频类型的广告，需要在你的onResume和onPause中分别调用下列方法
+    //expressView.onResume();//在你生命周期对应方法中调用
+    //expressView.onPause();//在你生命周期对应方法中调用
 ```
 ##### 4.2、模板渲染信息流
 ```

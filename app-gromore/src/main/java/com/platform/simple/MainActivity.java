@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
         //SDK版本号
         String version = PlatformManager.getInstance().getVersion();
         //缓存激励视频广告
-        //PlatformManager.getInstance().loadRewardVideo(this,AdConfig.AD_CODE_REWARD_ID,null);
+        PlatformManager.getInstance().loadRewardVideo(this,AdConfig.AD_CODE_REWARD_ID,null);
         //缓存插屏广告
         //PlatformManager.getInstance().loadInsert(this,AdConfig.AD_CODE_INSERT_ID,null);
         //缓存原生自渲染信息流广告
@@ -314,6 +314,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         expressView.requst();//开始请求广告并渲染
+        //生命周期处理,信息流广告可能存在视频类型的广告，需要在你的onResume和onPause中分别调用下列方法
+        //expressView.onResume();//在你生命周期对应方法中调用
+        //expressView.onPause();//在你生命周期对应方法中调用
     }
 
     /**
