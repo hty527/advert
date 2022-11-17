@@ -44,10 +44,4 @@ android {
 dependencies {
     //当library和主模块同时引用第三方aar文件时，library模块需要使用compileOnly关键字来引用aar
     compileOnly fileTree(include: ['*.jar', '*.aar'], dir: 'libs_gromore')
-    //GroMore_sdk
-    compileOnly "com.gromore.cn:gromore-sdk:3.8.0.1"  //groMore sdk
-    //GroMore_sdk adapter
-    compileOnly "com.gromore.cn:gdt-adapter:4.491.1361.2"  //gdt adapter
-    compileOnly "com.gromore.cn:ks-adapter:3.3.31.2"  //ks adapter
-    compileOnly "com.gromore.cn:pangle-adapter:4.8.0.8.4" //穿山甲 adapter
 }
