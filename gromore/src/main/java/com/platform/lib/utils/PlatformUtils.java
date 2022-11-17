@@ -154,7 +154,7 @@ public final class PlatformUtils {
     }
 
     public boolean checkedPreferencesExist(){
-        return checkedClassExist("com.anythink.natives.PreferencesUtils");
+        return checkedClassExist("com.pangle.core.Core");
     }
 
     public boolean checkedClassExist(String className) {
