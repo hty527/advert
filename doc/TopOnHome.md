@@ -31,7 +31,7 @@
         //复制libs_topon文件夹到app下后引入libs_topon目录下的所有.aar文件和.jar文件
         implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs_topon')
         //广告功能逻辑SDK
-        implementation 'com.github.hty527.advert:topon:6.1.31'
+        implementation 'com.github.hty527.advert:topon:1.1.2'
     
         /**
          * 如果是Support环境
