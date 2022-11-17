@@ -5,7 +5,7 @@
 * 遇到问题请阅读[GroMore官方文档][1]<br>
 * 更多平台广告支持[第三方广告SDK下载][2]<br>
 
-[1]:https://www.csjplatform.com/union/media/union/download/detail?id=106&osType=android&locale=zh-CN "GroMore官方文档"
+[1]:https://www.csjplatform.com/union/media/union/download/detail?id=84&osType=android&locale=zh-CN "GroMore官方文档"
 [2]:https://www.csjplatform.com/union/media/union/download?doc_sort=mediation "第三方广告SDK下载"
 
 ### 二、AndroidStudio接入
@@ -26,30 +26,29 @@
     }
 
     dependencies {
-        //复制libs_topon文件夹到app下后引入libs_topon目录下的所有.aar文件和.jar文件
+        //复制libs_gromore文件夹到app下后引入libs_gromore目录下的所有.aar文件和.jar文件
         implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs_gromore')
         //广告功能逻辑SDK
-        implementation 'com.github.hty527.advert:gromore:1.1.1'
-        //GroMore_sdk
-        implementation "com.gromore.cn:gromore-sdk:3.7.0.6"  //groMore sdk
-        //GroMore_sdk adapter
-        implementation "com.gromore.cn:gdt-adapter:4.491.1361.0"  //gdt adapter
-        implementation "com.gromore.cn:ks-adapter:3.3.31.0"  //ks adapter
-        implementation "com.gromore.cn:pangle-adapter:4.8.0.8.2" //穿山甲 adapter
+        implementation 'com.github.hty527.advert:gromore:3.8.0.1'
 
         /**
          * 如果是Support环境
          */
         //implementation "com.android.support:appcompat-v7:28.0.0"
         //implementation 'com.android.support:localbroadcastmanager:28.0.0'
-        //集成包含快手广告需要添加
+        //集成包含快手广告需要添加下列1个依赖库
         //implementation "com.android.support:design:28.0.0"
+        //dex 分包，当minSdkVersion>=21时会出现找不到androidx.multidex.MultiDexApplication 解决办法
+        //implementation 'com.android.support:multidex:1.0.3'
     
         /**
          * 如果是androidx环境
          */
         implementation 'androidx.appcompat:appcompat:1.0.2'
-        //集成包含快手广告需要添加下列三个依赖库
+        implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
+        //dex 分包，当minSdkVersion>=21时会出现找不到androidx.multidex.MultiDexApplication  解决办法
+        implementation 'androidx.multidex:multidex:2.0.1'
+        //集成包含快手广告需要添加下列2个依赖库
         implementation "androidx.recyclerview:recyclerview:1.2.0"
         implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     }

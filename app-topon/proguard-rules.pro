@@ -292,6 +292,7 @@
 }
 -dontwarn com.anythink.hb.**
 -keep class com.anythink.hb.**{ *;}
+
 -dontwarn com.anythink.china.api.**
 -keep class com.anythink.china.api.**{ *;}
 # new in v5.6.6

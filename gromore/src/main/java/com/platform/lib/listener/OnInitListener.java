@@ -18,7 +18,7 @@ public abstract class OnInitListener {
      * @param debug 是否开启调试模式，true：开启调试模式，false：关闭调试模式
      * @return
      */
-    public GMAdConfig buildGromoreConfig(String appId, String appName, String channel,boolean debug) {
+    public GMAdConfig getSdkConfig(String appId, String appName, String channel, boolean debug) {
         return PlatformManager.getInstance().buildGromoreConfig(appId,appName,channel,debug);
     }
 

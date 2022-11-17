@@ -10,6 +10,7 @@ import com.platform.lib.constants.AdConstance;
 import com.platform.lib.listener.OnPlayListener;
 import com.platform.lib.listener.OnTabScreenListener;
 import com.platform.lib.utils.Logger;
+import com.platform.lib.utils.PlatformUtils;
 
 /**
  * created by hty
@@ -163,11 +164,11 @@ public final class TableScreenManager {
     private void startInsert(String scene) {
         isClick=false;
         if(mIsAutoModel){
-            PlatformManager.getInstance().showAutoInsert(PlatformManager.getInstance().getTempActivity(),mCurrentId,scene,onInsertListener);
+            PlatformManager.getInstance().showAutoInsert(PlatformUtils.getInstance().getActivity(),mCurrentId,scene,onInsertListener);
         }else{
             //优先检查缓存,如果缓存为空,直接拉取穿山甲的广告
             if(PlatformManager.getInstance().hasInsertAd()){
-                PlatformManager.getInstance().showInsertAd(PlatformManager.getInstance().getTempActivity(),onInsertListener);
+                PlatformManager.getInstance().showInsertAd(PlatformUtils.getInstance().getActivity(),onInsertListener);
                 return;
             }
             PlatformManager.getInstance().loadInsert(mCurrentId,scene,onInsertListener);
@@ -179,7 +180,7 @@ public final class TableScreenManager {
         @Override
         public void onSuccess(ATInterstitial interactionAd) {
 //            Logger.d("onSuccess");
-            Activity tempActivity = PlatformManager.getInstance().getTempActivity();
+            Activity tempActivity = PlatformUtils.getInstance().getActivity();
             if(null!=interactionAd&&!tempActivity.isFinishing()){
                 setShow(true);
                 if(null!=mPlayerListener) mPlayerListener.onSuccess(null);

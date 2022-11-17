@@ -404,6 +404,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         expressView.requst();//开始请求广告并渲染
+        //生命周期处理,信息流广告可能存在视频类型的广告，需要在你的onResume和onPause中分别调用下列方法
+        //expressView.onResume();//在你生命周期对应方法中调用
+        //expressView.onPause();//在你生命周期对应方法中调用
     }
 
     /**

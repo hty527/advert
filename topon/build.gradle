@@ -10,8 +10,8 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 29
-        versionCode rootProject.ext.sdk.versionCode
-        versionName rootProject.ext.sdk.versionName
+        versionCode rootProject.ext.topon.versionCode
+        versionName rootProject.ext.topon.versionName
     }
 
     buildTypes {

@@ -4,9 +4,11 @@
 * demo中libs目录下的oaid_sdk_1.0.25.aar为可选SDK，适配Android10及以上系统建议集成<br>
 * 遇到问题请阅读[TopOn官方文档][1]<br>
 * 更多平台广告支持[第三方广告SDK下载][2]<br>
+* 配置、混淆、资源、权限等请参阅[官方文档][3]<br>
 
 [1]:https://docs.toponad.com/#/zh-cn/android/GetStarted/TopOn_Get_Started "TopOn官方文档"
-[2]:https://docs.toponad.com/#/zh-cn/android/GetStarted/TopOn_Get_Started "第三方广告SDK下载"
+[2]:https://docs.toponad.com/#/zh-cn/android/download/package?_t=HcOmafjKlbJSNUyNLQu069135i0758v3 "第三方广告SDK下载"
+[3]:https://docs.toponad.com/#/zh-cn/android/android_doc/android_sdk_config_cn_access "官方文档"
 
 ### 二、AndroidStudio接入
 
@@ -29,26 +31,31 @@
         //复制libs_topon文件夹到app下后引入libs_topon目录下的所有.aar文件和.jar文件
         implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs_topon')
         //广告功能逻辑SDK
-        implementation 'com.github.hty527.advert:topon:1.1.1'
+        implementation 'com.github.hty527.advert:topon:6.1.31'
     
         /**
          * 如果是Support环境
          */
         //implementation "com.android.support:appcompat-v7:28.0.0"
         //implementation 'com.android.support:localbroadcastmanager:28.0.0'
-        //集成包含快手广告需要添加
+        //集成包含快手广告需要添加下列1个依赖库
         //implementation "com.android.support:design:28.0.0"
+        //dex 分包，当minSdkVersion>=21时会出现找不到androidx.multidex.MultiDexApplication 解决办法
+        //implementation 'com.android.support:multidex:1.0.3'
     
         /**
          * 如果是androidx环境
          */
         implementation 'androidx.appcompat:appcompat:1.0.2'
-        //集成包含快手广告需要添加下列三个依赖库
+        implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
+        //dex 分包，当minSdkVersion>=21时会出现找不到androidx.multidex.MultiDexApplication  解决办法
+        implementation 'androidx.multidex:multidex:2.0.1'
+        //集成包含快手广告需要添加下列2个依赖库
         implementation "androidx.recyclerview:recyclerview:1.2.0"
         implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     }
 ```
-##### 3、复制app模块中libs_topon目录所有.aar文件到你的项目中并依赖，如需支持更多平台广告SDK，请点击[下载][5]
+##### 3、复制app模块中libs_topon目录所有.aar文件到你的项目中并依赖，如需支持更多平台广告SDK，请点击[下载][4]
 ##### 4、权限
 * 请尽可能的申明下列权限
 ```
@@ -73,5 +80,6 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
 ```
-#### 二、广告展示、拉取、缓存、混淆等请阅读[接入文档][3]
-[3]:https://github.com/hty527/advert/wiki/TopOnWiki "接入文档"
+#### 二、广告展示、拉取、缓存、混淆等请阅读[接入文档][5]
+[4]:https://docs.toponad.com/#/zh-cn/android/download/package?_t=HcOmafjKlbJSNUyNLQu069135i0758v3 "下载"
+[5]:https://github.com/hty527/advert/wiki/TopOnWiki "接入文档"
