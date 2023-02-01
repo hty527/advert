@@ -183,7 +183,6 @@
      * 开始播放激励视屏
      * @param ad_code 广告位ID
      * @param scene 播放场景
-     * @param isAutoModel 是否启用全自动模式，内部自动加载激励视频广告并且在合适的时机自动缓存下一个激励视频广告实例
      * @param listener 状态监听器
      */
     PlayManager.getInstance().startVideo(AdConfig.AD_CODE_REWARD_ID, new OnPlayListener() {
