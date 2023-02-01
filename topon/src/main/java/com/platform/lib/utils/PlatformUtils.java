@@ -111,8 +111,13 @@ public final class PlatformUtils {
      * @return
      */
     public int pxToDpInt(float pxValue) {
-        final float scale = getContext().getResources().getDisplayMetrics().density;
-        return (int) (pxValue / (scale <= 0 ? 1 : scale) + 0.5f);
+        try {
+            final float scale = getContext().getResources().getDisplayMetrics().density;
+            return (int) (pxValue / (scale <= 0 ? 1 : scale) + 0.5f);
+        }catch (Throwable e){
+            e.printStackTrace();
+        }
+        return 0;
     }
 
     /**
@@ -121,8 +126,13 @@ public final class PlatformUtils {
      * @return
      */
     public int dpToPxInt(float dipValue) {
-        final float scale = getContext().getResources().getDisplayMetrics().density;
-        return (int) (dipValue * scale + 0.5f);
+        try {
+            final float scale = getContext().getResources().getDisplayMetrics().density;
+            return (int) (dipValue * scale + 0.5f);
+        }catch (Throwable e){
+            e.printStackTrace();
+        }
+        return 0;
     }
 
     public float getScreenWidthDP(){

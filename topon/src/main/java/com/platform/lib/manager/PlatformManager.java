@@ -1335,12 +1335,12 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
             this.mStreamListener=listener;
             mNativeExpressAD = new ATNative(context, id,mATNativeNetworkListener);
             Map<String, Object> localMap = new HashMap<>();
-            localMap.put(ATAdConst.KEY.AD_WIDTH, adWidth<=0? PlatformUtils.getInstance().getScreenWidth(): PlatformUtils.getInstance().dpToPxInt(adWidth));
             //穿山甲（Pangle）
+            localMap.put(ATAdConst.KEY.AD_WIDTH, adWidth<=0? PlatformUtils.getInstance().getScreenWidth(): PlatformUtils.getInstance().dpToPxInt(adWidth));
+            localMap.put(ATAdConst.KEY.AD_HEIGHT, PlatformUtils.getInstance().dpToPxInt(adHeight));
             localMap.put(TTATConst.NATIVE_AD_IMAGE_HEIGHT, PlatformUtils.getInstance().dpToPxInt(adHeight));
             //腾讯广告（Tencent Ads），ADSize.AUTO_HEIGHT值为-2
             localMap.put(GDTATConst.AD_HEIGHT,adHeight<=0? ADSize.AUTO_HEIGHT:PlatformUtils.getInstance().dpToPxInt(adHeight));
-            localMap.put(ATAdConst.KEY.AD_HEIGHT, PlatformUtils.getInstance().dpToPxInt(adHeight));
             this.mAdCode=id;this.mScene=scene;
             mNativeExpressAD.setLocalExtra(localMap);
             mNativeExpressAD.makeAdRequest();//发起广告请求
@@ -1352,7 +1352,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
             public void onNativeAdLoaded() {
                 Logger.d("loadStream-->loaded,id:"+mAdCode);
                 event(mScene, AdConstance.TYPE_STREAM,mAdCode, AdConstance.STATUS_LOADED_SUCCESS, 0,null);
-                if(null!=mStreamListener&&null!=mNativeExpressAD){
+                if(null!=mNativeExpressAD){
                     NativeAd nativeAd = mNativeExpressAD.getNativeAd();
                     if(null!=nativeAd){
                         nativeAd.setDislikeCallbackListener(new ATNativeDislikeListener() {
@@ -1384,7 +1384,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
                             @Override
                             public void onAdVideoProgress(ATNativeAdView atNativeAdView, int i) {}
                         });
-                        mStreamListener.onSuccessExpressed(nativeAd);
+                        if(null!=mStreamListener) mStreamListener.onSuccessExpressed(nativeAd);
                     }else{
                         error(AdConstance.CODE_AD_EMPTY,getText(AdConstance.CODE_AD_EMPTY));
                     }
