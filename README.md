@@ -10,7 +10,7 @@
 * banner广告(提供超简单banner展示能力)
 
 ### 三、[历史版本及第三方SDK对照表][1]
-[1]:https://github.com/hty527/advert/wiki/更新记录 "历史版本及第三方SDK对照表"
+[1]:https://github.com/hty527/advert/wiki/版本更新 "历史版本及第三方SDK对照表"
 
 ### 四、Apk下载
 #### [GroMore apk下载][2]
