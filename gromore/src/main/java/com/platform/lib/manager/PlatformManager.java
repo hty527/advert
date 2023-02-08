@@ -87,7 +87,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     private volatile static PlatformManager mInstance;
     private OnEventListener mAdvertEventListener;//广告状态监听
     private boolean isDevelop =false;//是否处于开发模式，开发模式情况下激励视频广告免播放，也不会去缓存激励视频广告
-    private String appId, appName,finalSplashCode;//APP_ID\APP_KEY\媒体物料名称\穿山甲的兜底开屏代码位
+    private String appId, appName,finalSplashCode,userId;//APP_ID\APP_KEY\媒体物料名称\穿山甲的兜底开屏代码位\用户ID(Gromore需要)
     private boolean DEBUG = false;
     private Map<Integer,String> mUIText=new HashMap<>();
     //激励视频
@@ -246,6 +246,21 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
 
     public boolean isDevelop() {
         return isDevelop;
+    }
+
+    /**
+     * 设置用户ID，用于透传给广告
+     * @param userId 设置用户ID，用于透传给广告
+     * @return
+     */
+    public PlatformManager setUserId(String userId) {
+        this.userId = userId;
+        return mInstance;
+    }
+
+    public String getUserId() {
+        if(TextUtils.isEmpty(userId)) userId="0";
+        return userId;
     }
 
     /**
@@ -745,7 +760,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
                             public void onRewardVerify(RewardItem rewardItem) {
 //                                Logger.d("loadRewardVideo-->rewardItem");
                                 if(null!= mRewardVideoListener){
-                                    mRewardVideoListener.onRewardVerify();
+                                    mRewardVideoListener.onRewardVerify(rewardItem);
                                 }
                             }
 
@@ -777,6 +792,17 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     }
 
     /**
+     * 返回实际的广告平台，需要在调用showRewardAd之后再获取
+     * @return 详情请见：GMNetworkPlatformConst类
+     */
+    public int getAdnPlatformId() {
+        if(null!=mGMRewardAd){
+            return mGMRewardAd.getAdNetworkPlatformId();
+        }
+        return 0;
+    }
+
+    /**
      * 返回当前广告的ECPM
      * @return
      */
@@ -793,15 +819,19 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     }
 
     private GMAdSlotRewardVideo buildRewardConfig(String rewardName) {
+        Map<String, String> customData = new HashMap<>();
+        customData.put(GMAdConstant.CUSTOM_DATA_KEY_PANGLE, "{\"type\":\""+AdConstance.SOURCE_TT+"\"}");
+        customData.put(GMAdConstant.CUSTOM_DATA_KEY_GDT, "{\"type\":\""+AdConstance.SOURCE_TX+"\"}");
+        customData.put(GMAdConstant.CUSTOM_DATA_KEY_KS, "{\"type\":\""+AdConstance.SOURCE_KS+"\"}");
         GMAdSlotRewardVideo adSlotRewardVideo = new GMAdSlotRewardVideo.Builder()
                 .setMuted(true)//对所有SDK的激励广告生效，除需要在平台配置的SDK，如穿山甲SDK
                 .setVolume(0f)//配合Admob的声音大小设置[0-1]
                 .setGMAdSlotGDTOption(GMAdOptionUtil.getGMAdSlotGDTOption().build())
                 .setGMAdSlotBaiduOption(GMAdOptionUtil.getGMAdSlotBaiduOption().build())
-                //.setCustomData(customData)
+                .setCustomData(customData)
                 .setRewardName(rewardName) //奖励的名称
                 .setRewardAmount(3)  //奖励的数量
-                .setUserID("888888")//用户id,必传参数
+                .setUserID(getUserId())//用户id,必传参数
                 .setUseSurfaceView(false)
                 .setOrientation(GMAdConstant.VERTICAL)//必填参数，期望视频的播放方向：GMAdConstant.HORIZONTAL 或 GMAdConstant.VERTICAL
                 .setBidNotify(true)//开启bidding比价结果通知，默认值为false
@@ -948,7 +978,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
                     .setGMAdSlotGDTOption(GMAdOptionUtil.getGMAdSlotGDTOption().build())
                     .setImageAdSize(600, 600)  //设置宽高 （插全屏类型下_插屏广告使用）
                     .setVolume(0.5f) //admob 声音配置，与setMuted配合使用
-                    .setUserID("user123")//用户id,必传参数 (插全屏类型下_全屏广告使用)
+                    .setUserID(getUserId())//用户id,必传参数 (插全屏类型下_全屏广告使用)
 //                    .setCustomData(customData)
                     .setRewardName("reward") //奖励的名称
                     .setRewardAmount(3)  //奖励的数量

@@ -9,10 +9,11 @@ import android.text.TextUtils;
  */
 public class Result {
 
-    private String ad_source;//当前广告的实际平台，1：穿山甲，3：优量汇，5：快手，8：topon聚合平台
+    private String ad_source;//当前广告的实际平台，参考：AdConstance,1：穿山甲，3：优量汇，5：快手，8：topon聚合平台
     private String ad_code;//广告位ID
     private String is_click;//是否点击了广告，1：点击了广告，0：未点击广告
     private String ecpm;//广告的ecpm
+    private int platformId;//广告的实际平台标识，详见GMNetworkPlatformConst类
 
     public String getAd_source() {
         return ad_source;
@@ -45,5 +46,13 @@ public class Result {
 
     public void setEcpm(String ecpm) {
         this.ecpm = ecpm;
+    }
+
+    public int getPlatformId() {
+        return platformId;
+    }
+
+    public void setPlatformId(int platformId) {
+        this.platformId = platformId;
     }
 }

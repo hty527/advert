@@ -132,6 +132,7 @@ public class RewardActivity extends Activity implements Application.ActivityLife
 //            Logger.d("onClick-->:");
             isClick=true;
             success=true;
+
             PlayManager.getInstance().onClick(atAdInfo);
         }
     };
@@ -196,6 +197,7 @@ public class RewardActivity extends Activity implements Application.ActivityLife
             status.setAd_code(TextUtils.isEmpty(ad_code)?"0":ad_code);
             status.setIs_click(PlatformManager.getInstance().isDevelop()?"1":isClick?"1":"0");
             status.setEcpm(ad_ecpm +"");
+            status.setPlatformId(PlatformManager.getInstance().getAdnPlatformId());
             PlayManager.getInstance().onClose(status);
         }else{
             PlayManager.getInstance().onClose(null);

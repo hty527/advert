@@ -8,6 +8,7 @@ import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
+import com.bytedance.msdk.api.reward.RewardItem;
 import com.bytedance.msdk.api.v2.ad.reward.GMRewardAd;
 import com.bytedance.pangle.activity.GenerateProxyActivity;
 import com.kwad.sdk.api.proxy.BaseProxyActivity;
@@ -34,7 +35,8 @@ public class RewardActivity extends Activity implements Application.ActivityLife
     private boolean success=false,isClick=false;
     //广告容器宿主
     private Activity mAdActivity;
-
+    //第三方广告平台标识，请参阅：GMNetworkPlatformConst类
+    private int mPlatformId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,20 +110,22 @@ public class RewardActivity extends Activity implements Application.ActivityLife
 
         @Override
         public void onShow(String ecpm) {
-            Logger.d("onShow-->ecpm:"+ecpm);
             ad_ecpm =ecpm;
             success=true;
+            getPlatformId();
+            Logger.d("onShow-->ecpm:"+ecpm+",platformId:"+ mPlatformId);
             PlayManager.getInstance().onShow();
         }
 
         @Override
-        public void onRewardVerify() {
+        public void onRewardVerify(RewardItem rewardItem) {
             success=true;
             if(TextUtils.isEmpty(ad_ecpm)){
                 ad_ecpm = PlatformManager.getInstance().getEcpm();
             }
-//            Logger.d("onRewardVerify-->ecpm:"+ad_ecpm);
-            PlayManager.getInstance().onRewardVerify();
+            //Logger.d("onRewardVerify-->ecpm:"+ad_ecpm+",rewardItem:"+(null!=rewardItem?rewardItem.getCustomData():null));
+            getPlatformId();
+            PlayManager.getInstance().onRewardVerify(rewardItem);
         }
 
         @Override
@@ -136,9 +140,16 @@ public class RewardActivity extends Activity implements Application.ActivityLife
 //            Logger.d("onClick-->:");
             isClick=true;
             success=true;
+            getPlatformId();
             PlayManager.getInstance().onClick();
         }
     };
+
+    private void getPlatformId() {
+        if(0==mPlatformId){
+            mPlatformId = PlatformManager.getInstance().getAdnPlatformId();
+        }
+    }
 
     public void loading(String message){
         if(null!=mLoadingView) mLoadingView.showRequst(message);
@@ -188,6 +199,7 @@ public class RewardActivity extends Activity implements Application.ActivityLife
             status.setAd_code(TextUtils.isEmpty(ad_code)?"0":ad_code);
             status.setIs_click(PlatformManager.getInstance().isDevelop()?"1":isClick?"1":"0");
             status.setEcpm(ad_ecpm);
+            status.setPlatformId(mPlatformId);
             PlayManager.getInstance().onClose(status);
         }else{
             PlayManager.getInstance().onClose(null);

@@ -1,5 +1,6 @@
 package com.platform.lib.listener;
 
+import com.bytedance.msdk.api.reward.RewardItem;
 import com.bytedance.msdk.api.v2.ad.reward.GMRewardAd;
 
 /**
@@ -14,10 +15,11 @@ public interface OnRewardVideoListener extends BaseListener {
      * @param gmRewardAd
      */
     void onSuccess(GMRewardAd gmRewardAd);
+
     /**
      * 该视频广告的有效性校验
      */
-    void onRewardVerify();
+    void onRewardVerify(RewardItem rewardItem);
 
     /**
      * 广告被显示了
