@@ -1,14 +1,14 @@
 ### 一、接入前的准备工作
-* 到GroMore后台申请app_id和广告位id<br>
-* 复制demo模块app-gromore中app模块下的libs_gromore文件夹到你的项目中的app模块中<br>
+* 到TopOn后台申请app_id和广告位id<br>
+* 复制demo模块app-topon中app模块下的libs_topon文件夹到你的项目中的app模块中<br>
 * demo中libs目录下的oaid_sdk_1.0.25.aar为可选SDK，适配Android10及以上系统建议集成<br>
-* 遇到问题请阅读[GroMore官方文档][1]<br>
+* 遇到问题请阅读[TopOn官方文档][1]<br>
 * 更多平台广告支持[第三方广告SDK下载][2]<br>
 * 配置、混淆、资源、权限等请参阅[官方文档][3]<br>
 
-[1]:https://www.csjplatform.com/union/media/union/download/detail?id=84&osType=android&locale=zh-CN "GroMore官方文档"
-[2]:https://www.csjplatform.com/union/media/union/download?doc_sort=mediation "第三方广告SDK下载"
-[3]:https://www.csjplatform.com/union/media/union/download/detail?id=84&docId=27211&osType=android "官方文档"
+[1]:https://docs.toponad.com/#/zh-cn/android/GetStarted/TopOn_Get_Started "TopOn官方文档"
+[2]:https://docs.toponad.com/#/zh-cn/android/download/package?_t=HcOmafjKlbJSNUyNLQu069135i0758v3 "第三方广告SDK下载"
+[3]:https://docs.toponad.com/#/zh-cn/android/android_doc/android_sdk_config_cn_access "官方文档"
 
 ### 二、AndroidStudio接入
 
@@ -28,11 +28,11 @@
     }
 
     dependencies {
-        //复制libs_gromore文件夹到app下后引入libs_gromore目录下的所有.aar文件和.jar文件
-        implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs_gromore')
+        //复制libs_topon文件夹到app下后引入libs_topon目录下的所有.aar文件和.jar文件
+        implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs_topon')
         //广告功能逻辑SDK
-        implementation 'com.github.hty527.advert:gromore:1.1.3'
-
+        implementation 'com.github.hty527.advert:topon:1.1.3.1'
+    
         /**
          * 如果是Support环境
          */
@@ -59,38 +59,27 @@
 ##### 4、权限
 * 请尽可能的申明下列权限
 ```
-    <!--GroMore SDK-BEGIN-通用 必要权限-->
+    <!--TopOn SDK通用 必要权限-->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <!--中国区SDK必要权限-->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-
-    <!--必要权限，解决安全风险漏洞，发送和注册广播事件需要调用带有传递权限的接口-->
-    <permission
-        android:name="${applicationId}.openadsdk.permission.TT_PANGOLIN"
-        android:protectionLevel="signature" />
-    <uses-permission android:name="${applicationId}.openadsdk.permission.TT_PANGOLIN" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
 
     <!--可选权限-->
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.GET_TASKS"/>
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-
-    <!--可选，Mobrain SDK提供“获取地理位置权限”方式上报用户位置，两种方式均可不选，添加位置权限或参数将帮助投放定位广告-->
-    <!--请注意：无论通过何种方式提供给穿山甲用户地理位置，均需向用户声明地理位置权限将应用于穿山甲广告投放，穿山甲不强制获取地理位置信息-->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-
+    <uses-permission android:name="android.permission.GET_TASKS"/>
+    <!--可选，穿山甲提供“获取地理位置权限”和“不给予地理位置权限，开发者传入地理位置参数”两种方式上报用户位置，两种方式均可不选，添加位置权限或参数将帮助投放定位广告-->
+    <!--请注意：无论通过何种方式提供给穿山甲用户地理位置，均需向用户声明地理位置权限将应用于穿山甲广告投放，穿山甲不强制获取地理位置信息-->
+    <!--    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />-->
     <!-- 如果有视频相关的广告且使用textureView播放，请务必添加，否则黑屏 -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-
-    <!-- 高于Android 11的系统上，如果应用的 targetSdkVersion >= 30 ，推荐增加以下权限声明
-       （SDK将通过此权限正常触发广告行为，并保证广告的正确投放。此权限需要在用户隐私文档中声明)-->
-    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
-    <!--GroMore SDK-END-->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
 ```
 #### 二、广告展示、拉取、缓存、混淆等请阅读[接入文档][5]
-[4]:https://www.csjplatform.com/union/media/union/download?doc_sort=mediation "下载"
-[5]:https://github.com/hty527/advert/wiki/GroMoreWiki "接入文档"
+[4]:https://docs.toponad.com/#/zh-cn/android/download/package?_t=HcOmafjKlbJSNUyNLQu069135i0758v3 "下载"
+[5]:https://github.com/hty527/advert/wiki/TopOn平台接入文档 "接入文档"

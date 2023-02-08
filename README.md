@@ -10,7 +10,7 @@
 * banner广告(提供超简单banner展示能力)
 
 ### 三、[历史版本及第三方SDK对照表][1]
-[1]:https://github.com/hty527/advert/wiki/Version "历史版本及第三方SDK对照表"
+[1]:https://github.com/hty527/advert/wiki/更新记录 "历史版本及第三方SDK对照表"
 
 ### 四、Apk下载
 #### [GroMore apk下载][2]
@@ -21,10 +21,10 @@
 
 ### 五、SDK接入
 #### [GroMore SDK接入][4]
-[4]:https://github.com/hty527/advert/wiki/GroMoreHome "GroMore SDK接入"
+[4]:https://github.com/hty527/advert/wiki/GroMore平台 "GroMore SDK接入"
 
 #### [TopOn SDK接入][5]
-[5]:https://github.com/hty527/advert/wiki/TopOnHome "TopOn SDK接入"
+[5]:https://github.com/hty527/advert/wiki/TopOn平台 "TopOn SDK接入"
 
 ### 六、日志过滤
 * 在控制台过滤"PlatformSDK"查看SDK日志输出，注意不需要""

@@ -1,6 +1,8 @@
 package com.platform.lib.listener;
 
 import android.app.Activity;
+
+import com.bytedance.msdk.api.reward.RewardItem;
 import com.bytedance.msdk.api.v2.ad.reward.GMRewardAd;
 import com.platform.lib.bean.Result;
 
@@ -37,6 +39,12 @@ public abstract class OnPlayListener {
      * 广告播放合法有效
      */
     public void onRewardVerify(){}
+
+    /**
+     * 广告播放合法有效
+     * @param rewardItem 自定义透传的数据
+     */
+    public void onRewardVerify(RewardItem rewardItem){}
 
     /**
      * 播放失败

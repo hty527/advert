@@ -3,6 +3,8 @@ package com.platform.lib.manager;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+
+import com.bytedance.msdk.api.reward.RewardItem;
 import com.bytedance.msdk.api.v2.ad.reward.GMRewardAd;
 import com.platform.lib.bean.Result;
 import com.platform.lib.constants.AdConstance;
@@ -122,7 +124,13 @@ public final class PlayManager extends OnPlayListener {
 
     @Override
     public void onRewardVerify() {
+        onRewardVerify(null);
+    }
+
+    @Override
+    public void onRewardVerify(RewardItem rewardItem) {
         if(null!=mListener) mListener.onRewardVerify();
+        if(null!=mListener) mListener.onRewardVerify(rewardItem);
     }
 
     @Override

@@ -81,7 +81,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     private volatile static PlatformManager mInstance;
     private OnEventListener mAdvertEventListener;//广告状态监听
     private boolean isDevelop =false;//是否处于开发模式，开发模式情况下激励视频广告免播放，也不会去缓存激励视频广告
-    private String appId, appSecrecy;//APP_ID\APP_KEY\媒体物料名称
+    private String appId, appSecrecy,userId;//APP_ID\APP_KEY\穿山甲的兜底开屏代码位\用户ID(Gromore需要)
     private boolean DEBUG = false;
     private Map<Integer,String> mUIText=new HashMap<>();
     //激励视频
@@ -98,6 +98,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     //全自动激励视频、插屏初始化监听器
     private OnInitListener mOnRewardInitListener,mOnInsertInitListener;
     private boolean isExternalActivity=false;//Utils内部的Activity是否为外部传入的
+    private int platformId;//真实的广告平台
 
     /**
      * 文案提示内容
@@ -277,6 +278,21 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
 
     public boolean isDevelop() {
         return isDevelop;
+    }
+
+    /**
+     * 设置用户ID，用于透传给广告
+     * @param userId 设置用户ID，用于透传给广告
+     * @return
+     */
+    public PlatformManager setUserId(String userId) {
+        this.userId = userId;
+        return mInstance;
+    }
+
+    public String getUserId() {
+        if(TextUtils.isEmpty(userId)) userId="0";
+        return userId;
     }
 
     /**
@@ -601,6 +617,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
         @Override
         public void onRewardedVideoAdPlayStart(ATAdInfo atAdInfo){
 //            Logger.d("loadRewardVideo-->onRewardedVideoAdPlayStart");
+            setPlatformId(atAdInfo.getNetworkFirmId());
             PlayManager.getInstance().setAdSource(parseAdSource(atAdInfo.getNetworkFirmId()));
             event(mVideoScene, AdConstance.TYPE_REWARD_VIDEO,mVideoCode, AdConstance.STATUS_SHOW_SUCCESS, 0,null);
             if(null!=mRewardVideoListener){
@@ -632,6 +649,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
 
         @Override
         public void onRewardedVideoAdPlayClicked(ATAdInfo atAdInfo) {
+            setPlatformId(atAdInfo.getNetworkFirmId());
             PlayManager.getInstance().setAdSource(parseAdSource(atAdInfo.getNetworkFirmId()));
 //            Logger.d("loadRewardVideo-->onRewardedVideoAdPlayClicked,atAdInfo:"+atAdInfo.toString());
             if(null!=mRewardVideoListener){
@@ -641,6 +659,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
 
         @Override
         public void onReward(ATAdInfo atAdInfo) {
+            setPlatformId(atAdInfo.getNetworkFirmId());
             PlayManager.getInstance().setAdSource(parseAdSource(atAdInfo.getNetworkFirmId()));
 //            Logger.d("loadRewardVideo-->onReward");
             if(null!=mRewardVideoListener){
@@ -648,6 +667,14 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
             }
         }
     };
+
+    public int getAdnPlatformId() {
+        return platformId;
+    }
+
+    public void setPlatformId(int platformId) {
+        this.platformId = platformId;
+    }
 
     //========================================全自动激励视频===========================================
 

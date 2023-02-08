@@ -14,33 +14,27 @@
 
         /**
          * 广告SDK初始化，建议尽可能的早，在application中初始化
-         * @param context 全局上下文，建议为：Application
-         * @param appId 物料 APP_ID(gromore后台获取)
-         * @param appName 应用名称
+         * @param context 全局上下文
+         * @param appId 物料 APP_ID(topon后台获取)
+         * @param appSecrecy 物料 APP_SECRECY(topon后台获取)
          * @param channel 渠道标识
-         * @param tag SDK标识
-         * @param debug 是否debug模式，默认：否，debug模式下将输出logcat日志
+         * @param debug 是否debug模式，默认：否，debug模式下将输出logcat日志，日志请过滤：PlatformSDK 查看
          * @param listener 初始化状态监听器
          */
-        PlatformManager.getInstance().initSdk(this, AdConfig.TO_APP_ID, AdConfig.APP_NAME,null,null, BuildConfig.DEBUG, new OnInitListener() {
+        PlatformManager.getInstance().initSdk(this, AdConfig.TO_APP_ID, AdConfig.TO_APP_KAY,null,"rongyao", BuildConfig.DEBUG, new OnInitListener() {
 
             /**
-             * 如果需要自定义GroMore初始化的参数信息，请复写此方法，返回你自定义的GMAdConfig对象给SDK用来初始化
-             * 具体请阅读文档：https://www.csjplatform.com/union/media/union/download/detail?id=84&docId=27212&osType=android
-             * @param appId 应用ID，在gromore后台获取
-             * @param appName 应用名称
-             * @param channel 渠道名称
-             * @param debug 是否开启调试模式，true：开启调试模式，false：关闭调试模式
+             * 如果需要初始化第三方广告平台SDK，可复写此方法并返回平台SDK配置。具体请阅读文档：https://docs.toponad.com/#/zh-cn/android/android_doc/android_sdk_init_network
              * @return
              */
             @Override
-            public GMAdConfig getSdkConfig(String appId, String appName, String channel, boolean debug) {
-                //返回null或者super.getSdkConfig既表示使用SDK内部的GMAdConfig初始化SDK
-                return super.getSdkConfig(appId, appName, channel, debug);
+            public List<ATInitConfig> getSdkConfig() {
+                //返回null或者super.getSdkConfig既表示不初始化第三方广告SDK
+                return super.getSdkConfig();
             }
 
             @Override
-            public void onSuccess(String id) {
+            public void onSuccess() {
                 //广告SDK初始化成功
             }
 
@@ -141,9 +135,10 @@
      * @param width 预期渲染的高，单位：分辨率
      * @param listener 状态监听，如果监听器为空内部回自动缓存一条开屏广告
      */
-    PlatformManager.getInstance().loadSplash(this, AdConfig.AD_CODE_SPLASH_ID, new OnSplashListener() {
+    PlatformManager.getInstance().loadSplash("ad_id", new OnSplashListener() {
+
         @Override
-        public void onSuccess(GMSplashAd gmSplashAd) {
+        public void onSuccess(ATSplashAd atSplashAd) {
             //在这里将广告组件添加到你的ViewGroup中
         }
 
@@ -175,7 +170,6 @@
 ```
 ##### 2、激励视频
 * SDK内部封装了激励视频广告的拉取、播放等功能交互，也支持自行拉取广告自己展示，请根据业务场景选择。
-
 ##### 2.1、超简单激励视频(推荐)
 * <font color=red>使用PlayManager提供的api播放激励视频广告时，内部默认关闭全自动激励视频加载模式，如需启用，请传入isAutoModel参数时=true。</font>
 ```
@@ -183,13 +177,117 @@
      * 开始播放激励视屏
      * @param ad_code 广告位ID
      * @param scene 播放场景
+     * @param isAutoModel 是否启用全自动模式，内部自动加载激励视频广告并且在合适的时机自动缓存下一个激励视频广告实例
      * @param listener 状态监听器
      */
     PlayManager.getInstance().startVideo(AdConfig.AD_CODE_REWARD_ID, new OnPlayListener() {
         @Override
         public void onClose(Result status) {
             if(null!=status){
-                Logger.d(TAG,"onClose-->adCode:"+status.getAd_code()+",eCpm:"+status.getEcpm()+",isClick:"+status.getIs_click());
+                Logger.d(TAG,"onClose-->adCode:"+status.getAd_code()+",isClick:"+status.getIs_click());
+                //播放成功并关闭了
+                Toast.makeText(getApplicationContext(),"播放结束",Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        @Override
+        public void onShow(ATRewardVideoAd atRewardVideoAd) {
+            Toast.makeText(getApplicationContext(),"开始播放",Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onRewardVerify() {
+            Toast.makeText(getApplicationContext(),"此激励视频有效",Toast.LENGTH_SHORT).show();
+        }
+
+        //..更多回调事件请实现OnPlayListener中的方法
+    });
+```
+
+##### 2.2、全自动激励视频(推荐)
+* 全自动激励视频模式下，只需要调用一次SDK的initReward()方法，Topon SDK内部会在合适的时机自动开始缓存下一条激励视频广告，推荐使用全自动激励视频。
+* 2.1.1、全自动激励视频初始化\第一次缓存<font color=red>(必须在初始化SDK后和第一次播放激励视频前调用)</font>
+```
+    /**
+     * 初始化/开始缓存全自动类型激励视频(可忽略)
+     * @param activity 上下文
+     * @param id 广告ID
+     * @param scene 广告加载/处理的场景
+     * @param listener 监听器
+     */
+    PlatformManager.getInstance().initReward(this, AdConfig.AD_CODE_REWARD_ID, new OnInitListener() {
+        @Override
+        public void onSuccess(String id) {
+            //缓存插屏广告成功
+        }
+
+        @Override
+        public void onError(int code, String message) {
+            //缓存失败
+        }
+    });
+```
+* 2.1.2、全自动激励视播放
+```
+    /**
+     * 直接显示激励视频广告，内部会自动拉取和缓存下一个视频广告
+     * @param activity 上下文
+     * @param id 广告位ID
+     * @param scene 播放广告的场景标识
+     * @param listener 监听器
+     */
+    //<font color=red>在初始化SDK后并且在第一次播放激励视频之前必须调用initReward()初始化全自动激励视频功能</font>
+    PlatformManager.getInstance().showAutoRewardVideo(this, AdConfig.AD_CODE_REWARD_ID, new OnRewardVideoListener() {
+        @Override
+        public void onSuccess(ATRewardVideoAd atRewardVideoAd) {
+            //SDK内部会自动展示，这里不要处理展示逻辑
+        }
+
+        @Override
+        public void onClick(ATAdInfo atAdInfo) {
+            //广告被点击了
+        }
+
+        @Override
+        public void onRewardVerify() {
+            //有效性验证
+        }
+
+        @Override
+        public void onShow() {
+            //广告被显示了
+        }
+
+        @Override
+        public void onClick() {
+
+        }
+
+        @Override
+        public void onClose() {
+            //广告被关闭了
+        }
+
+        @Override
+        public void onError(int code, String message, String adCode) {
+            //广告加载失败了
+        }
+    });
+
+    //或者更简单的播放：
+
+    /**
+     * 开始播放激励视屏
+     * @param ad_code 广告位ID
+     * @param scene 播放场景
+     * @param isAutoModel 是否启用全自动模式，内部自动加载激励视频广告并且在合适的时机自动缓存下一个激励视频广告实例
+     * @param listener 状态监听器
+     */
+    PlayManager.getInstance().startVideo(AdConfig.AD_CODE_REWARD_ID,true, new OnPlayListener() {
+        @Override
+        public void onClose(Result status) {
+            if(null!=status){
+                Logger.d(TAG,"onClose-->status:"+status.getAd_code());
                 //播放成功并关闭了
                 Toast.makeText(getApplicationContext(),"播放结束",Toast.LENGTH_SHORT).show();
             }
@@ -208,35 +306,37 @@
         //..更多回调事件请实现OnPlayListener中的方法
     });
 ```
-##### 2.2、常规激励视频
-* 2.3.1、激励视频缓存
+##### 2.3、常规激励视频
+* 2.3.1、常规激励视频缓存
 ```
     //为提升播放速度，建议调用下列方法提前缓存激励视频广告
     /**
      * 加载激励视频广告
-     * @param context Activity类型上下文
+     * 此方法已废弃不推荐使用
+     * 请使用{@link #initReward(Activity activity, String id, OnInitListener listener)} 和 {@link #showAutoRewardVideo(Activity,String,String, OnRewardVideoListener)}
+     * @param context 上下文,推荐Activity类型
      * @param id 广告位ID
-     * @param scene 广告展示场景
-     * @param rewardName 激励名称
+     * @param scene 播放广告的场景
      * @param listener 状态监听器，如果监听器为空内部回自动缓存一条激励视频广告
      */
-    PlatformManager.getInstance().loadRewardVideo(this,AdConfig.AD_CODE_REWARD_ID,null)
+    PlatformManager.getInstance().loadRewardVideo(AdConfig.AD_CODE_REWARD_ID,null);
 ```
 * 2.3.2、常规激励视频播放
 ```
     /**
      * 加载激励视频广告
-     * @param context Activity类型上下文
+     * 此方法已废弃不推荐使用
+     * 请使用{@link #initReward(Activity activity, String id, OnInitListener listener)} 和 {@link #showAutoRewardVideo(Activity,String,String, OnRewardVideoListener)}
+     * @param context 上下文,推荐Activity类型
      * @param id 广告位ID
-     * @param scene 广告展示场景
-     * @param rewardName 激励名称
+     * @param scene 播放广告的场景
      * @param listener 状态监听器，如果监听器为空内部回自动缓存一条激励视频广告
      */
     PlatformManager.getInstance().loadRewardVideo(AdConfig.AD_CODE_REWARD_ID, new OnRewardVideoListener() {
         @Override
-        public void onSuccess(GMRewardAd gmRewardAd) {
+        public void onSuccess(ATRewardVideoAd atRewardVideoAd) {
             //在这里播放激励视频广告
-            gmRewardAd.showRewardAd(MainActivity.this);
+            atRewardVideoAd.show(MainActivity.this);
         }
 
         @Override
@@ -250,7 +350,7 @@
         }
 
         @Override
-        ppublic void onShow(String ecpm) {
+        public void onShow(ATRewardVideoAd atRewardVideoAd) {
             //广告被显示了
         }
 
@@ -264,6 +364,8 @@
             //广告被关闭了
         }
     });
+    //获取激励视频的最终第三方广告平台ID,ID详见https://docs.toponad.com/#/zh-cn/android/android_doc/android_sdk_callback_access?id=callback_info说明
+    //int adnPlatformId = PlatformManager.getInstance().getAdnPlatformId()
 ```
 ##### 3、插屏广告
 ##### 3.1、超简单插屏(推荐)
@@ -272,6 +374,7 @@
     /**
      * 尝试播放一个插屏广告
      * @param id 广告ID
+     * @param isAutoModel 是否启用全自动模式，内部自动加载激励视频广告并且在合适的时机自动缓存下一个激励视频广告实例
      * @param scene 广告播放的场景标识
      * @param delayed 延时多久后开始展示插屏，单位：毫秒
      * @param listener 监听器
@@ -290,33 +393,113 @@
         //..更多回调事件请实现OnPlayListener中的方法
     });
 ```
-##### 3.2、常规插屏广告
-* 3.3.1、插屏广告缓存
+##### 3.2、全自动插屏(推荐)
+* 全自动插屏模式下，只需要调用一次SDK的initInsert()方法，Topon SDK内部会在合适的时机自动开始缓存下一条插屏广告，推荐使用全自插屏。
+* 3.2.1、全自动插屏初始化\第一次缓存<font color=red>(必须在初始化SDK后和第一次播放激励视频前调用)</font>
+```
+    /**
+     * 初始化/开始缓存全自动插屏(可忽略)
+     * @param activity 上下文
+     * @param id 广告ID
+     * @param scene 广告加载/处理的场景
+     * @param listener 监听器
+     */
+    PlatformManager.getInstance().initInsert(this, AdConfig.AD_CODE_INSERT_ID, new OnInitListener() {
+        @Override
+        public void onSuccess(String id) {
+            //缓存插屏广告成功
+        }
+
+        @Override
+        public void onError(int code, String message) {
+            //缓存失败
+        }
+    });
+```
+* 3.2.2、全自动插屏展示
+```
+    /**
+     * 直接显示插屏广告，内部会自动拉取和缓存下一个视频广告
+     * @param activity 显示插屏广告的宿主Activity
+     * @param id 广告位ID
+     * @param scene 播放场景标识
+     * @param listener 状态监听器
+     */
+    //<font color=red>在初始化SDK后并且在第一次播放插屏广告之前必须调用initInsert()初始化全自动插屏功能</font>
+    PlatformManager.getInstance().showAutoInsert(this, AdConfig.AD_CODE_INSERT_ID, new OnTabScreenListener() {
+        @Override
+        public void onSuccess(ATInterstitial interactionAd) {
+            //SDK内部会自动展示，这里不要处理展示逻辑
+        }
+
+        @Override
+        public void onShow() {
+            //广告被显示了
+        }
+
+        @Override
+        public void onClick() {
+            //广告被点击了
+        }
+
+        @Override
+        public void onClose() {
+            //广告被关闭了
+        }
+
+        @Override
+        public void onError(int code, String message, String adCode) {
+            //广告加载失败了
+        }
+    });
+
+    //或者更简单的播放方法：
+
+    TableScreenManager.getInstance().showInsert(AdConfig.AD_CODE_INSERT_ID,true, new OnPlayListener() {
+        @Override
+        public void onClose(Result status) {
+            //插屏广告关闭了
+        }
+
+        @Override
+        public void onError(int code, String message, String adCode) {
+            //插屏广告播放失败了
+        }
+
+        //..更多回调事件请实现OnPlayListener中的方法
+    });
+```
+##### 3.3、常规插屏广告
+* 3.3.1、常规插屏广告缓存
 ```
     //为提升播放速度，建议调用下列方法提前缓存插屏广告
     /**
      * 加载插屏广告
-     * @param context Activity类型上下文
+     * 此方法已废弃不推荐使用
+     * 请使用{@link #initInsert(Activity activity, String id, OnInitListener listener)} + {@link #showAutoInsert(Activity,String,String, OnTabScreenListener)}
+     * @param context 上下文,推荐Activity类型
      * @param id 广告位ID
-     * @param scene 广告播放的场景
-     * @param listener 状态监听器
+     * @param scene 播放广告的场景标识
+     * @param listener 状态监听器，如果监听器为空内部回自动缓存一条插屏广告
      */
-    PlatformManager.getInstance().loadInsert(this,AdConfig.AD_CODE_INSERT_ID,null);
+    PlatformManager.getInstance().loadInsert(AdConfig.AD_CODE_INSERT_ID,null);
 ```
 * 3.3.2、常规插屏广告播放
 ```
     /**
      * 加载插屏广告
-     * @param context Activity类型上下文
+     * 此方法已废弃不推荐使用
+     * 请使用{@link #initInsert(Activity activity, String id, OnInitListener listener)} + {@link #showAutoInsert(Activity,String,String, OnTabScreenListener)}
+     * @param context 上下文,推荐Activity类型
      * @param id 广告位ID
-     * @param scene 广告播放的场景
-     * @param listener 状态监听器
+     * @param scene 播放广告的场景标识
+     * @param listener 状态监听器，如果监听器为空内部回自动缓存一条插屏广告
      */
-    PlatformManager.getInstance().loadInsert(this,AdConfig.AD_CODE_INSERT_ID, new OnTabScreenListener() {
+    PlatformManager.getInstance().loadInsert(AdConfig.AD_CODE_INSERT_ID, new OnTabScreenListener() {
         @Override
-        public void onSuccess(GMInterstitialFullAd interactionAd) {
+        public void onSuccess(ATInterstitial interactionAd) {
             //在这里展示插屏广告
-            interactionAd.showAd(MainActivity.this);
+            interactionAd.show(MainActivity.this);
         }
 
         @Override
@@ -435,14 +618,15 @@ public class CoustomNativeRender implements NativeRenderControl {
     }
 
     /**
-     * 将广告信息绑定到自定义UI组件上，并且将各子自定义ViewGroup(比如点击按钮、icon组件)绑定到native广告上
+     * 自渲染广告处理
      * @param selfRenderView 将广告信息绑定到自定义UI组件上，并且将各子自定义ViewGroup(比如点击按钮、icon组件)绑定到native广告上,selfRenderView:自定义渲染UI组件
-     * @param nativeAd 原生广告信息
+     * @param adMaterial 原生广告信息
      * @param adWidth 期望渲染的广告宽度，高度SDK自适应，会通过OnExpressAdListener回调通知实际渲染的高度
+     * @param nativePrepareInfo 包含各子自定义ViewGroup(比如点击按钮、icon组件)等组件信息
      */
     @Override
-    public void onRenderNativeView(View selfRenderView, com.bytedance.msdk.api.v2.ad.nativeAd.GMNativeAd nativeAd, float adWidth) {
-        //在这里渲染广告信息到UI上
+    public void onRenderNativeView(View selfRenderView, ATNativeMaterial adMaterial, float adWidth, ATNativePrepareInfo nativePrepareInfo) {
+        //在这里渲染广告信息到UI上，并且将可点击View绑定到nativePrepareInfo中
     }
 }
 
@@ -452,23 +636,22 @@ public class CoustomNativeRender implements NativeRenderControl {
 ##### 4.4、加载信息流广告
 ```
     /**
-     * 加载信息流广告
-     * @param context Activity类型上下文
+     * 加载信息流广告，5.9.7.0本版+支持
+     * @param context 必须为Activity类型的上下文
      * @param id 广告位ID
-     * @param scene 广告加载场景
-     * @param adCount 预期加载的广告数量
-     * @param adWidth 预期加载并渲染的信息流宽度，单位dp
-     * @param adHeight 预期加载并渲染的信息流高度，单位dp，为0时自适应高度
-     * @param listener
+     * @param scene 广告播放场景标识
+     * @param adWidth 期望的广告宽，单位：dp，传0表示宽度为屏幕宽
+     * @param adHeight 期望的广告高，单位：dp，传0表示高度随广告自动
+     * @param listener 状态监听器
      */
-    PlatformManager.getInstance().loadStream(this, AdConfig.AD_CODE_STREAM_ID, new OnExpressListener() {
+    PlatformManager.getInstance().loadStream(this, AdConfig.AD_CODE_STREAM_ID, 1, getScreenWidth(), new OnExpressListener() {
         @Override
-        public void onSuccessExpressed(GMNativeAd gmNativeAd) {
-            //在这里将信息流广告添加到你的ViewGroup中，参考文档：https://www.csjplatform.com/union/media/union/download/detail?id=106&docId=62e233017ef212002ebc3a31&osType=android
+        public void onSuccessExpressed(NativeAd nativeAd) {
+            //在这里将信息流广告添加到你的ViewGroup中，参考文档：https://docs.toponad.com/#/zh-cn/android/android_doc/android_sdk_native_access_new
         }
 
         @Override
-        public void onSuccessBanner(GMBannerAd gmBannerAd) {
+        public void onSuccessBanner(ATBannerView atBannerView) {
 
         }
 
@@ -515,23 +698,23 @@ public class CoustomNativeRender implements NativeRenderControl {
 ##### 5.2、Banner广告拉取
 ```
     /**
-     * 加载Banner广告
-     * @param context Activity类型上下文
+     * 加载Banner广告,需要先将Banner添加到ViewGroup上
      * @param id 广告位ID
-     * @param scene 广告加载场景
-     * @param adWidth 预期加载并渲染的信息流宽度，单位dp
-     * @param adHeight 预期加载并渲染的信息流高度，单位dp，为0时自适应高度
-     * @param listener
+     * @param viewGroup 装载BannerView的容器
+     * @param scene 广告播放场景标识
+     * @param adWidth 期望的广告宽，单位：dp，传0表示宽度为屏幕宽
+     * @param adHeight 期望的广告高，单位：dp，传0表示高度随广告自动
+     * @param listener 状态监听器
      */
-    PlatformManager.getInstance().loadBanner(this,AdConfig.AD_CODE_BANNER_ID,new OnExpressListener() {
+    PlatformManager.getInstance().loadBanner(AdConfig.AD_CODE_BANNER_ID,  viewGroup,getScreenWidth(), getScreenHeight(),new OnExpressListener() {
         @Override
-        public void onSuccessExpressed(GMNativeAd gmNativeAd) {
+        public void onSuccessExpressed(NativeAd nativeAd) {
 
         }
 
         @Override
-        public void onSuccessBanner(GMBannerAd gmBannerAd) {
-            //在这里将信息流广告添加到你的ViewGroup中，参考文档：https://www.csjplatform.com/union/media/union/download/detail?id=106&docId=62e233167ef212002ebc3a36&osType=android
+        public void onSuccessBanner(ATBannerView atBannerView) {
+            //SDK内部已经将Banner广告添加到了你传入的viewGroup里，请不要重复将atBannerView添加到你的容器中！参考文档：https://docs.toponad.com/#/zh-cn/android/android_doc/android_sdk_banner_access
         }
 
         @Override
@@ -559,17 +742,36 @@ public class CoustomNativeRender implements NativeRenderControl {
 #### 四、AndroidManifest.xml配置
 * xml文件申明，请将xml文件放在res-xml目录下(除穿山甲、快手、优量汇三个平台之外的其它平台请自行前往官网文档获取)
 ```
-1.pangle_file_paths.xml
+1.anythink_bk_gdt_file_path.xml
     <?xml version="1.0" encoding="utf-8"?>
     <paths xmlns:android="http://schemas.android.com/apk/res/android">
-        <!--为了适配所有路径可以设置 path = "." -->
-    
+        <external-path name="gdt_sdk_download_path" path="GDTDOWNLOAD" />
+        <root-path name="root" path="" />
+        <external-cache-path
+            name="gdt_sdk_download_path1"
+            path="com_qq_e_download" />
+        <cache-path
+            name="gdt_sdk_download_path2"
+            path="com_qq_e_download" />
+    </paths>
+
+2.anythink_bk_tt_file_path.xml
+    <?xml version="1.0" encoding="utf-8"?>
+    <paths>
         <external-path name="tt_external_root" path="." />
         <external-path name="tt_external_download" path="Download" />
         <external-files-path name="tt_external_files_download" path="Download" />
         <files-path name="tt_internal_file_download" path="Download" />
         <cache-path name="tt_internal_cache_download" path="Download" />
+        <root-path name="root" path="" />
     </paths>
+
+3.network_security_config.xml
+    <?xml version="1.0" encoding="utf-8"?>
+    <network-security-config>
+        <base-config cleartextTrafficPermitted="true" />
+    </network-security-config>
+    
 ```
 * 请在你的app的AndroidManifest.xml中增加如下配置，以下配置仅支持快手、穿山甲、优量汇三种平台，如需支持更多，请自行参阅官方文档。
 ```
@@ -578,18 +780,18 @@ public class CoustomNativeRender implements NativeRenderControl {
         <!--广告-BEGIN-->
         <!--穿山甲-->
         <provider
+            android:name="com.bytedance.sdk.openadsdk.multipro.TTMultiProvider"
+            android:authorities="${applicationId}.TTMultiProvider"
+            android:exported="false" />
+        <provider
             android:name="com.bytedance.sdk.openadsdk.TTFileProvider"
             android:authorities="${applicationId}.TTFileProvider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/pangle_file_paths" />
+                android:resource="@xml/anythink_bk_tt_file_path" />
         </provider>
-        <provider
-            android:name="com.bytedance.sdk.openadsdk.multipro.TTMultiProvider"
-            android:authorities="${applicationId}.TTMultiProvider"
-            android:exported="false" />
         <!--优量汇-->
         <provider
             android:name="com.qq.e.comm.GDTFileProvider"
@@ -598,7 +800,7 @@ public class CoustomNativeRender implements NativeRenderControl {
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/gdt_file_path" />
+                android:resource="@xml/anythink_bk_gdt_file_path" />
         </provider>
         <!--广告-END-->
     </application>
@@ -640,40 +842,19 @@ public class CoustomNativeRender implements NativeRenderControl {
 # ==================================快手广告-END==================================
 
 # =================================穿山甲广告-BEGIN=================================
-## pangle 穿山甲原有的
--keepclassmembers class * {
-    *** getContext(...);
-    *** getActivity(...);
-    *** getResources(...);
-    *** startActivity(...);
-    *** startActivityForResult(...);
-    *** registerReceiver(...);
-    *** unregisterReceiver(...);
-    *** query(...);
-    *** getType(...);
-    *** insert(...);
-    *** delete(...);
-    *** update(...);
-    *** call(...);
-    *** setResult(...);
-    *** startService(...);
-    *** stopService(...);
-    *** bindService(...);
-    *** unbindService(...);
-    *** requestPermissions(...);
-    *** getIdentifier(...);
-   }
-
 -keep class com.bytedance.pangle.** {*;}
 -keep class com.bytedance.sdk.openadsdk.** { *; }
--keep class com.bytedance.frameworks.** { *; }
 -keep class ms.bd.c.Pgl.**{*;}
 -keep class com.bytedance.mobsec.metasec.ml.**{*;}
--keep class com.ss.android.**{*;}
 -keep class com.bytedance.embedapplog.** {*;}
 -keep class com.bytedance.embed_dr.** {*;}
 -keep class com.bykv.vk.** {*;}
+-keep class com.lynx.** { *; }
+-keep class com.ss.android.**{*;}
+-keep class android.support.v4.app.FragmentActivity{}
+-keep class androidx.fragment.app.FragmentActivity{}
 # ==================================穿山甲广告-END==================================
+
 # =================================优量汇广告-BEGIN=================================
 -keep class com.qq.e.** {
     public protected *;
@@ -694,19 +875,27 @@ public class CoustomNativeRender implements NativeRenderControl {
 -dontwarn com.tencent.smtt.**
 # ==================================优量汇广告-END==================================
 
-# =================================GroMore聚合-BEGIN=================================
--keep class bykvm*.**
--keep class com.bytedance.msdk.adapter.**{ public *; }
--keep class com.bytedance.msdk.api.** {
- public *;
+# =================================TOPON-BEGIN=================================
+-keep public class com.anythink.**
+-keepclassmembers class com.anythink.** {
+   *;
 }
--keep class com.bytedance.msdk.base.TTBaseAd{*;}
--keep class com.bytedance.msdk.adapter.TTAbsAdLoaderAdapter{
-    public *;
-    protected <fields>;
+-keep public class com.anythink.network.**
+-keepclassmembers class com.anythink.network.** {
+   public *;
 }
-# ==================================GroMore聚合-END==================================
+-dontwarn com.anythink.hb.**
+-keep class com.anythink.hb.**{ *;}
+-dontwarn com.anythink.china.api.**
+-keep class com.anythink.china.api.**{ *;}
+# new in v5.6.6
+-keep class com.anythink.myoffer.ui.**{ *;}
+-keepclassmembers public class com.anythink.myoffer.ui.** {
+   public *;
+}
+# ==================================TOPON-END==================================
 
+#如果集成了OAID sdk
 # =================================OAID-BEGIN=================================
 -dontwarn com.bun.**
 -dontwarn sun.misc.**
@@ -756,7 +945,7 @@ public class CoustomNativeRender implements NativeRenderControl {
 ```
 * 查看日志请在控制台过滤：PlatformSDK
 
-##### 2、更多问题请阅读[GroMore接入文档][1]<br>
-[1]:https://www.csjplatform.com/union/media/union/download/detail?id=106&osType=android&locale=zh-CN "GroMore接入文档"
+##### 2、更多问题请阅读[Topon接入文档][1]<br>
+[1]:https://docs.toponad.com/#/zh-cn/android/android_doc/android_sdk_config_cn_access "Topon接入文档"
 
 ##### 更多文档更新中。。。
