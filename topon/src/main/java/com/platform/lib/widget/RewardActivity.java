@@ -155,18 +155,6 @@ public class RewardActivity extends Activity implements Application.ActivityLife
         });
     }
 
-    /**
-     * 返回真实的广告平台
-     * @return
-     */
-    private String getAdSource() {
-        String adSource = PlayManager.getInstance().getAdSource();
-        if(!TextUtils.isEmpty(adSource)){
-            return adSource;
-        }
-        return AdConstance.SOURCE_TO;
-    }
-
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
@@ -193,7 +181,6 @@ public class RewardActivity extends Activity implements Application.ActivityLife
         super.finish();
         if(PlatformManager.getInstance().isDevelop()||success){
             Result status = new Result();
-            status.setAd_source(getAdSource());
             status.setAd_code(TextUtils.isEmpty(ad_code)?"0":ad_code);
             status.setIs_click(PlatformManager.getInstance().isDevelop()?"1":isClick?"1":"0");
             status.setEcpm(ad_ecpm +"");

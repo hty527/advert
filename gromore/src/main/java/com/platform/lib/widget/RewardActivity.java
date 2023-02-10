@@ -195,7 +195,6 @@ public class RewardActivity extends Activity implements Application.ActivityLife
         super.finish();
         if(PlatformManager.getInstance().isDevelop()||success){
             Result status = new Result();
-            status.setAd_source(AdConstance.SOURCE_TO);
             status.setAd_code(TextUtils.isEmpty(ad_code)?"0":ad_code);
             status.setIs_click(PlatformManager.getInstance().isDevelop()?"1":isClick?"1":"0");
             status.setEcpm(ad_ecpm);

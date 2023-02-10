@@ -24,7 +24,6 @@ public final class PlayManager extends OnPlayListener {
     private volatile static PlayManager mInstance;
     private OnPlayListener mListener;
     private boolean isShowing;//是否正在播放中
-    private String mAdSource;//真实的激励视频广告平台，1：穿山甲 3：优量汇 5：快手
 
     public static PlayManager getInstance() {
         if(null==mInstance){
@@ -47,14 +46,6 @@ public final class PlayManager extends OnPlayListener {
 
     public void setAdPlayerListener(OnPlayListener listener) {
         mListener = listener;
-    }
-
-    public String getAdSource() {
-        return mAdSource;
-    }
-
-    public void setAdSource(String adSource) {
-        mAdSource = adSource;
     }
 
     /**
@@ -122,7 +113,6 @@ public final class PlayManager extends OnPlayListener {
      */
     public void startVideo(String ad_code, String scene,boolean isAutoModel, OnPlayListener listener){
         this.mListener=listener;
-        mAdSource=null;
         Context context = PlatformUtils.getInstance().getContext();
         Intent intent=new Intent(context, RewardActivity.class);
         intent.putExtra("id",ad_code);
