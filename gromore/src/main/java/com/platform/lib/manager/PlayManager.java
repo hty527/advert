@@ -3,7 +3,6 @@ package com.platform.lib.manager;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-
 import com.bytedance.msdk.api.reward.RewardItem;
 import com.bytedance.msdk.api.v2.ad.reward.GMRewardAd;
 import com.platform.lib.bean.Result;
@@ -24,7 +23,6 @@ public final class PlayManager extends OnPlayListener {
     private volatile static PlayManager mInstance;
     private OnPlayListener mListener;
     private boolean isShowing;//是否正在播放中
-    private String mAdSource;//真实的激励视频广告平台，1：穿山甲 3：优量汇 5：快手
 
     public static PlayManager getInstance() {
         if(null==mInstance){
@@ -47,14 +45,6 @@ public final class PlayManager extends OnPlayListener {
 
     public void setAdPlayerListener(OnPlayListener listener) {
         mListener = listener;
-    }
-
-    public String getAdSource() {
-        return mAdSource;
-    }
-
-    public void setAdSource(String adSource) {
-        mAdSource = adSource;
     }
 
     /**
@@ -91,7 +81,6 @@ public final class PlayManager extends OnPlayListener {
      */
     public void startVideo(String ad_code, String scene,OnPlayListener listener){
         this.mListener=listener;
-        mAdSource=null;
         Context context = PlatformUtils.getInstance().getContext();
         Intent intent=new Intent(context, RewardActivity.class);
         intent.putExtra("id",ad_code);
