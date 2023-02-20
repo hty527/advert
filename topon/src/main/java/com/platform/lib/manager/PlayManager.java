@@ -3,6 +3,7 @@ package com.platform.lib.manager;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+
 import com.anythink.core.api.ATAdInfo;
 import com.anythink.rewardvideo.api.ATRewardVideoAd;
 import com.platform.lib.bean.Result;
@@ -123,15 +124,13 @@ public final class PlayManager extends OnPlayListener {
     }
 
     @Override
-    public void onClose(Result result) {
-        OnPlayListener playerListener=mListener;
-        mListener=null;
-        if(null!=playerListener) playerListener.onClose(result);
+    public void onSuccess(ATRewardVideoAd atRewardVideoAd) {
+        if(null!=mListener) mListener.onSuccess(atRewardVideoAd);
     }
 
     @Override
-    public void onSuccess(ATRewardVideoAd atRewardVideoAd) {
-        if(null!=mListener) mListener.onSuccess(atRewardVideoAd);
+    public void onAdvertActivityCreated(Activity activity) {
+        if(null!=mListener) mListener.onAdvertActivityCreated(activity);
     }
 
     @Override
@@ -167,7 +166,9 @@ public final class PlayManager extends OnPlayListener {
     }
 
     @Override
-    public void openActivity(Activity activity) {
-        if(null!=mListener) mListener.openActivity(activity);
+    public void onClose(Result result) {
+        OnPlayListener playerListener=mListener;
+        mListener=null;
+        if(null!=playerListener) playerListener.onClose(result);
     }
 }

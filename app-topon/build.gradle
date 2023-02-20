@@ -84,7 +84,7 @@ dependencies {
 
     //广告功能逻辑SDK
     implementation project(':topon')
-    //implementation 'com.github.hty527.advert:topon:1.1.4'
+    //implementation 'com.github.hty527.advert:topon:1.1.4.1'
 
     /**
      * 如果是Support环境

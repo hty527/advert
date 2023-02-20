@@ -13,16 +13,16 @@ import com.platform.lib.bean.Result;
 public abstract class OnPlayListener {
 
     /**
-     * 当播放激励视频时，无论何种原因，广告播放关闭了，此方法会回调。其它广告类型仅在广告正常关闭时回调
-     * @param result 播放状态，当有效播放或开发者模式时不为空，其他状态为null，请注意！
-     */
-    public abstract void onClose(Result result);
-
-    /**
      * 广告加载成功了(播放激励视频时回调)
      * @param atRewardVideoAd 仅激励视频并且非全自动时此对象可能不为空
      */
     public void onSuccess(ATRewardVideoAd atRewardVideoAd){}
+
+    /**
+     * 第三方广告Activity被创建了
+     * @param activity
+     */
+    public void onAdvertActivityCreated(Activity activity){}
 
     /**
      * 广告被显示了
@@ -60,8 +60,8 @@ public abstract class OnPlayListener {
     public void onError(int code, String message, String adCode){}
 
     /**
-     * 第三方广告Activity显示
-     * @param activity
+     * 当播放激励视频时，无论何种原因，广告播放关闭了，此方法会回调。其它广告类型仅在广告正常关闭时回调
+     * @param result 播放状态，当有效播放或开发者模式时不为空，其他状态为null，请注意！
      */
-    public void openActivity(Activity activity){}
+    public abstract void onClose(Result result);
 }
