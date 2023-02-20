@@ -80,6 +80,7 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
     implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs_topon')
+    implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs-adn')
     implementation 'androidx.multidex:multidex:2.0.1'//当minSdkVersion>=21时会出现找不到androidx.multidex.MultiDexApplication
 
     //广告功能逻辑SDK
@@ -98,6 +99,9 @@ dependencies {
 
     /**
      * 如果是androidx环境
+     * 需在工程的gradle.properties文件增加下列配置：
+     * android.useAndroidX=true
+     * android.enableJetifier=true
      */
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
