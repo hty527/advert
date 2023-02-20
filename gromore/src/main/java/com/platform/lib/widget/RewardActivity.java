@@ -10,8 +10,6 @@ import android.view.View;
 import android.widget.TextView;
 import com.bytedance.msdk.api.reward.RewardItem;
 import com.bytedance.msdk.api.v2.ad.reward.GMRewardAd;
-import com.bytedance.pangle.activity.GenerateProxyActivity;
-import com.kwad.sdk.api.proxy.BaseProxyActivity;
 import com.platform.lib.R;
 import com.platform.lib.bean.Result;
 import com.platform.lib.constants.AdConstance;
@@ -19,7 +17,6 @@ import com.platform.lib.listener.OnRewardVideoListener;
 import com.platform.lib.manager.PlatformManager;
 import com.platform.lib.manager.PlayManager;
 import com.platform.lib.utils.Logger;
-import com.qq.e.ads.ADActivity;
 
 /**
  * created by hty
@@ -33,8 +30,6 @@ public class RewardActivity extends Activity implements Application.ActivityLife
     private String play_scene,ad_code,ad_ecpm;
     //是否播放成功、是否点击了
     private boolean success=false,isClick=false;
-    //广告容器宿主
-    private Activity mAdActivity;
     //第三方广告平台标识，请参阅：GMNetworkPlatformConst类
     private int mPlatformId;
 
@@ -185,10 +180,6 @@ public class RewardActivity extends Activity implements Application.ActivityLife
 
     @Override
     public void finish() {
-        //先将Activity回调给需要关心的宿主
-        if(null!=mAdActivity){
-            PlayManager.getInstance().closeActivity(mAdActivity);
-        }
         getApplication().unregisterActivityLifecycleCallbacks(this);
         PlayManager.getInstance().setShowing(false);
         PlatformManager.getInstance().onResetReward();
@@ -213,22 +204,14 @@ public class RewardActivity extends Activity implements Application.ActivityLife
 
     @Override
     public void onActivityCreated(Activity activity, Bundle bundle) {
-        try {
-            if(activity instanceof BaseProxyActivity){//KsRewardVideoActivity
-//            Logger.d("onActivityCreated-->快手-->");
-                this.mAdActivity=activity;
-            }else if(activity instanceof ADActivity){//RewardvideoPortraitADActivity
-//            Logger.d("onActivityCreated-->优量汇-->");
-                this.mAdActivity=activity;
-            }else if(activity instanceof GenerateProxyActivity){//TTRewardVideoActivity、GenerateProxyActivity
-//            Logger.d("onActivityCreated-->穿山甲-->");
-                this.mAdActivity=activity;
-            }
-            if(null!=mAdActivity){
-                PlayManager.getInstance().openActivity(mAdActivity);
-            }
-        }catch (Throwable e){
-        }
+//        if(activity instanceof BaseProxyActivity){//KsRewardVideoActivity
+////            Logger.d("onActivityCreated-->快手-->");
+//        }else if(activity instanceof ADActivity){//RewardvideoPortraitADActivity
+////            Logger.d("onActivityCreated-->优量汇-->");
+//        }else if(activity instanceof GenerateProxyActivity){//TTRewardVideoActivity、GenerateProxyActivity
+////            Logger.d("onActivityCreated-->穿山甲-->");
+//        }
+        PlayManager.getInstance().openActivity(activity);
     }
 
     @Override

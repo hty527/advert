@@ -27,8 +27,6 @@ import com.anythink.nativead.api.ATNativeDislikeListener;
 import com.anythink.nativead.api.ATNativeEventListener;
 import com.anythink.nativead.api.ATNativeNetworkListener;
 import com.anythink.nativead.api.NativeAd;
-import com.anythink.network.gdt.GDTATConst;
-import com.anythink.network.toutiao.TTATConst;
 import com.anythink.rewardvideo.api.ATRewardVideoAd;
 import com.anythink.rewardvideo.api.ATRewardVideoAutoAd;
 import com.anythink.rewardvideo.api.ATRewardVideoAutoEventListener;
@@ -48,7 +46,6 @@ import com.platform.lib.utils.InitHelper;
 import com.platform.lib.utils.Logger;
 import com.platform.lib.utils.PlatformPreferences;
 import com.platform.lib.utils.PlatformUtils;
-import com.qq.e.ads.nativ.ADSize;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -618,7 +615,6 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
         public void onRewardedVideoAdPlayStart(ATAdInfo atAdInfo){
 //            Logger.d("loadRewardVideo-->onRewardedVideoAdPlayStart");
             setPlatformId(atAdInfo.getNetworkFirmId());
-            PlayManager.getInstance().setAdSource(parseAdSource(atAdInfo.getNetworkFirmId()));
             event(mVideoScene, AdConstance.TYPE_REWARD_VIDEO,mVideoCode, AdConstance.STATUS_SHOW_SUCCESS, 0,null);
             if(null!=mRewardVideoListener){
                 mRewardVideoListener.onShow(mAtRewardVideoAd);
@@ -650,7 +646,6 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
         @Override
         public void onRewardedVideoAdPlayClicked(ATAdInfo atAdInfo) {
             setPlatformId(atAdInfo.getNetworkFirmId());
-            PlayManager.getInstance().setAdSource(parseAdSource(atAdInfo.getNetworkFirmId()));
 //            Logger.d("loadRewardVideo-->onRewardedVideoAdPlayClicked,atAdInfo:"+atAdInfo.toString());
             if(null!=mRewardVideoListener){
                 mRewardVideoListener.onClick(atAdInfo);
@@ -660,7 +655,6 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
         @Override
         public void onReward(ATAdInfo atAdInfo) {
             setPlatformId(atAdInfo.getNetworkFirmId());
-            PlayManager.getInstance().setAdSource(parseAdSource(atAdInfo.getNetworkFirmId()));
 //            Logger.d("loadRewardVideo-->onReward");
             if(null!=mRewardVideoListener){
                 mRewardVideoListener.onRewardVerify();
@@ -1365,9 +1359,10 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
             //穿山甲（Pangle）
             localMap.put(ATAdConst.KEY.AD_WIDTH, adWidth<=0? PlatformUtils.getInstance().getScreenWidth(): PlatformUtils.getInstance().dpToPxInt(adWidth));
             localMap.put(ATAdConst.KEY.AD_HEIGHT, PlatformUtils.getInstance().dpToPxInt(adHeight));
-            localMap.put(TTATConst.NATIVE_AD_IMAGE_HEIGHT, PlatformUtils.getInstance().dpToPxInt(adHeight));
-            //腾讯广告（Tencent Ads），ADSize.AUTO_HEIGHT值为-2
-            localMap.put(GDTATConst.AD_HEIGHT,adHeight<=0? ADSize.AUTO_HEIGHT:PlatformUtils.getInstance().dpToPxInt(adHeight));
+            //TTATConst.NATIVE_AD_IMAGE_HEIGHT：tt_image_height
+            localMap.put("tt_image_height", PlatformUtils.getInstance().dpToPxInt(adHeight));
+            //腾讯广告（Tencent Ads），GDTATConst.AD_HEIGHT：gdtad_height，ADSize.AUTO_HEIGHT：-2
+            localMap.put("gdtad_height",adHeight<=0? -2:PlatformUtils.getInstance().dpToPxInt(adHeight));
             this.mAdCode=id;this.mScene=scene;
             mNativeExpressAD.setLocalExtra(localMap);
             mNativeExpressAD.makeAdRequest();//发起广告请求

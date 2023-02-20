@@ -73,7 +73,7 @@
 }
 -keep class com.platform.lib.listener.** {*;}
 #GroMore保持竞价逻辑不被混淆
--keep class com.platform.lib.adn.** {*;}
+-keep class com.platform.simple.adn.** {*;}
 #保留ExpressView类的requst及destroy方法
 -keep class com.platform.lib.widget.ExpressView {
     public void requst();

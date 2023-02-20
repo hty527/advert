@@ -170,9 +170,4 @@ public final class PlayManager extends OnPlayListener {
     public void openActivity(Activity activity) {
         if(null!=mListener) mListener.openActivity(activity);
     }
-
-    @Override
-    public void closeActivity(Activity activity) {
-        if(null!=mListener) mListener.closeActivity(activity);
-    }
 }
