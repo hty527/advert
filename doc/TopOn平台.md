@@ -1,14 +1,9 @@
 ### 一、接入前的准备工作
-* 到TopOn后台申请app_id和广告位id<br>
-* 复制demo模块app-topon中app模块下的libs_topon文件夹到你的项目中的app模块中<br>
-* demo中libs目录下的oaid_sdk_1.0.25.aar为可选SDK，适配Android10及以上系统建议集成<br>
+* 到[TopOn后台][6]申请APP ID和广告位ID<br>
+* 此工程及接入文档以穿山甲、快手、优量汇三家广告平台为接入示例<br>
 * 遇到问题请阅读[TopOn官方文档][1]<br>
 * 更多平台广告支持[第三方广告SDK下载][2]<br>
 * 配置、混淆、资源、权限等请参阅[官方文档][3]<br>
-
-[1]:https://docs.toponad.com/#/zh-cn/android/GetStarted/TopOn_Get_Started "TopOn官方文档"
-[2]:https://docs.toponad.com/#/zh-cn/android/download/package?_t=HcOmafjKlbJSNUyNLQu069135i0758v3 "第三方广告SDK下载"
-[3]:https://docs.toponad.com/#/zh-cn/android/android_doc/android_sdk_config_cn_access "官方文档"
 
 ### 二、AndroidStudio接入
 
@@ -45,6 +40,9 @@
     
         /**
          * 如果是androidx环境
+         * 需在工程的gradle.properties文件增加下列配置：
+         * android.useAndroidX=true
+         * android.enableJetifier=true
          */
         implementation 'androidx.appcompat:appcompat:1.0.2'
         implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
@@ -55,7 +53,12 @@
         implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     }
 ```
-##### 3、复制app模块中libs_topon目录所有.aar文件到你的项目中并依赖，如需支持更多平台广告SDK，请点击[下载][4]
+
+##### 3、第三方聚合平台SDK及第三方广告平台SDK配置
+###### 3.1、复制模块app-topon下libs_topon目录内所有.aar文件到你的项目中并依赖
+###### 3.2、根据需要集成的广告平台复制模块app-topon下libs-adn的第三方平台SDK及适配器SDK到你的项目中并依赖。更多广告SDK，请前往[下载][4]
+###### 3.3、demo中libs目录下的oaid_sdk_1.0.25.aar为可选SDK，适配Android10及以上系统建议集成
+
 ##### 4、权限
 * 请尽可能的申明下列权限
 ```
@@ -81,5 +84,10 @@
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
 ```
 #### 二、广告展示、拉取、缓存、混淆等请阅读[接入文档][5]
+
+[1]:https://docs.toponad.com/#/zh-cn/android/GetStarted/TopOn_Get_Started "TopOn官方文档"
+[2]:https://docs.toponad.com/#/zh-cn/android/download/package?_t=HcOmafjKlbJSNUyNLQu069135i0758v3 "第三方广告SDK下载"
+[3]:https://docs.toponad.com/#/zh-cn/android/android_doc/android_sdk_config_cn_access "官方文档"
 [4]:https://docs.toponad.com/#/zh-cn/android/download/package?_t=HcOmafjKlbJSNUyNLQu069135i0758v3 "下载"
 [5]:https://github.com/hty527/advert/wiki/TopOn平台接入文档 "接入文档"
+[6]:https://app.toponad.com/m/dashboard "TopOn后台"

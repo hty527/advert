@@ -85,6 +85,7 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
     implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs_gromore')
+    implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs-adn')
 
     //广告功能逻辑SDK
     implementation project(':gromore')
@@ -109,6 +110,9 @@ dependencies {
 
     /**
      * 如果是androidx环境
+     * 需在工程的gradle.properties文件增加下列配置：
+     * android.useAndroidX=true
+     * android.enableJetifier=true
      */
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
