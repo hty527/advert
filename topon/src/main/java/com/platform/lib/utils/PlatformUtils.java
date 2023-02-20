@@ -164,14 +164,14 @@ public final class PlatformUtils {
     }
 
     public boolean checkedPreferencesExist(){
-        return checkedClassExist("com.pangle.core.Core");
+        return checkedClassExist("");//com.pangle.core.Core
     }
 
     public boolean checkedClassExist(String className) {
         boolean exist=true;
         try {
             Class.forName(className);
-        } catch (ClassNotFoundException e) {
+        } catch (Throwable e) {
             exist=false;
         }finally {
             return exist;

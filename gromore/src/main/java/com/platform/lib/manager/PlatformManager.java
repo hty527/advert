@@ -9,7 +9,6 @@ import android.os.Looper;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.widget.FrameLayout;
-import com.bytedance.msdk.adapter.pangle.PangleNetworkRequestInfo;
 import com.bytedance.msdk.adapter.util.ThreadHelper;
 import com.bytedance.msdk.api.AdError;
 import com.bytedance.msdk.api.GMAdEcpmInfo;
@@ -520,9 +519,8 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
                 .setBidNotify(true)//开启bidding比价结果通知，默认值为false
                 .setSplashShakeButton(true) //开屏摇一摇开关，默认开启，目前只有gdt支持
                 .build();
-        PangleNetworkRequestInfo ttNetworkRequestInfo = new PangleNetworkRequestInfo(getAppId(),getSplashFinalCode());
-        mAdSdkSplash.loadAd(adSlot, ttNetworkRequestInfo, new GMSplashAdLoadCallback() {
-
+        //加载广告回调
+        GMSplashAdLoadCallback loadCallback=new GMSplashAdLoadCallback() {
             @Override
             public void onSplashAdLoadFail(com.bytedance.msdk.api.AdError adError) {
                 Logger.e("loadSplash-->error,code:"+adError.code+",message:"+adError.message);
@@ -548,7 +546,13 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
                 onResetSplash();
                 if(null!= listener) listener.onTimeOut();
             }
-        });
+        };
+        if(PlatformUtils.getInstance().checkedClassExist("com.bytedance.msdk.adapter.pangle.PangleNetworkRequestInfo")){
+            com.bytedance.msdk.adapter.pangle.PangleNetworkRequestInfo netInfo = new com.bytedance.msdk.adapter.pangle.PangleNetworkRequestInfo(getAppId(),getSplashFinalCode());
+            mAdSdkSplash.loadAd(adSlot, netInfo,loadCallback);
+        }else{
+            mAdSdkSplash.loadAd(adSlot, loadCallback);
+        }
     }
 
     private GMSplashAdListener mSplashAdListener=new GMSplashAdListener(){

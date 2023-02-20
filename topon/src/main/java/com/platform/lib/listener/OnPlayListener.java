@@ -64,10 +64,4 @@ public abstract class OnPlayListener {
      * @param activity
      */
     public void openActivity(Activity activity){}
-
-    /**
-     * 第三方广告Activity关闭
-     * @param activity
-     */
-    public void closeActivity(Activity activity){}
 }
