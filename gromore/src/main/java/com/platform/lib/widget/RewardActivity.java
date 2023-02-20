@@ -211,7 +211,7 @@ public class RewardActivity extends Activity implements Application.ActivityLife
 //        }else if(activity instanceof GenerateProxyActivity){//TTRewardVideoActivity、GenerateProxyActivity
 ////            Logger.d("onActivityCreated-->穿山甲-->");
 //        }
-        PlayManager.getInstance().openActivity(activity);
+        PlayManager.getInstance().onAdvertActivityCreated(activity);
     }
 
     @Override

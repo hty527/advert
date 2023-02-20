@@ -90,15 +90,13 @@ public final class PlayManager extends OnPlayListener {
     }
 
     @Override
-    public void onClose(Result result) {
-        OnPlayListener playerListener=mListener;
-        mListener=null;
-        if(null!=playerListener) playerListener.onClose(result);
+    public void onSuccess(GMRewardAd atRewardVideoAd) {
+        if(null!=mListener) mListener.onSuccess(atRewardVideoAd);
     }
 
     @Override
-    public void onSuccess(GMRewardAd atRewardVideoAd) {
-        if(null!=mListener) mListener.onSuccess(atRewardVideoAd);
+    public void onAdvertActivityCreated(Activity activity) {
+        if(null!=mListener) mListener.onAdvertActivityCreated(activity);
     }
 
     @Override
@@ -113,12 +111,12 @@ public final class PlayManager extends OnPlayListener {
 
     @Override
     public void onRewardVerify() {
-        onRewardVerify(null);
+        if(null!=mListener) mListener.onClick();
     }
 
     @Override
     public void onRewardVerify(RewardItem rewardItem) {
-        if(null!=mListener) mListener.onRewardVerify();
+        onRewardVerify();
         if(null!=mListener) mListener.onRewardVerify(rewardItem);
     }
 
@@ -128,7 +126,9 @@ public final class PlayManager extends OnPlayListener {
     }
 
     @Override
-    public void openActivity(Activity activity) {
-        if(null!=mListener) mListener.openActivity(activity);
+    public void onClose(Result result) {
+        OnPlayListener playerListener=mListener;
+        mListener=null;
+        if(null!=playerListener) playerListener.onClose(result);
     }
 }
