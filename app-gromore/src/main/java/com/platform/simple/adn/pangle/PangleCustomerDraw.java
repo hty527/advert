@@ -11,7 +11,7 @@ import com.bytedance.sdk.openadsdk.TTAdSdk;
 import com.bytedance.sdk.openadsdk.TTDrawFeedAd;
 import com.bytedance.sdk.openadsdk.TTFeedAd;
 import com.bytedance.sdk.openadsdk.TTNativeExpressAd;
-import com.platform.lib.utils.TTNumberUtil;
+import com.platform.simple.TTNumberUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;

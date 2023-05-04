@@ -3,14 +3,13 @@ package com.platform.simple.adn.gdt;
 import android.app.Activity;
 import android.content.Context;
 import android.view.View;
-
 import com.bytedance.msdk.api.v2.GMAdConstant;
 import com.bytedance.msdk.api.v2.ad.custom.GMCustomAdError;
 import com.bytedance.msdk.api.v2.ad.custom.banner.GMCustomBannerAdapter;
 import com.bytedance.msdk.api.v2.ad.custom.bean.GMCustomServiceConfig;
 import com.bytedance.msdk.api.v2.slot.GMAdSlotBanner;
-import com.platform.lib.utils.ThreadUtils;
 import com.platform.lib.constants.AdConstance;
+import com.platform.simple.ThreadUtils;
 import com.qq.e.ads.banner2.UnifiedBannerADListener;
 import com.qq.e.ads.banner2.UnifiedBannerView;
 import com.qq.e.comm.util.AdError;

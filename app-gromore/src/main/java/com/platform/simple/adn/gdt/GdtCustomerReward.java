@@ -9,7 +9,7 @@ import com.bytedance.msdk.api.v2.ad.custom.GMCustomAdError;
 import com.bytedance.msdk.api.v2.ad.custom.bean.GMCustomServiceConfig;
 import com.bytedance.msdk.api.v2.ad.custom.reward.GMCustomRewardAdapter;
 import com.bytedance.msdk.api.v2.slot.GMAdSlotRewardVideo;
-import com.platform.lib.utils.ThreadUtils;
+import com.platform.simple.ThreadUtils;
 import com.platform.lib.constants.AdConstance;
 import com.qq.e.ads.rewardvideo.RewardVideoAD;
 import com.qq.e.ads.rewardvideo.RewardVideoADListener;

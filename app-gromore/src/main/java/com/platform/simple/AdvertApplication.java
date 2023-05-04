@@ -2,6 +2,7 @@ package com.platform.simple;
 
 import android.content.Context;
 import android.os.Build;
+import android.util.Log;
 import android.webkit.WebView;
 
 import androidx.multidex.MultiDexApplication;
@@ -12,7 +13,6 @@ import com.platform.lib.constants.AdConstance;
 import com.platform.lib.listener.OnEventListener;
 import com.platform.lib.listener.OnInitListener;
 import com.platform.lib.manager.PlatformManager;
-import com.platform.lib.utils.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -146,7 +146,7 @@ public class AdvertApplication extends MultiDexApplication {
                      */
                     @Override
                     public void onEvent(String scene, String ad_type, String ad_code, String ad_status, int error_code, String error_msg) {
-                        Logger.log(TAG,"onEvent-->scene:"+scene+",ad_type:"+ad_type+",ad_code:"+ad_code+",ad_status:"+ad_status+",error_code:"+error_code+",error_msg:"+error_msg, "2".equals(ad_status)||"4".equals(ad_status)? Logger.ERROR:Logger.INFO);
+                        Log.d(TAG,"onEvent-->scene:"+scene+",ad_type:"+ad_type+",ad_code:"+ad_code+",ad_status:"+ad_status+",error_code:"+error_code+",error_msg:"+error_msg);
                     }
                 }).setUserId("88888888");//开启服务端验证模式下随意设置的回调参数：用户ID，自定义回调参数请实现localExtra并返回自定义键值对
     }

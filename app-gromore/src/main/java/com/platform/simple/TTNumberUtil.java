@@ -1,4 +1,4 @@
-package com.platform.lib.utils;
+package com.platform.simple;
 
 public class TTNumberUtil {
 

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,7 +23,6 @@ import com.platform.lib.listener.OnTabScreenListener;
 import com.platform.lib.manager.PlatformManager;
 import com.platform.lib.manager.PlayManager;
 import com.platform.lib.manager.TableScreenManager;
-import com.platform.lib.utils.Logger;
 import com.platform.lib.widget.ExpressView;
 
 /**
@@ -104,12 +104,12 @@ public class MainActivity extends AppCompatActivity {
         //打开网络调试器模式
 //        ATSDK.setDebuggerConfig(this, "a00fe693b8c3016f",new ATDebuggerConfig.Builder(the NetworkFirmId you want to test).build());
         boolean cnSDK = ATSDK.isCnSDK();//判断当前使用Topon SDK是否为中国区
-        Logger.d(TAG,"SDK版本号："+version+",Topon SDK版本号："+sdkVersionName+",Topon SDK是否为中国区："+cnSDK);
+        Log.d(TAG,"SDK版本号："+version+",Topon SDK版本号："+sdkVersionName+",Topon SDK是否为中国区："+cnSDK);
         //打印当前设备的设备信息（IMEI、OAID、GAID、AndroidID等）
         ATSDK.testModeDeviceInfo(this, new DeviceInfoCallback() {
             @Override
             public void deviceInfo(String s) {
-                Logger.d(TAG,"deviceInfo："+s);
+                Log.d(TAG,"deviceInfo："+s);
             }
         });
 
@@ -177,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onError(int code, String message) {
-                Logger.e(TAG,"initReward-->error,code:"+code+",error:"+message);
+                Log.e(TAG,"initReward-->error,code:"+code+",error:"+message);
             }
         });
     }
@@ -249,7 +249,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClose(Result result) {
                 if(null!=result){
-                    Logger.d(TAG,"onClose-->result:"+result.toString());
+                    Log.d(TAG,"onClose-->result:"+result.toString());
                     //播放成功并关闭了
                     Toast.makeText(getApplicationContext(),"播放结束",Toast.LENGTH_SHORT).show();
                 }
@@ -301,7 +301,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onError(int code, String message) {
-                Logger.e(TAG,"initInsert-->error,code:"+code+",error:"+message);
+                Log.e(TAG,"initInsert-->error,code:"+code+",error:"+message);
             }
         });
     }

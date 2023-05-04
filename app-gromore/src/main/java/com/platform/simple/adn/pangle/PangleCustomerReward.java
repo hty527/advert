@@ -12,7 +12,7 @@ import com.bytedance.msdk.api.v2.slot.GMAdSlotRewardVideo;
 import com.bytedance.sdk.openadsdk.TTAdNative;
 import com.bytedance.sdk.openadsdk.TTAdSdk;
 import com.bytedance.sdk.openadsdk.TTRewardVideoAd;
-import com.platform.lib.utils.TTNumberUtil;
+import com.platform.simple.TTNumberUtil;
 import java.util.HashMap;
 import java.util.Map;
 

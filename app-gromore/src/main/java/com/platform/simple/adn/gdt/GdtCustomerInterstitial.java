@@ -8,7 +8,7 @@ import com.bytedance.msdk.api.v2.ad.custom.GMCustomAdError;
 import com.bytedance.msdk.api.v2.ad.custom.bean.GMCustomServiceConfig;
 import com.bytedance.msdk.api.v2.ad.custom.interstitial.GMCustomInterstitialAdapter;
 import com.bytedance.msdk.api.v2.slot.GMAdSlotInterstitial;
-import com.platform.lib.utils.ThreadUtils;
+import com.platform.simple.ThreadUtils;
 import com.platform.lib.constants.AdConstance;
 import com.qq.e.ads.interstitial2.UnifiedInterstitialAD;
 import com.qq.e.ads.interstitial2.UnifiedInterstitialADListener;

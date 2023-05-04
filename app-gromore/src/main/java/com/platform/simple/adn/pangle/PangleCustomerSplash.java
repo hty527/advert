@@ -12,7 +12,7 @@ import com.bytedance.msdk.api.v2.slot.GMAdSlotSplash;
 import com.bytedance.sdk.openadsdk.TTAdNative;
 import com.bytedance.sdk.openadsdk.TTAdSdk;
 import com.bytedance.sdk.openadsdk.TTSplashAd;
-import com.platform.lib.utils.TTNumberUtil;
+import com.platform.simple.TTNumberUtil;
 import java.util.Map;
 
 public class PangleCustomerSplash extends GMCustomSplashAdapter {
