@@ -68,9 +68,9 @@
 -keep class com.platform.lib.bean.Result {
     public *;
 }
--keep class com.platform.lib.utils.Logger {
-    public *;
-}
+#-keep class com.platform.lib.utils.Logger {
+#    public *;
+#}
 -keep class com.platform.lib.listener.** {*;}
 #GroMore保持竞价逻辑不被混淆
 -keep class com.platform.simple.adn.** {*;}

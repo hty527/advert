@@ -68,9 +68,9 @@
 -keep class com.platform.lib.bean.Result {
     public *;
 }
--keep class com.platform.lib.utils.Logger {
-    public *;
-}
+#-keep class com.platform.lib.utils.Logger {
+#    public *;
+#}
 -keep class com.platform.lib.listener.** {*;}
 #保留ExpressView类的requst及destroy方法
 -keep class com.platform.lib.widget.ExpressView {
