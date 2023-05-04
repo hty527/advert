@@ -89,7 +89,7 @@ dependencies {
 
     //广告功能逻辑SDK
     implementation project(':gromore')
-    //implementation 'com.github.hty527.advert:gromore:1.1.5'
+//    implementation 'com.github.hty527.advert:gromore:1.1.5.1'
 
 //    //GroMore_sdk
 //    compileOnly "com.gromore.cn:gromore-sdk:3.8.0.1"  //groMore sdk

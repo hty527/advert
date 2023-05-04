@@ -26,7 +26,7 @@
         //复制libs_gromore文件夹到app下后引入libs_gromore目录下的所有.aar文件和.jar文件
         implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs_gromore')
         //广告功能逻辑SDK
-        implementation 'com.github.hty527.advert:gromore:1.1.5'
+        implementation 'com.github.hty527.advert:gromore:1.1.5.1'
 
         /**
          * 如果是Support环境
