@@ -56,6 +56,7 @@ import com.platform.lib.utils.InitHelper;
 import com.platform.lib.utils.Logger;
 import com.platform.lib.utils.PlatformPreferences;
 import com.platform.lib.utils.PlatformUtils;
+import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -106,6 +107,8 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     //初始化监听器
     private OnInitListener mOnInitListener;
     private boolean isExternalActivity=false;//Utils内部的Activity是否为外部传入的
+    private int mPlatformId;//真实的广告平台
+    private String mCustomExtra;//当前激励视频的自定义信息
 
     /**
      * 文案提示内容
@@ -207,7 +210,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
                 }
             });
             //初始化SDK
-            GMMediationAdSdk.initialize(context,null!=listener?listener.getSdkConfig(appId,appName,channel,debug):buildGromoreConfig(appId,appName,channel,debug));
+            GMMediationAdSdk.initialize(context,null!=listener?listener.getSdkConfig(appId,appName,channel,debug): buildGroMoreConfig(appId,appName,channel,debug));
             if(context instanceof Application){
                 ((Application) context).registerActivityLifecycleCallbacks(this);
             }
@@ -249,16 +252,22 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
 
     /**
      * 设置用户ID，用于透传给广告
-     * @param userId 设置用户ID，用于透传给广告
+     * @param userId 设置用户ID，用于透传给广告，必须在请求广告之前设置！
      * @return
      */
     public PlatformManager setUserId(String userId) {
         this.userId = userId;
+        PlatformPreferences.getInstance().putString("userId", userId);
         return mInstance;
     }
 
     public String getUserId() {
-        if(TextUtils.isEmpty(userId)) userId="0";
+        if(TextUtils.isEmpty(userId)) {
+            userId=PlatformPreferences.getInstance().getString("userId", null);
+        }
+        if(TextUtils.isEmpty(userId)){
+            userId="0";
+        }
         return userId;
     }
 
@@ -298,7 +307,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
      * @param debug 是否开启调试模式，true：开启调试模式，false：关闭调试模式
      * @return
      */
-    public GMAdConfig buildGromoreConfig(String appId, String appName, String channel,boolean debug) {
+    public GMAdConfig buildGroMoreConfig(String appId, String appName, String channel, boolean debug) {
         GMConfigUserInfoForSegment userInfo = new GMConfigUserInfoForSegment();
         userInfo.setGender(UserInfoForSegment.GENDER_MALE);
         userInfo.setChannel(channel);
@@ -406,7 +415,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
      * @param method 方法
      * @return
      */
-    private boolean isConfigAvailable(BaseListener listener, String posiid, String method){
+    private boolean isConfigAvailable(Object listener, String posiid, String method){
         if (GMMediationAdSdk.configLoadSuccess()) {
 //            Logger.d("isConfig->exist,posiid:"+posiid+",method:"+method);
             return true;
@@ -420,7 +429,13 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
                 }
             });
             //不用使用内部类，否则在ondestory中无法移除该回调
-            if(null!=listener) listener.onError(AdConstance.CODE_CONFIG_LOADING, getText(AdConstance.CODE_CONFIG_LOADING),posiid);
+            if(null!=listener){
+                if(listener instanceof BaseListener){
+                    ((BaseListener) listener).onError(AdConstance.CODE_CONFIG_LOADING, getText(AdConstance.CODE_CONFIG_LOADING),posiid);
+                }else if(listener instanceof OnRewardVideoListener){
+                    ((OnRewardVideoListener) listener).onError(AdConstance.CODE_CONFIG_LOADING, getText(AdConstance.CODE_CONFIG_LOADING),posiid);
+                }
+            }
             return false;
         }
     }
@@ -547,12 +562,13 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
                 if(null!= listener) listener.onTimeOut();
             }
         };
-        if(PlatformUtils.getInstance().checkedClassExist("com.bytedance.msdk.adapter.pangle.PangleNetworkRequestInfo")){
-            com.bytedance.msdk.adapter.pangle.PangleNetworkRequestInfo netInfo = new com.bytedance.msdk.adapter.pangle.PangleNetworkRequestInfo(getAppId(),getSplashFinalCode());
-            mAdSdkSplash.loadAd(adSlot, netInfo,loadCallback);
-        }else{
-            mAdSdkSplash.loadAd(adSlot, loadCallback);
-        }
+//        if(PlatformUtils.getInstance().checkedClassExist("com.bytedance.msdk.adapter.pangle.PangleNetworkRequestInfo")){
+//            com.bytedance.msdk.adapter.pangle.PangleNetworkRequestInfo netInfo = new com.bytedance.msdk.adapter.pangle.PangleNetworkRequestInfo(getAppId(),getSplashFinalCode());
+//            mAdSdkSplash.loadAd(adSlot, netInfo,loadCallback);
+//        }else{
+//            mAdSdkSplash.loadAd(adSlot, loadCallback);
+//        }
+        mAdSdkSplash.loadAd(adSlot, loadCallback);
     }
 
     private GMSplashAdListener mSplashAdListener=new GMSplashAdListener(){
@@ -623,6 +639,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
 
     public void onResetReward(){
         mRewardVideoListener =null;
+        mCustomExtra=null;
         if (mGMRewardAd != null) {
             mGMRewardAd.destroy();
             mGMRewardAd = null;
@@ -711,15 +728,17 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
                     Logger.d("loadRewardVideo-->loaded");
                     printLoadAdInfo(); //打印已经加载广告的信息
                     if(null!=mGMRewardAd){
+                        setPlatformId(mGMRewardAd.getAdNetworkPlatformId());
                         GMRewardedAdListener adListener = new GMRewardedAdListener() {
                             @Override
                             public void onRewardedAdShow() {
 //                                Logger.d("loadRewardVideo-->onRewardedAdShow");
+                                if(null!=mGMRewardAd) setPlatformId(mGMRewardAd.getAdNetworkPlatformId());
                                 if(null!= mRewardVideoListener){
                                     if(null!=mGMRewardAd){
-                                        mRewardVideoListener.onShow(getEcpm());
+                                        mRewardVideoListener.onShow();
                                     }else{
-                                        mRewardVideoListener.onShow("0");
+                                        mRewardVideoListener.onShow();
                                     }
                                 }
                             }
@@ -738,7 +757,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
                             public void onRewardClick() {
 //                                Logger.d("loadRewardVideo-->onRewardClick");
                                 if(null!=mRewardVideoListener){
-                                    mRewardVideoListener.onClick();
+                                    mRewardVideoListener.onClick(mGMRewardAd);
                                 }
                             }
 
@@ -746,8 +765,10 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
                             public void onRewardedAdClosed() {
 //                                Logger.d("loadRewardVideo-->onRewardedAdClosed");
                                 OnRewardVideoListener listener=mRewardVideoListener;
+                                String cpmInfo="{\"price\":\""+getEcpm()+"\",\"precision\":\"\",\"pre_price\":\"\"}";
+                                String customExtra=mCustomExtra;
                                 onResetReward();
-                                if(null!=listener) listener.onClose();
+                                if(null!=listener) listener.onClose(cpmInfo,customExtra);
                             }
 
                             @Override
@@ -762,10 +783,19 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
 
                             @Override
                             public void onRewardVerify(RewardItem rewardItem) {
-//                                Logger.d("loadRewardVideo-->rewardItem");
-                                if(null!= mRewardVideoListener){
-                                    mRewardVideoListener.onRewardVerify(rewardItem);
+//                                String customData=parseCustomData(rewardItem);
+                                if(null==rewardItem) return;
+                                Map<String, Object> customData = rewardItem.getCustomData();
+                                if(null!=customData){
+                                    try {
+                                        JSONObject jsonObject=new JSONObject(customData);
+                                        mCustomExtra = jsonObject.toString();
+//                                        Logger.d("onRewardVerify-->customExtra:"+ mCustomExtra);
+                                    }catch (Throwable e){
+                                        e.printStackTrace();
+                                    }
                                 }
+                                if(null!= mRewardVideoListener) mRewardVideoListener.onRewardVerify();
                             }
 
                             @Override
@@ -796,19 +826,58 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     }
 
     /**
+     * 解析自定义参数
+     * @param rewardItem
+     * @return
+     */
+    private String parseCustomData(RewardItem rewardItem) {
+        if(null!=rewardItem&&null!=rewardItem.getCustomData()){
+            Map<String, Object> customData = rewardItem.getCustomData();
+            Boolean isGroMoreServerVerify = (Boolean) customData.get(RewardItem.KEY_IS_GROMORE_SERVER_SIDE_VERIFY);
+            if(null!=isGroMoreServerVerify&&isGroMoreServerVerify){
+//                Logger.d("parseCustomData-->GroMore服务端验证");
+                boolean isVerify = rewardItem.rewardVerify();
+                // 如果isVerify=false，则可以根据下面的错误码来判断为什么是false，
+                //  1、如果errorCode为40001/40002/50001/50002，则是因为请求异常导致，媒体可以根据自己的判断决定是否发放奖励。
+                //  2、否则，就是媒体服务端回传的验证结果是false，此时应该不发放奖励。
+                String custom = (String) customData.get(RewardItem.KEY_GROMORE_EXTRA);
+//                Logger.d("parseCustomData-->custom:"+custom);
+                return custom;
+            }else{
+//                Logger.d("parseCustomData-->ADN验证");
+                String adnName = (String) customData.get(RewardItem.KEY_ADN_NAME);
+                if (!TextUtils.isEmpty(adnName)) {
+                    switch (adnName) {
+                        case RewardItem.KEY_GDT:
+                            String transIdGdt = (String) customData.get(RewardItem.KEY_GDT_TRANS_ID);
+                            break;
+                    }
+                }
+                Object customExtra = customData.get(RewardItem.KEY_EXTRA_INFO);
+                String groMore= (String) customData.get(GMAdConstant.CUSTOM_DATA_KEY_GROMORE_EXTRA);
+//                Logger.d("parseCustomData-->customExtra:"+customExtra+",groMore:"+groMore);
+                return groMore;
+            }
+        }
+        return null;
+    }
+
+    /**
      * 返回实际的广告平台，需要在调用showRewardAd之后再获取
      * @return 详情请见：GMNetworkPlatformConst类
      */
     public int getAdnPlatformId() {
-        if(null!=mGMRewardAd){
-            return mGMRewardAd.getAdNetworkPlatformId();
-        }
-        return 0;
+        int platformId=mPlatformId;
+        return platformId;
+    }
+
+    public void setPlatformId(int platformId) {
+        this.mPlatformId = platformId;
     }
 
     /**
-     * 返回当前广告的ECPM
-     * @return
+     * 返回当前广告的ECPM,必须在show之后获取
+     * @return 返回当前广告的ECPM,必须在show之后获取
      */
     public String getEcpm(){
         if(null!=mGMRewardAd){
@@ -823,10 +892,27 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     }
 
     private GMAdSlotRewardVideo buildRewardConfig(String rewardName) {
-        Map<String, String> customData = new HashMap<>();
-        customData.put(GMAdConstant.CUSTOM_DATA_KEY_PANGLE, "{\"type\":\""+AdConstance.SOURCE_TT+"\"}");
-        customData.put(GMAdConstant.CUSTOM_DATA_KEY_GDT, "{\"type\":\""+AdConstance.SOURCE_TX+"\"}");
-        customData.put(GMAdConstant.CUSTOM_DATA_KEY_KS, "{\"type\":\""+AdConstance.SOURCE_KS+"\"}");
+        Map<String, String> customData=null;
+        if(null!=mAdvertEventListener&&null!=mAdvertEventListener.localExtra()){
+//            Logger.d("buildRewardConfig-->customExtra:"+mAdvertEventListener.localExtra().toString());
+            customData=mAdvertEventListener.localExtra();
+        }else{
+            if(!TextUtils.isEmpty(getUserId())){
+                customData = new HashMap<>();
+                String userInfo="{\"userId\":\""+getUserId()+"\"}";
+                customData.put(GMAdConstant.CUSTOM_DATA_KEY_PANGLE, userInfo);
+                customData.put(GMAdConstant.CUSTOM_DATA_KEY_GDT, userInfo);
+                customData.put(GMAdConstant.CUSTOM_DATA_KEY_KS, userInfo);
+                customData.put(GMAdConstant.CUSTOM_DATA_KEY_ADMOB, userInfo);
+                customData.put(GMAdConstant.CUSTOM_DATA_KEY_BAIDU, userInfo);
+                customData.put(GMAdConstant.CUSTOM_DATA_KEY_KLEVIN, userInfo);
+                customData.put(GMAdConstant.CUSTOM_DATA_KEY_MINTEGRAL, userInfo);
+                customData.put(GMAdConstant.CUSTOM_DATA_KEY_SIGMOB, userInfo);
+                customData.put(GMAdConstant.CUSTOM_DATA_KEY_UNITY, userInfo);
+                customData.put(GMAdConstant.CUSTOM_DATA_KEY_GROMORE_EXTRA, userInfo);
+//                Logger.d("buildRewardConfig-->userInfo:"+userInfo);
+            }
+        }
         GMAdSlotRewardVideo adSlotRewardVideo = new GMAdSlotRewardVideo.Builder()
                 .setMuted(true)//对所有SDK的激励广告生效，除需要在平台配置的SDK，如穿山甲SDK
                 .setVolume(0f)//配合Admob的声音大小设置[0-1]
@@ -1190,7 +1276,8 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
                     .setGMAdSlotBaiduOption(GMAdOptionUtil.getGMAdSlotBaiduOption().build())//百度相关的配置
                     .setGMAdSlotGDTOption(adSlotNativeBuilder.build())//gdt相关的配置
                     .setAdmobNativeAdOptions(GMAdOptionUtil.getAdmobNativeAdOptions())//admob相关配置
-                    .setAdStyleType(GMAdConstant.TYPE_EXPRESS_AD)//必传，表示请求的模板广告还是原生广告，AdSlot.TYPE_EXPRESS_AD：模板广告 ； AdSlot.TYPE_NATIVE_AD：原生广告
+                    //4.1.0.4版本被废弃
+//                    .setAdStyleType(GMAdConstant.TYPE_EXPRESS_AD)//必传，表示请求的模板广告还是原生广告，AdSlot.TYPE_EXPRESS_AD：模板广告 ； AdSlot.TYPE_NATIVE_AD：原生广告
                     // 备注
                     // 1:如果是信息流自渲染广告，设置广告图片期望的图片宽高 ，不能为0
                     // 2:如果是信息流模板广告，宽度设置为希望的宽度，高度设置为0(0为高度选择自适应参数)

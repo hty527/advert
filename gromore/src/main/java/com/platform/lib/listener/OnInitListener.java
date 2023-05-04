@@ -19,7 +19,7 @@ public abstract class OnInitListener {
      * @return
      */
     public GMAdConfig getSdkConfig(String appId, String appName, String channel, boolean debug) {
-        return PlatformManager.getInstance().buildGromoreConfig(appId,appName,channel,debug);
+        return PlatformManager.getInstance().buildGroMoreConfig(appId,appName,channel,debug);
     }
 
     /**

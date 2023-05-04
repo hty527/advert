@@ -26,8 +26,8 @@ import com.platform.lib.utils.Logger;
 public class RewardActivity extends Activity implements Application.ActivityLifecycleCallbacks {
 
     private LoadingView mLoadingView;
-    //播放场景(由宿主传入，sdk将回调给宿主这个标识场景)、广告位ID、此视频广告的ECPM、是否全自动模式
-    private String play_scene,ad_code, ad_ecpm,is_auto="1";
+    //播放场景(由宿主传入，sdk将回调给宿主这个标识场景)、广告位ID、此视频广告的ECPM、是否全自动模式、自定义透传字段
+    private String play_scene,ad_code, mCpmInfo,is_auto="1",mCustomData;
     //是否播放成功、是否点击了
     private boolean success=false,isClick=false;
 
@@ -55,7 +55,7 @@ public class RewardActivity extends Activity implements Application.ActivityLife
         if(TextUtils.isEmpty(is_auto)) is_auto="0";
         Logger.d("init-->id:"+ad_code+",scene:"+play_scene+",is_auto:"+is_auto);
         if(TextUtils.isEmpty(ad_code)){
-            error(PlatformManager.getInstance().getText(AdConstance.CODE_ID_INVALID)+",id:"+ad_code);
+            error(PlatformManager.getInstance().getText(AdConstance.CODE_ID_INVALID));
             return;
         }
         if(PlatformManager.getInstance().isDevelop()){
@@ -91,34 +91,37 @@ public class RewardActivity extends Activity implements Application.ActivityLife
         }
 
         @Override
-        public void onShow(ATRewardVideoAd atRewardVideoAd) {
-            ad_ecpm ="0";
+        public void onShow() {
             success=true;
-            PlayManager.getInstance().onShow(atRewardVideoAd);
+            mCustomData=null;
+            PlayManager.getInstance().onShow();
         }
 
         @Override
         public void onError(int code, String message, String adCode) {
 //            Logger.e("onError-->code:"+code+",message:"+message+",adCode:"+adCode+",success:"+success);
             if(success) return;
-            error("code:"+code+",message:"+message+",id:"+adCode);
+            if(PlatformManager.getInstance().isDevelop()){
+                error("code:"+code+",message:"+message+",id:"+adCode);
+            }else{
+                error("code:"+code+",message:"+message);
+            }
             PlayManager.getInstance().onError(code,message,adCode);
         }
 
         @Override
         public void onRewardVerify() {
             success=true;
-            if(TextUtils.isEmpty(ad_ecpm)){
-                ad_ecpm = PlatformManager.getInstance().getEcpm();
-            }
-//            Logger.d("onRewardVerify-->ecpm:"+mEcpm);
+//            Logger.d("onRewardVerify-->");
             PlayManager.getInstance().onRewardVerify();
         }
 
         @Override
-        public void onClose() {
-//            Logger.d("onClose-->:");
+        public void onClose(String cpmInfo, String customData) {
+            Logger.d("onClose-->cpmInfo:"+cpmInfo+",customData:"+customData);
             success=true;
+            RewardActivity.this.mCpmInfo =cpmInfo;
+            RewardActivity.this.mCustomData=customData;
             finish();
         }
 
@@ -127,7 +130,6 @@ public class RewardActivity extends Activity implements Application.ActivityLife
 //            Logger.d("onClick-->:");
             isClick=true;
             success=true;
-
             PlayManager.getInstance().onClick(atAdInfo);
         }
     };
@@ -171,11 +173,13 @@ public class RewardActivity extends Activity implements Application.ActivityLife
         PlatformManager.getInstance().onResetReward();
         super.finish();
         if(PlatformManager.getInstance().isDevelop()||success){
+//            Logger.d("finish-->cpmInfo:"+mCpmInfo+",customData:"+mCustomData);
             Result status = new Result();
-            status.setAd_code(TextUtils.isEmpty(ad_code)?"0":ad_code);
-            status.setIs_click(PlatformManager.getInstance().isDevelop()?"1":isClick?"1":"0");
-            status.setEcpm(ad_ecpm +"");
+            status.setAdCode(TextUtils.isEmpty(ad_code)?"0":ad_code);
+            status.setIsClick(PlatformManager.getInstance().isDevelop()?"1":isClick?"1":"0");
+            status.setCpmInfo(mCpmInfo);
             status.setPlatformId(PlatformManager.getInstance().getAdnPlatformId());
+            status.setCustomData(mCustomData);
             PlayManager.getInstance().onClose(status);
         }else{
             PlayManager.getInstance().onClose(null);

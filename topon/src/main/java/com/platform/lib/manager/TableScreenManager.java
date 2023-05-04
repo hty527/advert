@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import com.anythink.interstitial.api.ATInterstitial;
 import com.platform.lib.bean.Result;
 import com.platform.lib.constants.AdConstance;
+import com.platform.lib.listener.OnInitListener;
 import com.platform.lib.listener.OnPlayListener;
 import com.platform.lib.listener.OnTabScreenListener;
 import com.platform.lib.utils.Logger;
@@ -133,8 +134,8 @@ public final class TableScreenManager {
         }
         if(PlatformManager.getInstance().isDevelop()){
             Result status=new Result();
-            status.setAd_code(id);
-            status.setIs_click("1");
+            status.setAdCode(id);
+            status.setIsClick("1");
             if(null!=listener) listener.onClose(status);
             return;
         }
@@ -155,6 +156,16 @@ public final class TableScreenManager {
                 startInsert(scene);
             }
         },delayed);
+    }
+
+    /**
+     * 初始化全自动插屏
+     * @param activity 任意在活跃的Activity
+     * @param id 广告位ID
+     * @param listener 状态监听器
+     */
+    public void initAutoInsert(Activity activity, String id, OnInitListener listener){
+        PlatformManager.getInstance().initAutoInsert(activity,id,listener);
     }
 
     /**
@@ -201,14 +212,14 @@ public final class TableScreenManager {
         public void onShow() {
             setShow(true);
 //            Logger.d("onShow");
-            if(null!=mPlayerListener) mPlayerListener.onShow(null);
+            if(null!=mPlayerListener) mPlayerListener.onShow();
         }
 
         @Override
         public void onClick() {
 //            Logger.d("onClick");
             isClick=true;
-            if(null!=mPlayerListener) mPlayerListener.onClick(null);
+            if(null!=mPlayerListener) mPlayerListener.onClick();
         }
 
         @Override
@@ -219,8 +230,8 @@ public final class TableScreenManager {
             OnPlayListener onInsertListener=mPlayerListener;
             mPlayerListener=null;
             Result status=new Result();
-            status.setAd_code(mCurrentId);
-            status.setIs_click(isClick?"1":"0");
+            status.setAdCode(mCurrentId);
+            status.setIsClick(isClick?"1":"0");
             if(null!=onInsertListener) onInsertListener.onClose(status);
             if(!mIsAutoModel&& TextUtils.isEmpty(mCurrentId)){
                 cacheInsertAd(mCurrentId);

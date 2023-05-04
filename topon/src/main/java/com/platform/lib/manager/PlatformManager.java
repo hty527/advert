@@ -95,7 +95,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     //全自动激励视频、插屏初始化监听器
     private OnInitListener mOnRewardInitListener,mOnInsertInitListener;
     private boolean isExternalActivity=false;//Utils内部的Activity是否为外部传入的
-    private int platformId;//真实的广告平台
+    private int mPlatformId;//真实的广告平台
 
     /**
      * 文案提示内容
@@ -279,16 +279,22 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
 
     /**
      * 设置用户ID，用于透传给广告
-     * @param userId 设置用户ID，用于透传给广告
+     * @param userId 设置用户ID，用于透传给广告，必须在请求广告之前设置！
      * @return
      */
     public PlatformManager setUserId(String userId) {
         this.userId = userId;
+        PlatformPreferences.getInstance().putString("userId", userId);
         return mInstance;
     }
 
     public String getUserId() {
-        if(TextUtils.isEmpty(userId)) userId="0";
+        if(TextUtils.isEmpty(userId)) {
+            userId=PlatformPreferences.getInstance().getString("userId", null);
+        }
+        if(TextUtils.isEmpty(userId)){
+            userId="0";
+        }
         return userId;
     }
 
@@ -494,14 +500,10 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
         this.mRewardVideoListener = listener;
     }
 
-    public String getEcpm() {
-        return "0";
-    }
-
     /**
      * 显示激励视频广告(如果存在的话)
      * 此方法已废弃不推荐使用
-     * 请使用{@link #initReward(Activity activity, String id, OnInitListener listener)} 和 {@link #showAutoRewardVideo(Activity,String,String, OnRewardVideoListener)}
+     * 请使用{@link #initAutoReward(Activity activity, String id, OnInitListener listener)} 和 {@link #showAutoRewardVideo(Activity,String,String, OnRewardVideoListener)}
      * @param activity activity上下文
      * @param listener 监听器
      */
@@ -522,7 +524,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     /**
      * 加载激励视频广告
      * 此方法已废弃不推荐使用
-     * 请使用{@link #initReward(Activity activity, String id, OnInitListener listener)} 和 {@link #showAutoRewardVideo(Activity,String,String, OnRewardVideoListener)}
+     * 请使用{@link #initAutoReward(Activity activity, String id, OnInitListener listener)} 和 {@link #showAutoRewardVideo(Activity,String,String, OnRewardVideoListener)}
      * @param id 广告位ID
      * @param listener 状态监听器，如果监听器为空内部回自动缓存一条激励视频广告
      */
@@ -534,7 +536,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     /**
      * 加载激励视频广告
      * 此方法已废弃不推荐使用
-     * 请使用{@link #initReward(Activity activity, String id, OnInitListener listener)} 和 {@link #showAutoRewardVideo(Activity,String,String, OnRewardVideoListener)}
+     * 请使用{@link #initAutoReward(Activity activity, String id, OnInitListener listener)} 和 {@link #showAutoRewardVideo(Activity,String,String, OnRewardVideoListener)}
      * @param id 广告位ID
      * @param scene 播放广告的场景
      * @param listener 状态监听器，如果监听器为空内部回自动缓存一条激励视频广告
@@ -547,7 +549,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     /**
      * 加载激励视频广告
      * 此方法已废弃不推荐使用
-     * 请使用{@link #initReward(Activity activity, String id, OnInitListener listener)} 和 {@link #showAutoRewardVideo(Activity,String,String, OnRewardVideoListener)}
+     * 请使用{@link #initAutoReward(Activity activity, String id, OnInitListener listener)} 和 {@link #showAutoRewardVideo(Activity,String,String, OnRewardVideoListener)}
      * @param context 上下文,推荐Activity类型
      * @param id 广告位ID
      * @param listener 状态监听器，如果监听器为空内部回自动缓存一条激励视频广告
@@ -560,7 +562,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     /**
      * 加载激励视频广告
      * 此方法已废弃不推荐使用
-     * 请使用{@link #initReward(Activity activity, String id, OnInitListener listener)} 和 {@link #showAutoRewardVideo(Activity,String,String, OnRewardVideoListener)}
+     * 请使用{@link #initAutoReward(Activity activity, String id, OnInitListener listener)} 和 {@link #showAutoRewardVideo(Activity,String,String, OnRewardVideoListener)}
      * @param context 上下文,推荐Activity类型
      * @param id 广告位ID
      * @param scene 播放广告的场景
@@ -588,6 +590,9 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
         this.mVideoCode=id;this.mVideoScene=scene;
         mAtRewardVideoAd = new ATRewardVideoAd(context, id);
         mAtRewardVideoAd.setAdListener(mATRewardVideoListener);
+        if(null!=mAdvertEventListener&&null!=mAdvertEventListener.localExtra()){
+            mAtRewardVideoAd.setLocalExtra(mAdvertEventListener.localExtra());//设置自定义参数
+        }
         mAtRewardVideoAd.load();
     }
 
@@ -617,7 +622,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
             setPlatformId(atAdInfo.getNetworkFirmId());
             event(mVideoScene, AdConstance.TYPE_REWARD_VIDEO,mVideoCode, AdConstance.STATUS_SHOW_SUCCESS, 0,null);
             if(null!=mRewardVideoListener){
-                mRewardVideoListener.onShow(mAtRewardVideoAd);
+                mRewardVideoListener.onShow();
             }
         }
 
@@ -638,9 +643,11 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
         @Override
         public void onRewardedVideoAdClosed(ATAdInfo atAdInfo) {
 //            Logger.d("loadRewardVideo-->onRewardedVideoAdClosed");
+            setPlatformId(atAdInfo.getNetworkFirmId());
             OnRewardVideoListener listener=mRewardVideoListener;
             onResetReward();
-            if(null!=listener) listener.onClose();
+            String cpmInfo="{\"price\":\""+atAdInfo.getEcpm()+"\",\"precision\":\""+atAdInfo.getEcpmPrecision()+"\",\"pre_price\":\""+atAdInfo.getPublisherRevenue()+"\"}";
+            if(null!=listener) listener.onClose(cpmInfo,atAdInfo.getRewardUserCustomData());
         }
 
         @Override
@@ -663,16 +670,15 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     };
 
     public int getAdnPlatformId() {
+        int platformId=mPlatformId;
         return platformId;
     }
 
     public void setPlatformId(int platformId) {
-        this.platformId = platformId;
+        this.mPlatformId = platformId;
     }
 
     //========================================全自动激励视频===========================================
-
-    private boolean isRewardShowing=false;//激励视频是否正在显示中
 
     /**
      * 初始化/开始缓存全自动类型激励视频
@@ -681,8 +687,8 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
      * @param listener 监听器
      *                 ATRewardVideoAutoLoadListener
      */
-    public void initReward(Activity activity, String id, OnInitListener listener){
-        initReward(activity,id,AdConstance.SCENE_CACHE,listener);
+    public void initAutoReward(Activity activity, String id, OnInitListener listener){
+        initAutoReward(activity,id,AdConstance.SCENE_CACHE,listener);
     }
 
     /**
@@ -692,15 +698,20 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
      * @param scene 广告加载/处理的场景
      * @param listener 监听器
      */
-    public void initReward(Activity activity, String id, String scene,OnInitListener listener){
-        Logger.d("initReward-->id:"+id+",scene:"+scene);
+    public void initAutoReward(Activity activity, String id, String scene, OnInitListener listener){
+        Logger.d("initAutoReward-->id:"+id+",scene:"+scene);
         if(null==activity){
             if(null!=listener) listener.onError(AdConstance.CODE_ACTIVITY_INVALID,getText(AdConstance.CODE_ACTIVITY_INVALID));
             return;
         }
+        if(TextUtils.isEmpty(id)){
+            if(null!=listener) listener.onError(AdConstance.CODE_ID_UNKNOWN,getText(AdConstance.CODE_ID_UNKNOWN));
+            return;
+        }
         this.mOnRewardInitListener =listener;
+        updateLocalExtra(id);
         ATAdStatusInfo adStatusInfo = ATRewardVideoAutoAd.checkAdStatus(id);
-        Logger.d("initReward-->isReady:"+adStatusInfo.isReady()+",isLoading:"+adStatusInfo.isLoading());
+        Logger.d("initAutoReward-->isReady:"+adStatusInfo.isReady()+",isLoading:"+adStatusInfo.isLoading());
         if(adStatusInfo.isReady()){
             if(null!=listener) listener.onSuccess(id);
             return;
@@ -716,8 +727,9 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
 
         @Override
         public void onRewardVideoAutoLoaded(String adCode) {
-            Logger.d("initReward-->loaded,id:"+adCode);
+            Logger.d("initAutoReward-->loaded,id:"+adCode);
             event(mVideoScene2, AdConstance.TYPE_REWARD_VIDEO,mVideoCode2, AdConstance.STATUS_LOADED_SUCCESS, 0,null);
+            updateLocalExtra(adCode);
             OnInitListener listener=mOnRewardInitListener;
             mOnRewardInitListener=null;
             if(null!= listener) listener.onSuccess(adCode);
@@ -725,13 +737,29 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
 
         @Override
         public void onRewardVideoAutoLoadFail(String adCode, AdError adError) {
-            Logger.e("initReward-->adCode:"+adCode+",error:"+adError.getFullErrorInfo());
+            Logger.e("initAutoReward-->adCode:"+adCode+",error:"+adError.getFullErrorInfo());
             event(mVideoScene2, AdConstance.TYPE_REWARD_VIDEO,mVideoCode2, AdConstance.STATUS_LOADED_ERROR, parseErrorCode(adError),adError.getFullErrorInfo());
             OnInitListener listener=mOnRewardInitListener;
             mOnRewardInitListener=null;
             if(null!= listener) listener.onError(parseErrorCode(adError),adError.getFullErrorInfo());
         }
     };
+
+    /**
+     * 更新回调参数，这个回调参数只对预期加载的下一个激励视频生效，当前已缓存的广告无效
+     */
+    private void updateLocalExtra(String id) {
+        //初始化前设置回调参数，如果开发者实现了自定义参数回传则使用开发者回传的自定义参数，如果未回传参数，则使用本地已被设置的USER ID
+        if(null!=mAdvertEventListener&&null!=mAdvertEventListener.localExtra()){
+            ATRewardVideoAutoAd.setLocalExtra(id,mAdvertEventListener.localExtra());//设置自定义参数
+        }else{
+            if(!TextUtils.isEmpty(getUserId())){
+                Map<String, Object> localMap = new HashMap<>();
+                localMap.put(ATAdConst.KEY.USER_ID, getUserId());
+                ATRewardVideoAutoAd.setLocalExtra(id,localMap);
+            }
+        }
+    }
 
     /**
      * 直接显示激励视频广告，内部会自动拉取和缓存下一个视频广告
@@ -751,17 +779,13 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
      * @param listener 监听器
      */
     public void showAutoRewardVideo(Activity activity, String id, String scene, OnRewardVideoListener listener){
-        Logger.d("showAutoReward-->id:"+id+",isShowing:"+isRewardShowing+",scene:"+scene);
+        Logger.d("showAutoReward-->id:"+id+",scene:"+scene);
         if(null==activity){
             if(null!=listener) listener.onError(AdConstance.CODE_ACTIVITY_INVALID, getText(AdConstance.CODE_ACTIVITY_INVALID), id);
             return;
         }
         if(TextUtils.isEmpty(id)){
             if(null!=listener) listener.onError(AdConstance.CODE_ID_UNKNOWN, getText(AdConstance.CODE_ID_UNKNOWN), id);
-            return;
-        }
-        if(isRewardShowing){
-            if(null!=listener) listener.onError(AdConstance.CODE_REPEATED, getText(AdConstance.CODE_REPEATED), id);
             return;
         }
         this.mRewardVideoListener=listener;
@@ -774,7 +798,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
             if(adStatusInfo.isLoading()){
                 //加载中不理会，等带加载完成时自动展示
             }else{
-                initReward(activity, id, scene, new OnInitListener() {
+                initAutoReward(activity, id, scene, new OnInitListener() {
                     @Override
                     public void onSuccess(String id) {
                         ATRewardVideoAutoAd.show(activity,id,mATRewardVideoAutoEventListener);
@@ -795,10 +819,10 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
 
         @Override
         public void onRewardedVideoAdPlayStart(ATAdInfo atAdInfo) {
-            isRewardShowing=true;
 //             Logger.d("showAutoReward-->onRewardedVideoAdPlayStart");
+            setPlatformId(atAdInfo.getNetworkFirmId());
             event(mVideoScene2, AdConstance.TYPE_REWARD_VIDEO,mVideoCode2, AdConstance.STATUS_SHOW_SUCCESS, 0,null);
-            if(null!=mRewardVideoListener) mRewardVideoListener.onShow(null);
+            if(null!=mRewardVideoListener) mRewardVideoListener.onShow();
         }
 
         @Override
@@ -808,7 +832,6 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
 
         @Override
         public void onRewardedVideoAdPlayFailed(AdError adError, ATAdInfo atAdInfo) {
-            isRewardShowing=false;
             event(mVideoScene2, AdConstance.TYPE_REWARD_VIDEO,mVideoCode2, AdConstance.STATUS_SHOW_ERROR, parseErrorCode(adError),adError.getFullErrorInfo());
             Logger.e("showAutoReward-->error,code:"+adError.getCode()+",message:"+adError.getDesc()+"error:"+adError.getFullErrorInfo());
             if(null!=mRewardVideoListener) mRewardVideoListener.onError(PlatformUtils.getInstance().parseInt(adError.getCode()),adError.getFullErrorInfo(), mVideoCode2);
@@ -816,24 +839,25 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
 
         @Override
         public void onRewardedVideoAdClosed(ATAdInfo atAdInfo) {
-            isRewardShowing=false;
 //            Logger.d("showAutoRewardVideo-->onRewardedVideoAdClosed");
+            setPlatformId(atAdInfo.getNetworkFirmId());
+            String cpmInfo="{\"price\":\""+atAdInfo.getEcpm()+"\",\"precision\":\""+atAdInfo.getEcpmPrecision()+"\",\"pre_price\":\""+atAdInfo.getPublisherRevenue()+"\"}";
+//            Logger.d("onRewardedVideoAdClosed-->cpm:"+cpmInfo+",custom:"+atAdInfo.getRewardUserCustomData());
             OnRewardVideoListener listener=mRewardVideoListener;
             onResetReward();
-            if(null!=listener) listener.onClose();
+            if(null!=listener) listener.onClose(cpmInfo,atAdInfo.getRewardUserCustomData());
         }
 
         @Override
         public void onRewardedVideoAdPlayClicked(ATAdInfo atAdInfo) {
-            isRewardShowing=true;
 //            Logger.d("showAutoRewardVideo-->onRewardedVideoAdPlayClicked");
             if(null!=mRewardVideoListener) mRewardVideoListener.onClick(atAdInfo);
         }
 
         @Override
         public void onReward(ATAdInfo atAdInfo) {
-            isRewardShowing=true;
 //            Logger.d("showAutoRewardVideo-->onReward");
+            setPlatformId(atAdInfo.getNetworkFirmId());
             if(null!=mRewardVideoListener) mRewardVideoListener.onRewardVerify();
         }
     };
@@ -856,7 +880,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     /**
      * 显示插屏广告(当缓存存在生效)
      * 此方法已废弃不推荐使用
-     * 请使用{@link #initInsert(Activity activity, String id, OnInitListener listener)} + {@link #showAutoInsert(Activity,String,String, OnTabScreenListener)}
+     * 请使用{@link #initAutoInsert(Activity activity, String id, OnInitListener listener)} + {@link #showAutoInsert(Activity,String,String, OnTabScreenListener)}
      * @param activity 显示插屏广告的宿主Activity
      * @param listener 状态监听器
      */
@@ -886,7 +910,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     /**
      * 加载插屏广告
      * 此方法已废弃不推荐使用
-     * 请使用{@link #initInsert(Activity activity, String id, OnInitListener listener)} + {@link #showAutoInsert(Activity,String,String, OnTabScreenListener)}
+     * 请使用{@link #initAutoInsert(Activity activity, String id, OnInitListener listener)} + {@link #showAutoInsert(Activity,String,String, OnTabScreenListener)}
      * @param id 广告位ID
      * @param listener 状态监听器，如果监听器为空内部回自动缓存一条插屏广告
      */
@@ -898,7 +922,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     /**
      * 加载插屏广告
      * 此方法已废弃不推荐使用
-     * 请使用{@link #initInsert(Activity activity, String id, OnInitListener listener)} + {@link #showAutoInsert(Activity,String,String, OnTabScreenListener)}
+     * 请使用{@link #initAutoInsert(Activity activity, String id, OnInitListener listener)} + {@link #showAutoInsert(Activity,String,String, OnTabScreenListener)}
      * @param context 上下文,推荐Activity类型
      * @param id 广告位ID
      * @param listener 状态监听器，如果监听器为空内部回自动缓存一条插屏广告
@@ -911,7 +935,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     /**
      * 加载插屏广告
      * 此方法已废弃不推荐使用
-     * 请使用{@link #initInsert(Activity activity, String id, OnInitListener listener)} + {@link #showAutoInsert(Activity,String,String, OnTabScreenListener)}
+     * 请使用{@link #initAutoInsert(Activity activity, String id, OnInitListener listener)} + {@link #showAutoInsert(Activity,String,String, OnTabScreenListener)}
      * @param id 广告位ID
      * @param scene 播放广告的场景标识
      * @param listener 状态监听器，如果监听器为空内部回自动缓存一条插屏广告
@@ -924,7 +948,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     /**
      * 加载插屏广告
      * 此方法已废弃不推荐使用
-     * 请使用{@link #initInsert(Activity activity, String id, OnInitListener listener)} + {@link #showAutoInsert(Activity,String,String, OnTabScreenListener)}
+     * 请使用{@link #initAutoInsert(Activity activity, String id, OnInitListener listener)} + {@link #showAutoInsert(Activity,String,String, OnTabScreenListener)}
      * @param context 上下文,推荐Activity类型
      * @param id 广告位ID
      * @param scene 播放广告的场景标识
@@ -1022,16 +1046,14 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
 
     //==========================================全自动插屏============================================
 
-    private boolean isInsertShowing=false;//插屏是否正在显示中
-
     /**
      * 缓存/直接显示插屏广告
      * @param activity 显示插屏广告的宿主Activity
      * @param id 广告位ID
      * @param listener 状态监听器
      */
-    public void initInsert(Activity activity, String id, OnInitListener listener){
-        initInsert(activity,id,AdConstance.SCENE_CACHE,listener);
+    public void initAutoInsert(Activity activity, String id, OnInitListener listener){
+        initAutoInsert(activity,id,AdConstance.SCENE_CACHE,listener);
     }
 
     /**
@@ -1041,10 +1063,14 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
      * @param scene 播放场景标识
      * @param listener 状态监听器
      */
-    public void initInsert(Activity activity, String id, String scene, OnInitListener listener){
+    public void initAutoInsert(Activity activity, String id, String scene, OnInitListener listener){
         Logger.d("initInsert-->id:"+id+",scene:"+scene);
         if(null==activity){
             if(null!=listener) listener.onError(AdConstance.CODE_ACTIVITY_INVALID,getText(AdConstance.CODE_ACTIVITY_INVALID));
+            return;
+        }
+        if(TextUtils.isEmpty(id)){
+            if(null!=listener) listener.onError(AdConstance.CODE_ID_UNKNOWN, getText(AdConstance.CODE_ID_UNKNOWN));
             return;
         }
         this.mOnInsertInitListener =listener;
@@ -1100,17 +1126,13 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
      * @param listener 状态监听器
      */
     public void showAutoInsert(Activity activity, String id, String scene, OnTabScreenListener listener){
-        Logger.d("showAutoInsert-->id:"+id+",isShowing:"+isInsertShowing+",scene:"+scene);
+        Logger.d("showAutoInsert-->id:"+id+",scene:"+scene);
         if(null==activity){
             if(null!=listener) listener.onError(AdConstance.CODE_ACTIVITY_INVALID, getText(AdConstance.CODE_ACTIVITY_INVALID), id);
             return;
         }
         if(TextUtils.isEmpty(id)){
             if(null!=listener) listener.onError(AdConstance.CODE_ID_UNKNOWN, getText(AdConstance.CODE_ID_UNKNOWN), id);
-            return;
-        }
-        if(isInsertShowing){
-            if(null!=listener) listener.onError(AdConstance.CODE_REPEATED, getText(AdConstance.CODE_REPEATED), id);
             return;
         }
         this.mInsertListener=listener;
@@ -1123,7 +1145,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
             if(adStatusInfo.isLoading()){
                 //加载中不理会，等带加载完成时自动展示
             }else{
-                initInsert(activity, id, scene, new OnInitListener() {
+                initAutoInsert(activity, id, scene, new OnInitListener() {
                     @Override
                     public void onSuccess(String id) {
                         ATInterstitialAutoAd.show(activity,id,mATInterstitialAutoEventListener);
@@ -1144,20 +1166,17 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
 
         @Override
         public void onInterstitialAdClicked(ATAdInfo atAdInfo) {
-            isInsertShowing=true;
             if(null!=mInsertListener) mInsertListener.onClick();
         }
 
         @Override
         public void onInterstitialAdShow(ATAdInfo atAdInfo) {
-            isInsertShowing=true;
             event(mInsertScene2, AdConstance.TYPE_INSERT,mInsertCode2, AdConstance.STATUS_SHOW_SUCCESS, 0,null);
             if(null!=mInsertListener) mInsertListener.onShow();
         }
 
         @Override
         public void onInterstitialAdClose(ATAdInfo atAdInfo) {
-            isInsertShowing=false;
             if(null!=mInsertListener) mInsertListener.onClose();
         }
 
@@ -1173,7 +1192,6 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
 
         @Override
         public void onInterstitialAdVideoError(AdError adError) {
-            isInsertShowing=false;
             Logger.e("showAutoInsert-->error,code:"+adError.getCode()+",message:"+adError.getDesc()+"error:"+adError.getFullErrorInfo());
             event(mInsertScene2, AdConstance.TYPE_INSERT,mInsertCode2, AdConstance.STATUS_SHOW_ERROR, parseErrorCode(adError),adError.getFullErrorInfo());
             if(null!=mInsertListener) mInsertListener.onError(PlatformUtils.getInstance().parseInt(adError.getCode()),adError.getFullErrorInfo(),null);

@@ -3,16 +3,21 @@ package com.platform.simple;
 import android.content.Context;
 import android.os.Build;
 import android.webkit.WebView;
+
 import androidx.multidex.MultiDexApplication;
 
+import com.anythink.core.api.ATAdConst;
 import com.anythink.core.api.ATInitConfig;
+import com.platform.lib.BuildConfig;
 import com.platform.lib.constants.AdConstance;
 import com.platform.lib.listener.OnEventListener;
 import com.platform.lib.listener.OnInitListener;
 import com.platform.lib.manager.PlatformManager;
 import com.platform.lib.utils.Logger;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * created by hty
@@ -58,7 +63,7 @@ public class AdvertApplication extends MultiDexApplication {
     private void initSDK() {
 
         /**
-         * 广告SDK初始化，建议尽可能的早，在application中初始化
+         * 广告SDK初始化，建议尽可能的早，在开始加载广告前初始化，涉及隐私合规请在获得用户授权后初始化
          * @param context 全局上下文
          * @param appId 物料 APP_ID(topon后台获取)
          * @param appSecrecy 物料 APP_SECRECY(topon后台获取)
@@ -66,15 +71,15 @@ public class AdvertApplication extends MultiDexApplication {
          * @param debug 是否debug模式，默认：否，debug模式下将输出logcat日志，查看日志请在控制台过滤：PlatformSDK
          * @param listener 初始化状态监听器
          */
-        PlatformManager.getInstance().initSdk(this, AdConfig.TO_APP_ID, AdConfig.TO_APP_KAY,null,"rongyao", BuildConfig.DEBUG, new OnInitListener() {
+        PlatformManager.getInstance().initSdk(this, AdConfig.TO_APP_ID, AdConfig.TO_APP_KAY,null,"test", BuildConfig.DEBUG, new OnInitListener() {
 
             /**
-             * 如果需要初始化第三方广告平台SDK，可复写此方法并返回平台SDK配置。具体请阅读文档：https://docs.toponad.com/#/zh-cn/android/android_doc/android_sdk_init_network
+             * 如果需要自定义第三方广告平台SDK初始化参数，可复写此方法并返回平台SDK配置。具体请阅读文档：https://docs.toponad.com/#/zh-cn/android/android_doc/android_sdk_init_network
              * @return
              */
             @Override
             public List<ATInitConfig> getSdkConfig() {
-                //返回null或者super.getSdkConfig既表示不初始化第三方广告SDK
+                //返回null或者super.getSdkConfig既表示不使用自定义参数初始化第三方广告SDK
                 return super.getSdkConfig();
             }
 
@@ -105,6 +110,21 @@ public class AdvertApplication extends MultiDexApplication {
                             case AdConstance.CODE_AD_LOADING:
                                 return "请稍等,马上就好...";
                         }
+                        return null;
+                    }
+
+                    /**
+                     * 自定义回调参数：如果当前topon应用和激励视频开启服务端验证+需要自定义参数回传(在topon后台填写回调地址后由topon回传)至自己服务器，请务必实现此方法并返回自己的自定义参数，此SDK内部会在每次缓存激励视频之前设置回调参数。
+                     * 如果只是需要设置用户ID回调参数，可不实现此方法但必须在加载广告前设置用户ID:PlatformManager.getInstance().setUserId("");
+                     * @return
+                     */
+                    @Override
+                    public Map<String, Object> localExtra() {
+                        //例如：
+                        Map<String, Object> localMap = new HashMap<>();
+                        localMap.put(ATAdConst.KEY.USER_ID, "用户ID");
+                        localMap.put("key", "value");
+                        //return localMap;
                         return null;
                     }
 

@@ -1,5 +1,7 @@
 package com.platform.lib.listener;
 
+import java.util.Map;
+
 /**
  * created by hty
  * 2022/11/8
@@ -13,6 +15,13 @@ public interface OnEventListener {
      * @return 如果返回的文字为空，则使用SDK内部默认文案
      */
     String getText(int code);
+
+    /**
+     * 自定义透传的数据
+     * @return 自定义透传的数据,开启服务端验证的激励视频代码位传入。SDK将回传给给代码位指定的回调地址
+     * 参考：https://www.csjplatform.com/supportcenter/26240
+     */
+    Map<String,String> localExtra();
 
     /**
      * 广告事件回调

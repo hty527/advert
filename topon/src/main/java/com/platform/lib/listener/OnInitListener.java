@@ -20,9 +20,9 @@ public abstract class OnInitListener {
 
     /**
      * 初始化成功
-     * @param appId 应用ID，在gromore后台获取
+     * @param adCode 广告位ID
      */
-    public void onSuccess(String appId){}
+    public void onSuccess(String adCode){}
 
     /**
      * 初始化失败

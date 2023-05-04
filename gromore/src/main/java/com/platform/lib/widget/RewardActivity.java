@@ -8,7 +8,6 @@ import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.TextView;
-import com.bytedance.msdk.api.reward.RewardItem;
 import com.bytedance.msdk.api.v2.ad.reward.GMRewardAd;
 import com.platform.lib.R;
 import com.platform.lib.bean.Result;
@@ -26,12 +25,10 @@ import com.platform.lib.utils.Logger;
 public class RewardActivity extends Activity implements Application.ActivityLifecycleCallbacks {
 
     private LoadingView mLoadingView;
-    //播放场景(由宿主传入，sdk将回调给宿主这个标识场景)、广告位ID、此视频广告的ECPM
-    private String play_scene,ad_code,ad_ecpm;
+    //播放场景(由宿主传入，sdk将回调给宿主这个标识场景)、广告位ID、此视频广告的ECPM、自定义透传字段
+    private String play_scene,ad_code,mCpmInfo,mCustomData;
     //是否播放成功、是否点击了
     private boolean success=false,isClick=false;
-    //第三方广告平台标识，请参阅：GMNetworkPlatformConst类
-    private int mPlatformId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,10 +50,9 @@ public class RewardActivity extends Activity implements Application.ActivityLife
     private void init(Intent intent) {
         ad_code = intent.getStringExtra("id");
         play_scene = intent.getStringExtra("scene");
-        ad_ecpm=null;
         Logger.d("init-->id:"+ad_code+",scene:"+play_scene);
         if(TextUtils.isEmpty(ad_code)){
-            error(PlatformManager.getInstance().getText(AdConstance.CODE_ID_INVALID)+",id:"+ad_code);
+            error(PlatformManager.getInstance().getText(AdConstance.CODE_ID_INVALID));
             return;
         }
         if(PlatformManager.getInstance().isDevelop()){
@@ -94,57 +90,46 @@ public class RewardActivity extends Activity implements Application.ActivityLife
         public void onError(int code, String message, String adInfo) {
 //            Logger.d("onError-->code:"+code+",message:"+message+",adInfo:"+adInfo+",success:"+success);
             if(success) return;
-            error("code:"+code+",message:"+message+",id:"+adInfo);
+            if(PlatformManager.getInstance().isDevelop()){
+                error("code:"+code+",message:"+message+",id:"+adInfo);
+            }else{
+                error("code:"+code+",message:"+message);
+            }
             PlayManager.getInstance().onError(code,message,adInfo);
         }
 
         @Override
         public void onShow() {
-            onShow(null);
-        }
-
-        @Override
-        public void onShow(String ecpm) {
-            ad_ecpm =ecpm;
             success=true;
-            getPlatformId();
-            Logger.d("onShow-->ecpm:"+ecpm+",platformId:"+ mPlatformId);
+            mCustomData=null;
+//            Logger.d("onShow-->");
             PlayManager.getInstance().onShow();
         }
 
         @Override
-        public void onRewardVerify(RewardItem rewardItem) {
-            success=true;
-            if(TextUtils.isEmpty(ad_ecpm)){
-                ad_ecpm = PlatformManager.getInstance().getEcpm();
-            }
-            //Logger.d("onRewardVerify-->ecpm:"+ad_ecpm+",rewardItem:"+(null!=rewardItem?rewardItem.getCustomData():null));
-            getPlatformId();
-            PlayManager.getInstance().onRewardVerify(rewardItem);
-        }
-
-        @Override
-        public void onClose() {
-//            Logger.d("onClose-->:");
-            success=true;
-            finish();
-        }
-
-        @Override
-        public void onClick() {
+        public void onClick(GMRewardAd rewardAd) {
 //            Logger.d("onClick-->:");
             isClick=true;
             success=true;
-            getPlatformId();
-            PlayManager.getInstance().onClick();
+            PlayManager.getInstance().onClick(rewardAd);
+        }
+
+        @Override
+        public void onRewardVerify() {
+            success=true;
+            //Logger.d("onRewardVerify-->");
+            PlayManager.getInstance().onRewardVerify();
+        }
+
+        @Override
+        public void onClose(String cpmInfo, String customData) {
+            Logger.d("onClose-->cpmInfo:"+cpmInfo+",customData:"+customData);
+            success=true;
+            RewardActivity.this.mCpmInfo =cpmInfo;
+            RewardActivity.this.mCustomData=customData;
+            finish();
         }
     };
-
-    private void getPlatformId() {
-        if(0==mPlatformId){
-            mPlatformId = PlatformManager.getInstance().getAdnPlatformId();
-        }
-    }
 
     public void loading(String message){
         if(null!=mLoadingView) mLoadingView.showRequst(message);
@@ -186,10 +171,11 @@ public class RewardActivity extends Activity implements Application.ActivityLife
         super.finish();
         if(PlatformManager.getInstance().isDevelop()||success){
             Result status = new Result();
-            status.setAd_code(TextUtils.isEmpty(ad_code)?"0":ad_code);
-            status.setIs_click(PlatformManager.getInstance().isDevelop()?"1":isClick?"1":"0");
-            status.setEcpm(ad_ecpm);
-            status.setPlatformId(mPlatformId);
+            status.setAdCode(TextUtils.isEmpty(ad_code)?"0":ad_code);
+            status.setIsClick(PlatformManager.getInstance().isDevelop()?"1":isClick?"1":"0");
+            status.setCpmInfo(mCpmInfo);
+            status.setPlatformId(PlatformManager.getInstance().getAdnPlatformId());
+            status.setCustomData(mCustomData);
             PlayManager.getInstance().onClose(status);
         }else{
             PlayManager.getInstance().onClose(null);
