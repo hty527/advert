@@ -3,11 +3,11 @@ package com.platform.lib.manager;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-
 import com.anythink.core.api.ATAdInfo;
 import com.anythink.rewardvideo.api.ATRewardVideoAd;
 import com.platform.lib.bean.Result;
 import com.platform.lib.constants.AdConstance;
+import com.platform.lib.listener.OnInitListener;
 import com.platform.lib.listener.OnPlayListener;
 import com.platform.lib.utils.PlatformUtils;
 import com.platform.lib.widget.RewardActivity;
@@ -123,6 +123,16 @@ public final class PlayManager extends OnPlayListener {
         context.startActivity(intent);
     }
 
+    /**
+     * 初始化全自动激励视频
+     * @param activity 任意在活跃的Activity
+     * @param id 广告位ID
+     * @param listener 状态监听器
+     */
+    public void initAutoReward(Activity activity, String id, OnInitListener listener){
+        PlatformManager.getInstance().initAutoReward(activity,id,listener);
+    }
+
     @Override
     public void onSuccess(ATRewardVideoAd atRewardVideoAd) {
         if(null!=mListener) mListener.onSuccess(atRewardVideoAd);
@@ -136,12 +146,6 @@ public final class PlayManager extends OnPlayListener {
     @Override
     public void onShow() {
         if(null!=mListener) mListener.onShow();//为满足不同需求的开发者
-    }
-
-    @Override
-    public void onShow(ATRewardVideoAd atRewardVideoAd) {
-        onShow();
-        if(null!=mListener) mListener.onShow(atRewardVideoAd);
     }
 
     @Override

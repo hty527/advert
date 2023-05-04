@@ -3,13 +3,19 @@ package com.platform.simple;
 import android.content.Context;
 import android.os.Build;
 import android.webkit.WebView;
+
 import androidx.multidex.MultiDexApplication;
+
 import com.bytedance.msdk.api.v2.GMAdConfig;
+import com.bytedance.msdk.api.v2.GMAdConstant;
 import com.platform.lib.constants.AdConstance;
 import com.platform.lib.listener.OnEventListener;
 import com.platform.lib.listener.OnInitListener;
 import com.platform.lib.manager.PlatformManager;
 import com.platform.lib.utils.Logger;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * created by hty
@@ -55,7 +61,7 @@ public class AdvertApplication extends MultiDexApplication {
     private void initSDK() {
 
         /**
-         * 广告SDK初始化，建议尽可能的早，在application中初始化
+         * 广告SDK初始化，建议尽可能的早，在开始加载广告前初始化，涉及隐私合规请在获得用户授权后初始化
          * @param context 全局上下文
          * @param appId 物料 APP_ID(topon后台获取)
          * @param appSecrecy 物料 APP_SECRECY(topon后台获取)
@@ -111,6 +117,25 @@ public class AdvertApplication extends MultiDexApplication {
                     }
 
                     /**
+                     * 自定义回调参数：如果当前GroMore应用和激励视频开启服务端验证+需要自定义参数回传(在GroMore后台填写回调地址后由GroMore回传)至自己服务器，请务必实现此方法并返回自己的自定义参数，此SDK内部会在每次缓存激励视频之前设置回调参数。
+                     * 如果只是需要设置用户ID回调参数，可不实现此方法但必须在加载广告前设置用户ID:PlatformManager.getInstance().setUserId("用户ID");
+                     * @return
+                     */
+                    @Override
+                    public Map<String, String> localExtra() {
+                        //例如：
+                        Map<String, Object> localMap = new HashMap<>();
+                        String customData="{\"userId\":\"88888888\",\"key\":\"value\"}";
+                        localMap.put(GMAdConstant.CUSTOM_DATA_KEY_PANGLE, customData);//穿山甲平台
+                        localMap.put(GMAdConstant.CUSTOM_DATA_KEY_GDT, customData);//优量汇平台
+                        localMap.put(GMAdConstant.CUSTOM_DATA_KEY_KS, customData);//快手平台
+                        localMap.put(GMAdConstant.CUSTOM_DATA_KEY_GROMORE_EXTRA, customData);//GroMore自定义消息
+                        localMap.put("key", "value");
+                        //return localMap;
+                        return null;
+                    }
+
+                    /**
                      * 各广告的回调事件！！！请不要在这个回调里做耗时操作，否则可能引起卡顿！！！
                      * @param scene 播放广告的场景
                      * @param ad_type 广告类型，Constance申明
@@ -123,7 +148,7 @@ public class AdvertApplication extends MultiDexApplication {
                     public void onEvent(String scene, String ad_type, String ad_code, String ad_status, int error_code, String error_msg) {
                         Logger.log(TAG,"onEvent-->scene:"+scene+",ad_type:"+ad_type+",ad_code:"+ad_code+",ad_status:"+ad_status+",error_code:"+error_code+",error_msg:"+error_msg, "2".equals(ad_status)||"4".equals(ad_status)? Logger.ERROR:Logger.INFO);
                     }
-                });
+                }).setUserId("88888888");//开启服务端验证模式下随意设置的回调参数：用户ID，自定义回调参数请实现localExtra并返回自定义键值对
     }
 
     @Override

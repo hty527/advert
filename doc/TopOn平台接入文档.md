@@ -13,7 +13,7 @@
     private void initSDK() {
 
         /**
-         * 广告SDK初始化，建议尽可能的早，在application中初始化
+         * 广告SDK初始化，建议尽可能的早，在开始加载广告前初始化，涉及隐私合规请在获得用户授权后初始化
          * @param context 全局上下文
          * @param appId 物料 APP_ID(topon后台获取)
          * @param appSecrecy 物料 APP_SECRECY(topon后台获取)
@@ -24,12 +24,12 @@
         PlatformManager.getInstance().initSdk(this, AdConfig.TO_APP_ID, AdConfig.TO_APP_KAY,null,"rongyao", BuildConfig.DEBUG, new OnInitListener() {
 
             /**
-             * 如果需要初始化第三方广告平台SDK，可复写此方法并返回平台SDK配置。具体请阅读文档：https://docs.toponad.com/#/zh-cn/android/android_doc/android_sdk_init_network
+             * 如果需要自定义第三方广告平台SDK初始化参数，可复写此方法并返回平台SDK配置。具体请阅读文档：https://docs.toponad.com/#/zh-cn/android/android_doc/android_sdk_init_network
              * @return
              */
             @Override
             public List<ATInitConfig> getSdkConfig() {
-                //返回null或者super.getSdkConfig既表示不初始化第三方广告SDK
+                //返回null或者super.getSdkConfig既表示不使用自定义参数初始化第三方广告SDK
                 return super.getSdkConfig();
             }
 
@@ -64,6 +64,21 @@
                     }
 
                     /**
+                     * 自定义回调参数：如果当前topon应用和激励视频开启服务端验证+需要自定义参数回传(在topon后台填写回调地址后由topon回传)至自己服务器，请务必实现此方法并返回自己的自定义参数，此SDK内部会在每次缓存激励视频之前设置回调参数。
+                     * 如果只是需要设置用户ID回调参数，可不实现此方法但必须在加载广告前设置用户ID:PlatformManager.getInstance().setUserId("用户ID");
+                     * @return
+                     */
+                    @Override
+                    public Map<String, Object> localExtra() {
+                        //例如：
+                        Map<String, Object> localMap = new HashMap<>();
+                        localMap.put(ATAdConst.KEY.USER_ID, "用户ID");
+                        localMap.put("key", "value");
+                        //return localMap;
+                        return null;
+                    }
+
+                    /**
                      * 各广告的回调事件！！！请不要在这个回调里做耗时操作，否则可能引起卡顿！！！
                      * @param scene 播放广告的场景
                      * @param ad_type 广告类型，Constance申明
@@ -76,7 +91,7 @@
                     public void onEvent(String scene, String ad_type, String ad_code, String ad_status, int error_code, String error_msg) {
                         Logger.log(TAG,"onEvent-->scene:"+scene+",ad_type:"+ad_type+",ad_code:"+ad_code+",ad_status:"+ad_status+",error_code:"+error_code+",error_msg:"+error_msg, "2".equals(ad_status)||"4".equals(ad_status)? Logger.ERROR:Logger.INFO);
                     }
-                });
+                }).setUserId("88888888");//开启服务端验证模式下随意设置的回调参数：用户ID，自定义回调参数请实现localExtra并返回自定义键值对
     }
 ```
 #### 二、广告加载
@@ -169,8 +184,72 @@
     });
 ```
 ##### 2、激励视频
-* SDK内部封装了激励视频广告的拉取、播放等功能交互，也支持自行拉取广告自己展示，请根据业务场景选择。
-##### 2.1、超简单激励视频(推荐)
+##### 2.1、全自动激励视频(推荐)
+* 全自动激励视频模式下，Topon SDK内部会在合适的时机自动开始缓存下一条激励视频广告，推荐使用全自动激励视频。<br>
+* 为获得良好顺滑的播放体验，请按下列两步使用全自动激励视频广告播放能力：<br>
+* 2.1.1、初始化全自动激励视频
+```
+    /**
+     * 初始化/开始缓存全自动类型激励视频
+     * @param activity 上下文
+     * @param id 广告ID
+     * @param scene 广告加载/处理的场景
+     * @param listener 监听器
+     */
+    PlayManager.getInstance().initAutoReward(activity, AdConfig.AD_CODE_REWARD_ID, new OnInitListener() {
+        @Override
+        public void onSuccess(String id) {
+            //初始化|缓存全自动激励视频广告成功
+        }
+
+        @Override
+        public void onError(int code, String message) {
+            //初始化|缓存失败
+        }
+    });
+```
+* 2.1.2、全自动激励视频播放(参数isAutoModel是关键)
+```
+    /**
+     * 开始播放激励视屏
+     * @param ad_code 广告位ID
+     * @param scene 播放场景
+     * @param isAutoModel 是否启用全自动模式，内部自动加载激励视频广告并且在合适的时机自动缓存下一个激励视频广告实例
+     * @param listener 状态监听器
+     */
+    PlayManager.getInstance().startVideo(AdConfig.AD_CODE_REWARD_ID,true, new OnPlayListener() {
+
+        @Override
+        public void onClose(Result result) {
+            if(null!=result){
+                Logger.d(TAG,"onClose-->result:"+result.getAd_code());
+                //播放成功并关闭了
+                Toast.makeText(getApplicationContext(),"播放结束",Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        @Override
+        public void onShow() {
+            Toast.makeText(getApplicationContext(),"开始播放",Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onRewardVerify() {
+            Toast.makeText(getApplicationContext(),"此激励视频有效",Toast.LENGTH_SHORT).show();
+        }
+
+        //..更多回调事件请实现OnPlayListener中的方法
+    });
+```
+* 2.1.3、全自动激励视频自定义播放<br>
+* SDK提供全自动激励视频的缓存和播放API，开发者可自己定义交互使用
+```
+    1、初始化全自动激励视频
+    PlatformManager.getInstance().initAutoReward(activity, AdConfig.AD_CODE_REWARD_ID, new OnInitListener() {});
+    2、全自动激励视频播放
+    PlatformManager.getInstance().showAutoRewardVideo(activity, AdConfig.AD_CODE_REWARD_ID, new OnRewardVideoListener() {});    
+```
+##### 2.2、普通超简单激励视频(推荐)
 * <font color=red>使用PlayManager提供的api播放激励视频广告时，内部默认关闭全自动激励视频加载模式，如需启用，请传入isAutoModel参数时=true。</font>
 ```
     /**
@@ -191,109 +270,6 @@
         }
 
         @Override
-        public void onShow(ATRewardVideoAd atRewardVideoAd) {
-            Toast.makeText(getApplicationContext(),"开始播放",Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
-        public void onRewardVerify() {
-            Toast.makeText(getApplicationContext(),"此激励视频有效",Toast.LENGTH_SHORT).show();
-        }
-
-        //..更多回调事件请实现OnPlayListener中的方法
-    });
-```
-
-##### 2.2、全自动激励视频(推荐)
-* 全自动激励视频模式下，只需要调用一次SDK的initReward()方法，Topon SDK内部会在合适的时机自动开始缓存下一条激励视频广告，推荐使用全自动激励视频。
-* 2.1.1、全自动激励视频初始化\第一次缓存<font color=red>(必须在初始化SDK后和第一次播放激励视频前调用)</font>
-```
-    /**
-     * 初始化/开始缓存全自动类型激励视频(可忽略)
-     * @param activity 上下文
-     * @param id 广告ID
-     * @param scene 广告加载/处理的场景
-     * @param listener 监听器
-     */
-    PlatformManager.getInstance().initReward(this, AdConfig.AD_CODE_REWARD_ID, new OnInitListener() {
-        @Override
-        public void onSuccess(String id) {
-            //缓存插屏广告成功
-        }
-
-        @Override
-        public void onError(int code, String message) {
-            //缓存失败
-        }
-    });
-```
-* 2.1.2、全自动激励视播放
-```
-    /**
-     * 直接显示激励视频广告，内部会自动拉取和缓存下一个视频广告
-     * @param activity 上下文
-     * @param id 广告位ID
-     * @param scene 播放广告的场景标识
-     * @param listener 监听器
-     */
-    //<font color=red>在初始化SDK后并且在第一次播放激励视频之前必须调用initReward()初始化全自动激励视频功能</font>
-    PlatformManager.getInstance().showAutoRewardVideo(this, AdConfig.AD_CODE_REWARD_ID, new OnRewardVideoListener() {
-        @Override
-        public void onSuccess(ATRewardVideoAd atRewardVideoAd) {
-            //SDK内部会自动展示，这里不要处理展示逻辑
-        }
-
-        @Override
-        public void onClick(ATAdInfo atAdInfo) {
-            //广告被点击了
-        }
-
-        @Override
-        public void onRewardVerify() {
-            //有效性验证
-        }
-
-        @Override
-        public void onShow() {
-            //广告被显示了
-        }
-
-        @Override
-        public void onClick() {
-
-        }
-
-        @Override
-        public void onClose() {
-            //广告被关闭了
-        }
-
-        @Override
-        public void onError(int code, String message, String adCode) {
-            //广告加载失败了
-        }
-    });
-
-    //或者更简单的播放：
-
-    /**
-     * 开始播放激励视屏
-     * @param ad_code 广告位ID
-     * @param scene 播放场景
-     * @param isAutoModel 是否启用全自动模式，内部自动加载激励视频广告并且在合适的时机自动缓存下一个激励视频广告实例
-     * @param listener 状态监听器
-     */
-    PlayManager.getInstance().startVideo(AdConfig.AD_CODE_REWARD_ID,true, new OnPlayListener() {
-        @Override
-        public void onClose(Result status) {
-            if(null!=status){
-                Logger.d(TAG,"onClose-->status:"+status.getAd_code());
-                //播放成功并关闭了
-                Toast.makeText(getApplicationContext(),"播放结束",Toast.LENGTH_SHORT).show();
-            }
-        }
-
-        @Override
         public void onShow() {
             Toast.makeText(getApplicationContext(),"开始播放",Toast.LENGTH_SHORT).show();
         }
@@ -306,6 +282,7 @@
         //..更多回调事件请实现OnPlayListener中的方法
     });
 ```
+* SDK内部封装了激励视频广告的拉取、播放等功能交互，也支持自行拉取广告自己展示，请根据业务场景选择。
 ##### 2.3、常规激励视频
 * 2.3.1、常规激励视频缓存
 ```
@@ -350,7 +327,7 @@
         }
 
         @Override
-        public void onShow(ATRewardVideoAd atRewardVideoAd) {
+        public void onShow() {
             //广告被显示了
         }
 
@@ -360,7 +337,7 @@
         }
 
         @Override
-        public void onClose() {
+        public void onClose(String cpmInfo, String customData) {
             //广告被关闭了
         }
     });
@@ -368,7 +345,63 @@
     //int adnPlatformId = PlatformManager.getInstance().getAdnPlatformId()
 ```
 ##### 3、插屏广告
-##### 3.1、超简单插屏(推荐)
+##### 3.1、全自动插屏(推荐)
+* 全自动插屏模式下，Topon SDK内部会在合适的时机自动开始缓存下一条插屏广告，推荐使用全自动插屏。<br>
+* 为获得良好顺滑的播放体验，请按下列两步使用全自动插屏广告播放能力：<br>
+* 3.1.1、初始化全自动插屏
+```
+    /**
+     * 初始化/开始缓存全自动插屏(可忽略)
+     * @param activity 上下文
+     * @param id 广告ID
+     * @param scene 广告加载/处理的场景
+     * @param listener 监听器
+     */
+    TableScreenManager.getInstance().initAutoInsert(this, AdConfig.AD_CODE_INSERT_ID, new OnInitListener() {
+        @Override
+        public void onSuccess(String id) {
+            //缓存插屏广告成功
+        }
+
+        @Override
+        public void onError(int code, String message) {
+            //缓存失败
+        }
+    });
+```
+* 3.1.2、全自动插屏播放(参数isAutoModel是关键)
+```
+    /**
+     * 尝试播放一个插屏广告
+     * @param id 广告ID
+     * @param isAutoModel 是否启用全自动模式，内部自动加载激励视频广告并且在合适的时机自动缓存下一个激励视频广告实例
+     * @param scene 广告播放的场景标识
+     * @param delayed 延时多久后开始展示插屏，单位：毫秒
+     * @param listener 监听器
+     */
+    TableScreenManager.getInstance().showInsert(AdConfig.AD_CODE_INSERT_ID,true, new OnPlayListener() {
+        @Override
+        public void onClose(Result status) {
+            //插屏广告关闭了
+        }
+
+        @Override
+        public void onError(int code, String message, String adCode) {
+            //插屏广告播放失败了
+        }
+
+        //..更多回调事件请实现OnPlayListener中的方法
+    });
+```
+* 3.1.3、全自动插屏自定义播放<br>
+* SDK提供全自动激励视频的缓存和播放API，开发者可自己定义交互使用
+```
+    1、初始化全自动激励视频
+    PlatformManager.getInstance().initAutoInsert(activity, AdConfig.AD_CODE_INSERT_ID, new OnInitListener() {});
+    2、全自动激励视频播放
+    PlatformManager.getInstance().showAutoInsert(activity, AdConfig.AD_CODE_INSERT_ID, new OnTabScreenListener() {});    
+```
+##### 3.2、普通超简单插屏(推荐)
 * 使用TableScreenManager提供的api播放插屏广告时，内部默认关闭全自动插屏加载模式，如需启用，请传入isAutoModel参数时=true。
 ```
     /**
@@ -388,82 +421,6 @@
         @Override
         public void onError(int code, String message, String adCode) {
             //广告加载失败了
-        }
-
-        //..更多回调事件请实现OnPlayListener中的方法
-    });
-```
-##### 3.2、全自动插屏(推荐)
-* 全自动插屏模式下，只需要调用一次SDK的initInsert()方法，Topon SDK内部会在合适的时机自动开始缓存下一条插屏广告，推荐使用全自插屏。
-* 3.2.1、全自动插屏初始化\第一次缓存<font color=red>(必须在初始化SDK后和第一次播放激励视频前调用)</font>
-```
-    /**
-     * 初始化/开始缓存全自动插屏(可忽略)
-     * @param activity 上下文
-     * @param id 广告ID
-     * @param scene 广告加载/处理的场景
-     * @param listener 监听器
-     */
-    PlatformManager.getInstance().initInsert(this, AdConfig.AD_CODE_INSERT_ID, new OnInitListener() {
-        @Override
-        public void onSuccess(String id) {
-            //缓存插屏广告成功
-        }
-
-        @Override
-        public void onError(int code, String message) {
-            //缓存失败
-        }
-    });
-```
-* 3.2.2、全自动插屏展示
-```
-    /**
-     * 直接显示插屏广告，内部会自动拉取和缓存下一个视频广告
-     * @param activity 显示插屏广告的宿主Activity
-     * @param id 广告位ID
-     * @param scene 播放场景标识
-     * @param listener 状态监听器
-     */
-    //<font color=red>在初始化SDK后并且在第一次播放插屏广告之前必须调用initInsert()初始化全自动插屏功能</font>
-    PlatformManager.getInstance().showAutoInsert(this, AdConfig.AD_CODE_INSERT_ID, new OnTabScreenListener() {
-        @Override
-        public void onSuccess(ATInterstitial interactionAd) {
-            //SDK内部会自动展示，这里不要处理展示逻辑
-        }
-
-        @Override
-        public void onShow() {
-            //广告被显示了
-        }
-
-        @Override
-        public void onClick() {
-            //广告被点击了
-        }
-
-        @Override
-        public void onClose() {
-            //广告被关闭了
-        }
-
-        @Override
-        public void onError(int code, String message, String adCode) {
-            //广告加载失败了
-        }
-    });
-
-    //或者更简单的播放方法：
-
-    TableScreenManager.getInstance().showInsert(AdConfig.AD_CODE_INSERT_ID,true, new OnPlayListener() {
-        @Override
-        public void onClose(Result status) {
-            //插屏广告关闭了
-        }
-
-        @Override
-        public void onError(int code, String message, String adCode) {
-            //插屏广告播放失败了
         }
 
         //..更多回调事件请实现OnPlayListener中的方法

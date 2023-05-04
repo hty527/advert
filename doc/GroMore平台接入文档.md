@@ -13,7 +13,7 @@
     private void initSDK() {
 
         /**
-         * 广告SDK初始化，建议尽可能的早，在application中初始化
+         * 广告SDK初始化，建议尽可能的早，在开始加载广告前初始化，涉及隐私合规请在获得用户授权后初始化
          * @param context 全局上下文，建议为：Application
          * @param appId 物料 APP_ID(gromore后台获取)
          * @param appName 应用名称
@@ -66,6 +66,25 @@
                             case AdConstance.CODE_AD_LOADING:
                                 return "请稍等,马上就好...";
                         }
+                        return null;
+                    }
+
+                    /**
+                     * 自定义回调参数：如果当前GroMore应用和激励视频开启服务端验证+需要自定义参数回传(在GroMore后台填写回调地址后由GroMore回传)至自己服务器，请务必实现此方法并返回自己的自定义参数，此SDK内部会在每次缓存激励视频之前设置回调参数。
+                     * 如果只是需要设置用户ID回调参数，可不实现此方法但必须在加载广告前设置用户ID:PlatformManager.getInstance().setUserId("用户ID");
+                     * @return
+                     */
+                    @Override
+                    public Map<String, String> localExtra() {
+                        //例如：
+                        Map<String, Object> localMap = new HashMap<>();
+                        String customData="{\"userId\":\"88888888\",\"key\":\"value\"}";
+                        localMap.put(GMAdConstant.CUSTOM_DATA_KEY_PANGLE, customData);//穿山甲平台
+                        localMap.put(GMAdConstant.CUSTOM_DATA_KEY_GDT, customData);//优量汇平台
+                        localMap.put(GMAdConstant.CUSTOM_DATA_KEY_KS, customData);//快手平台
+                        localMap.put(GMAdConstant.CUSTOM_DATA_KEY_GROMORE_EXTRA, customData);//GroMore自定义消息
+                        localMap.put("key", "value");
+                        //return localMap;
                         return null;
                     }
 
@@ -187,9 +206,9 @@
      */
     PlayManager.getInstance().startVideo(AdConfig.AD_CODE_REWARD_ID, new OnPlayListener() {
         @Override
-        public void onClose(Result status) {
+        public void onClose(Result result) {
             if(null!=status){
-                Logger.d(TAG,"onClose-->adCode:"+status.getAd_code()+",eCpm:"+status.getEcpm()+",isClick:"+status.getIs_click());
+                Logger.d(TAG,"onClose-->result:"+result.toString());
                 //播放成功并关闭了
                 Toast.makeText(getApplicationContext(),"播放结束",Toast.LENGTH_SHORT).show();
             }
@@ -233,6 +252,7 @@
      * @param listener 状态监听器，如果监听器为空内部回自动缓存一条激励视频广告
      */
     PlatformManager.getInstance().loadRewardVideo(AdConfig.AD_CODE_REWARD_ID, new OnRewardVideoListener() {
+        
         @Override
         public void onSuccess(GMRewardAd gmRewardAd) {
             //在这里播放激励视频广告
@@ -245,22 +265,22 @@
         }
 
         @Override
+        public void onShow() {
+            //广告被显示了
+        }
+
+        @Override
+        public void onClick(GMRewardAd rewardAd) {
+            //广告被点击了
+        }
+
+        @Override
         public void onError(int code, String message, String adCode) {
             //广告加载失败了
         }
 
         @Override
-        ppublic void onShow(String ecpm) {
-            //广告被显示了
-        }
-
-        @Override
-        public void onClick(ATAdInfo atAdInfo) {
-            //广告被点击了
-        }
-
-        @Override
-        public void onClose() {
+        public void onClose(String cpmInfo, String customData) {
             //广告被关闭了
         }
     });

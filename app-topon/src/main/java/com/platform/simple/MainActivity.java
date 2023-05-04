@@ -11,7 +11,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.anythink.core.api.ATSDK;
 import com.anythink.core.api.DeviceInfoCallback;
 import com.anythink.interstitial.api.ATInterstitialAutoLoadListener;
-import com.anythink.rewardvideo.api.ATRewardVideoAd;
 import com.anythink.rewardvideo.api.ATRewardVideoAutoLoadListener;
 import com.platform.lib.bean.Result;
 import com.platform.lib.constants.AdConstance;
@@ -115,11 +114,14 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //缓存激励视频广告
-        //PlatformManager.getInstance().loadRewardVideo(AdConfig.AD_CODE_REWARD_ID,null);//推荐使用initReward()
-        PlatformManager.getInstance().initReward(this,AdConfig.AD_CODE_REWARD_ID,null);
+        //PlatformManager.getInstance().loadRewardVideo(AdConfig.AD_CODE_REWARD_ID,null);//推荐使用全自动加载模式：initReward()
+        //初始化激励视频广告
+        PlayManager.getInstance().initAutoReward(this,AdConfig.AD_CODE_REWARD_ID,null);
+
         //缓存插屏广告
-        //PlatformManager.getInstance().loadInsert(AdConfig.AD_CODE_INSERT_ID,null);//推荐使用initInsert()
-        PlatformManager.getInstance().initInsert(this,AdConfig.AD_CODE_INSERT_ID,null);
+        //PlatformManager.getInstance().loadInsert(AdConfig.AD_CODE_INSERT_ID,null);//推荐使用全自动加载模式：initInsert()
+        //初始化插屏广告
+        TableScreenManager.getInstance().initAutoInsert(this,AdConfig.AD_CODE_INSERT_ID,null);
         //缓存原生自渲染信息流广告
 //        PlatformManager.getInstance().loadStream(this,AdConfig.AD_CODE_STREAM_NATIVE_ID,null);
         //缓存模板信息流广告
@@ -167,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
          * @param scene 广告加载/处理的场景
          * @param listener 监听器
          */
-        PlatformManager.getInstance().initReward(this, AdConfig.AD_CODE_REWARD_ID, new OnInitListener() {
+        PlatformManager.getInstance().initAutoReward(this, AdConfig.AD_CODE_REWARD_ID, new OnInitListener() {
             @Override
             public void onSuccess(String id) {
                 Toast.makeText(getApplicationContext(),"已准备好激励视频广告",Toast.LENGTH_SHORT).show();
@@ -198,37 +200,38 @@ public class MainActivity extends AppCompatActivity {
          * @param listener 状态监听器，如果监听器为空内部回自动缓存一条激励视频广告
          */
 //        PlatformManager.getInstance().loadRewardVideo(AdConfig.AD_CODE_REWARD_ID, new OnRewardVideoListener() {
+//
 //            @Override
 //            public void onSuccess(ATRewardVideoAd atRewardVideoAd) {
+//                //在这里播放激励视频广告
 //                atRewardVideoAd.show(MainActivity.this);
 //            }
 //
 //            @Override
-//            public void onShow(ATRewardVideoAd atRewardVideoAd) {
-//
+//            public void onRewardVerify() {
+//                //广告有效性验证
 //            }
 //
 //            @Override
-//            public void onRewardVerify() {
+//            public void onShow() {
+//                //广告被显示了
+//            }
 //
+//            @Override
+//            public void onClick(ATAdInfo rewardAd) {
+//                //广告被点击了
 //            }
 //
 //            @Override
 //            public void onError(int code, String message, String adCode) {
-//
+//                //广告加载失败了
 //            }
 //
 //            @Override
-//            public void onClick(ATAdInfo atAdInfo) {
-//
-//            }
-//
-//            @Override
-//            public void onClose() {
-//
+//            public void onClose(String cpmInfo, String customData) {
+//                //广告被关闭了
 //            }
 //        });
-
         //封装的便捷播放入口
         /**
          * 开始播放激励视屏
@@ -238,17 +241,22 @@ public class MainActivity extends AppCompatActivity {
          * @param listener 状态监听器
          */
         PlayManager.getInstance().startVideo(AdConfig.AD_CODE_REWARD_ID,true, new OnPlayListener() {
+
+            /**
+             * 无论播放成功或失败，都将回调此方法，当播放成功或开启develop模式时，此result对象不会为空。
+             * @param result 本次播放广告的基础信息(原始广告平台、是否已点击、)，可使用toString输出打印
+             */
             @Override
-            public void onClose(Result status) {
-                if(null!=status){
-                    Logger.d(TAG,"onClose-->adCode:"+status.getAd_code()+",isClick:"+status.getIs_click());
+            public void onClose(Result result) {
+                if(null!=result){
+                    Logger.d(TAG,"onClose-->result:"+result.toString());
                     //播放成功并关闭了
                     Toast.makeText(getApplicationContext(),"播放结束",Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
-            public void onShow(ATRewardVideoAd atRewardVideoAd) {
+            public void onShow() {
                 Toast.makeText(getApplicationContext(),"开始播放",Toast.LENGTH_SHORT).show();
             }
 
@@ -285,7 +293,7 @@ public class MainActivity extends AppCompatActivity {
          * @param scene 播放场景标识
          * @param listener 状态监听器
          */
-        PlatformManager.getInstance().initInsert(this, AdConfig.AD_CODE_INSERT_ID, new OnInitListener() {
+        PlatformManager.getInstance().initAutoInsert(this, AdConfig.AD_CODE_INSERT_ID, new OnInitListener() {
             @Override
             public void onSuccess(String id) {
                 Toast.makeText(getApplicationContext(),"已准备好插屏广告",Toast.LENGTH_SHORT).show();

@@ -9,34 +9,38 @@ import android.text.TextUtils;
  */
 public class Result {
 
-    private String ad_code;//广告位ID
-    private String is_click;//是否点击了广告，1：点击了广告，0：未点击广告
-    private String ecpm;//广告的ecpm
+    private String adCode;//广告位ID
+    private String isClick;//是否点击了广告，1：点击了广告，0：未点击广告
+    private String cpmInfo;//广告的ecpm信息，cpm/cpm精度/展示单价等json字段,例如格式：{"price":"20.28470431","precision":"exact","pre_price":"0.02028470431"}
     private int platformId;//广告的实际平台标识，详见https://docs.toponad.com/#/zh-cn/android/android_doc/android_sdk_callback_access?id=callback_info说明
+    private String customData;//启用服务端验证下发奖励时的用户自定义数据
 
-    public String getAd_code() {
-        return ad_code;
+    public String getAdCode() {
+        return adCode;
     }
 
-    public void setAd_code(String ad_code) {
-        this.ad_code = ad_code;
+    public void setAdCode(String adCode) {
+        this.adCode = adCode;
     }
 
-    public String getIs_click() {
-        return is_click;
+    public String getIsClick() {
+        return isClick;
     }
 
-    public void setIs_click(String is_click) {
-        this.is_click = is_click;
+    public void setIsClick(String isClick) {
+        this.isClick = isClick;
     }
 
-    public String getEcpm() {
-        if(TextUtils.isEmpty(ecpm)) ecpm="0";
-        return ecpm;
+    /**
+     * @return 广告的ecpm信息，cpm/cpm精度/展示单价等json字段,例如格式：{"price":"20.28470431","precision":"exact","pre_price":"0.02028470431"}
+     */
+    public String getCpmInfo() {
+        if(TextUtils.isEmpty(cpmInfo)) cpmInfo ="0";
+        return cpmInfo;
     }
 
-    public void setEcpm(String ecpm) {
-        this.ecpm = ecpm;
+    public void setCpmInfo(String cpmInfo) {
+        this.cpmInfo = cpmInfo;
     }
 
     public int getPlatformId() {
@@ -45,5 +49,24 @@ public class Result {
 
     public void setPlatformId(int platformId) {
         this.platformId = platformId;
+    }
+
+    public String getCustomData() {
+        return customData;
+    }
+
+    public void setCustomData(String customData) {
+        this.customData = customData;
+    }
+
+    @Override
+    public String toString() {
+        return "Result{" +
+                "adCode='" + adCode + '\'' +
+                ", isClick='" + isClick + '\'' +
+                ", cpmInfo='" + cpmInfo + '\'' +
+                ", platformId=" + platformId +
+                ", customData='" + customData + '\'' +
+                '}';
     }
 }

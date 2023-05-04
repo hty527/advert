@@ -128,37 +128,33 @@ public class MainActivity extends AppCompatActivity {
 //
 //            @Override
 //            public void onSuccess(GMRewardAd gmRewardAd) {
+//                //在这里播放激励视频广告
 //                gmRewardAd.showRewardAd(MainActivity.this);
 //            }
 //
 //            @Override
 //            public void onRewardVerify() {
-//
-//            }
-//
-//            @Override
-//            public void onShow(String ecpm) {
-//
-//            }
-//
-//            @Override
-//            public void onError(int code, String message, String adCode) {
-//
+//                //广告有效性验证
 //            }
 //
 //            @Override
 //            public void onShow() {
-//
+//                //广告被显示了
 //            }
 //
 //            @Override
-//            public void onClick() {
-//
+//            public void onClick(GMRewardAd rewardAd) {
+//                //广告被点击了
 //            }
 //
 //            @Override
-//            public void onClose() {
+//            public void onError(int code, String message, String adCode) {
+//                //广告加载失败了
+//            }
 //
+//            @Override
+//            public void onClose(String cpmInfo, String customData) {
+//                //广告被关闭了
 //            }
 //        });
 
@@ -172,9 +168,9 @@ public class MainActivity extends AppCompatActivity {
          */
         PlayManager.getInstance().startVideo(AdConfig.AD_CODE_REWARD_ID, new OnPlayListener() {
             @Override
-            public void onClose(Result status) {
-                if(null!=status){
-                    Logger.d(TAG,"onClose-->adCode:"+status.getAd_code()+",eCpm:"+status.getEcpm()+",isClick:"+status.getIs_click());
+            public void onClose(Result result) {
+                if(null!=result){
+                    Logger.d(TAG,"onClose-->result:"+result.toString());
                     //播放成功并关闭了
                     Toast.makeText(getApplicationContext(),"播放结束",Toast.LENGTH_SHORT).show();
                 }

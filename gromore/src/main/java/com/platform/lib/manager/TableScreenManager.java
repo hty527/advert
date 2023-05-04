@@ -109,8 +109,8 @@ public final class TableScreenManager {
         }
         if(PlatformManager.getInstance().isDevelop()){
             Result status=new Result();
-            status.setAd_code(id);
-            status.setIs_click("1");
+            status.setAdCode(id);
+            status.setIsClick("1");
             if(null!=listener) listener.onClose(status);
             return;
         }
@@ -190,8 +190,8 @@ public final class TableScreenManager {
             OnPlayListener onInsertListener=mPlayerListener;
             mPlayerListener=null;
             Result status=new Result();
-            status.setAd_code(mCurrentId);
-            status.setIs_click(isClick?"1":"0");
+            status.setAdCode(mCurrentId);
+            status.setIsClick(isClick?"1":"0");
             if(null!=onInsertListener) onInsertListener.onClose(status);
             if(TextUtils.isEmpty(mCurrentId)){
                 cacheInsertAd(mCurrentId);
