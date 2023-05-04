@@ -84,7 +84,7 @@
     public *;
 }
 #将所有混淆的类放到指定目录下
--repackageclasses com.platform.lib
+-repackageclasses com.platform.core
 
 ##删除所有的log代码
 #-assumenosideeffects

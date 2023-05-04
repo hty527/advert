@@ -3,7 +3,7 @@ package com.platform.simple.adn.gdt;
 import android.content.Context;
 import com.bytedance.msdk.api.v2.ad.custom.bean.GMCustomInitConfig;
 import com.bytedance.msdk.api.v2.ad.custom.init.GMCustomAdapterConfiguration;
-import com.platform.lib.utils.ThreadUtils;
+import com.platform.simple.ThreadUtils;
 import com.qq.e.comm.managers.GDTAdSdk;
 import com.qq.e.comm.managers.setting.GlobalSetting;
 import com.qq.e.comm.managers.status.SDKStatus;

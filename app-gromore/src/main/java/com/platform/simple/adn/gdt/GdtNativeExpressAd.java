@@ -5,7 +5,7 @@ import com.bytedance.msdk.api.v2.GMAdConstant;
 import com.bytedance.msdk.api.v2.ad.custom.GMCustomAdError;
 import com.bytedance.msdk.api.v2.ad.custom.nativeAd.GMCustomNativeAd;
 import com.bytedance.msdk.api.v2.slot.GMAdSlotNative;
-import com.platform.lib.utils.ThreadUtils;
+import com.platform.simple.ThreadUtils;
 import com.platform.lib.constants.AdConstance;
 import com.qq.e.ads.nativ.NativeExpressADView;
 import com.qq.e.ads.nativ.NativeExpressMediaListener;

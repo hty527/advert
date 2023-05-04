@@ -2,19 +2,15 @@ package com.platform.simple;
 
 import android.content.Context;
 import android.os.Build;
+import android.util.Log;
 import android.webkit.WebView;
-
 import androidx.multidex.MultiDexApplication;
-
 import com.anythink.core.api.ATAdConst;
 import com.anythink.core.api.ATInitConfig;
-import com.platform.lib.BuildConfig;
 import com.platform.lib.constants.AdConstance;
 import com.platform.lib.listener.OnEventListener;
 import com.platform.lib.listener.OnInitListener;
 import com.platform.lib.manager.PlatformManager;
-import com.platform.lib.utils.Logger;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -139,7 +135,7 @@ public class AdvertApplication extends MultiDexApplication {
                      */
                     @Override
                     public void onEvent(String scene, String ad_type, String ad_code, String ad_status, int error_code, String error_msg) {
-                        Logger.log(TAG,"onEvent-->scene:"+scene+",ad_type:"+ad_type+",ad_code:"+ad_code+",ad_status:"+ad_status+",error_code:"+error_code+",error_msg:"+error_msg, "2".equals(ad_status)||"4".equals(ad_status)? Logger.ERROR:Logger.INFO);
+                        Log.d(TAG,"onEvent-->scene:"+scene+",ad_type:"+ad_type+",ad_code:"+ad_code+",ad_status:"+ad_status+",error_code:"+error_code+",error_msg:"+error_msg);
                     }
                 });
     }

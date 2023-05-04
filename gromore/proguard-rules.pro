@@ -86,4 +86,4 @@
     public *;
 }
 #将所有混淆的类放到指定目录下
--repackageclasses com.platform.libs
+-repackageclasses com.platform.core

@@ -14,7 +14,7 @@ import com.bytedance.msdk.api.v2.ad.nativeAd.GMNativeAdAppInfo;
 import com.bytedance.msdk.api.v2.ad.nativeAd.GMViewBinder;
 import com.bytedance.msdk.api.v2.slot.GMAdSlotNative;
 import com.bytedance.msdk.api.v2.slot.paltform.GMAdSlotGDTOption;
-import com.platform.lib.utils.ThreadUtils;
+import com.platform.simple.ThreadUtils;
 import com.platform.lib.constants.AdConstance;
 import com.qq.e.ads.cfg.VideoOption;
 import com.qq.e.ads.nativ.MediaView;

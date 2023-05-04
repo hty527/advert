@@ -4,10 +4,13 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.platform.lib.bean.Result;
 import com.platform.lib.constants.AdConstance;
 import com.platform.lib.listener.OnExpressAdListener;
@@ -15,7 +18,6 @@ import com.platform.lib.listener.OnPlayListener;
 import com.platform.lib.manager.PlatformManager;
 import com.platform.lib.manager.PlayManager;
 import com.platform.lib.manager.TableScreenManager;
-import com.platform.lib.utils.Logger;
 import com.platform.lib.widget.ExpressView;
 
 /**
@@ -170,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClose(Result result) {
                 if(null!=result){
-                    Logger.d(TAG,"onClose-->result:"+result.toString());
+                    Log.d(TAG,"onClose-->result:"+result.toString());
                     //播放成功并关闭了
                     Toast.makeText(getApplicationContext(),"播放结束",Toast.LENGTH_SHORT).show();
                 }

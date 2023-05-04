@@ -2,7 +2,6 @@ package com.platform.simple.adn.pangle;
 
 import android.app.Activity;
 import android.content.Context;
-
 import com.bytedance.msdk.api.v2.GMAdConstant;
 import com.bytedance.msdk.api.v2.ad.custom.GMCustomAdError;
 import com.bytedance.msdk.api.v2.ad.custom.bean.GMCustomServiceConfig;
@@ -11,7 +10,7 @@ import com.bytedance.msdk.api.v2.slot.GMAdSlotFullVideo;
 import com.bytedance.sdk.openadsdk.TTAdNative;
 import com.bytedance.sdk.openadsdk.TTAdSdk;
 import com.bytedance.sdk.openadsdk.TTFullScreenVideoAd;
-import com.platform.lib.utils.TTNumberUtil;
+import com.platform.simple.TTNumberUtil;
 import java.util.Map;
 
 public class PangleCustomerFullVideo extends GMCustomFullVideoAdapter {
