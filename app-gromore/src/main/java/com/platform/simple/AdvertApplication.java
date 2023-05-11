@@ -106,6 +106,23 @@ public class AdvertApplication extends MultiDexApplication {
                      * 根据错误码返回文字文案
                      * @param code 错误码参考AdConstance定义的“错误码”
                      * @return 如果返回的文字为空，则使用SDK内部默认文案
+                     *     int CODE_CONTEXT_INVALID            = 1; //上下文无效
+                     *     int CODE_ACTIVITY_INVALID           = 2; //Activity无效或已被关闭
+                     *     int CODE_VIEWGROUP_INVALID          = 3; //ViewGroup容器无效
+                     *     int CODE_APPID_INVALID              = 4; //app_id无效
+                     *     int CODE_APPSECRECY_INVALID         = 5; //app_secrecy无效
+                     *     int CODE_ID_UNKNOWN                 = 6;//未知的广告位
+                     *     int CODE_ID_INVALID                 = 7;//无效的广告位ID
+                     *     int CODE_TYPE_INVALID               = 8;//无效的广告位类型
+                     *     int CODE_TIMOUT                     = 9;//超时
+                     *     int CODE_ADINFO_INVALID             = 10;//广告对象无效
+                     *     int CODE_REPEATED                   = 11;//正在显示中
+                     *     int CODE_AD_EMPTY                   = 12;//暂无广告填充
+                     *     int CODE_AD_LOADING                 = 13;//广告正在请求中
+                     *     int CODE_EXIST_CACHE                = 14;//存在缓存广告
+                     *     int CODE_APPLY_FAIL                 = 15;//广告应用到布局失败
+                     *     int CODE_DEVELOP                    = 16;//开发者模式，跳过广告
+                     *     int CODE_CONFIG_LOADING             = 17;//广告配置正在加载中
                      */
                     @Override
                     public String getText(int code) {

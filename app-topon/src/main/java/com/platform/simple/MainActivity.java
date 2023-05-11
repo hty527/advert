@@ -8,7 +8,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.anythink.core.api.ATSDK;
 import com.anythink.core.api.DeviceInfoCallback;
 import com.anythink.interstitial.api.ATInterstitialAutoLoadListener;
@@ -222,11 +224,20 @@ public class MainActivity extends AppCompatActivity {
 //                //广告被点击了
 //            }
 //
+//            /**
+//             * @param code 错误码，参考：AdConstance 和 https://docs.toponad.com/#/zh-cn/android/android_doc/android_errorcode
+//             * @param message 错误信息
+//             * @param adCode 广告位ID
+//             */
 //            @Override
 //            public void onError(int code, String message, String adCode) {
 //                //广告加载失败了
 //            }
 //
+//            /**
+//             * @param cpmInfo cpm/cpm精度/展示单价等json字段,例如格式：{"price":"20.28470431","precision":"exact","pre_price":"0.02028470431"}
+//             * @param customData 自定义透传参数
+//             */
 //            @Override
 //            public void onClose(String cpmInfo, String customData) {
 //                //广告被关闭了
