@@ -1,9 +1,9 @@
 ### 一、接入前的准备工作
-* 到[GroMore后台][6]申请APP ID和广告位ID<br>
-* 此工程及接入文档以穿山甲、快手、优量汇三家广告平台为接入示例<br>
-* 遇到问题请阅读[GroMore官方文档][1]<br>
-* 更多平台广告支持[第三方广告SDK下载][2]<br>
-* 配置、混淆、资源、权限等请参阅[官方文档][3]<br>
+* 1、开发者须具备Android开发基础及AndroidStudio编辑器的使用基础能力
+* 2、到[GroMore后台][6]申请APP ID和广告位ID<br>
+* 3、遇到问题请阅读[GroMore官方文档][1]<br>
+* 4、更多原始广告平台支持请到[第三方广告SDK][2]下载<br>
+* 5、配置、混淆、资源、权限等请参阅[官方文档][3]<br>
 
 ### 二、AndroidStudio接入
 
@@ -18,14 +18,9 @@
 ```
 ##### 2、模块build.gradle配置
 ```
-    defaultConfig {
-        minSdkVersion 17//如果使用了1.0.23及以上版本的oaid sdk，则最小版本为21
-    }
-
     dependencies {
-        //复制libs_gromore文件夹到app下后引入libs_gromore目录下的所有.aar文件和.jar文件
-        implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs_gromore')
-        //广告功能逻辑SDK
+
+        //GroMore统一SDK
         implementation 'com.github.hty527.advert:gromore:1.1.5.2'
 
         /**
@@ -33,8 +28,6 @@
          */
         //implementation "com.android.support:appcompat-v7:28.0.0"
         //implementation 'com.android.support:localbroadcastmanager:28.0.0'
-        //集成包含快手广告需要添加下列1个依赖库
-        //implementation "com.android.support:design:28.0.0"
         //dex 分包，当minSdkVersion>=21时会出现找不到androidx.multidex.MultiDexApplication 解决办法
         //implementation 'com.android.support:multidex:1.0.3'
     
@@ -48,17 +41,32 @@
         implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
         //dex 分包，当minSdkVersion>=21时会出现找不到androidx.multidex.MultiDexApplication  解决办法
         implementation 'androidx.multidex:multidex:2.0.1'
-        //集成包含快手广告需要添加下列2个依赖库
+    }
+```
+##### 3、第三方聚合平台SDK及第三方原始广告SDK配置
+* 3.1、复制模块app-gromore下libs_gromore到你的项目模块根目录下<br>
+* 3.2、复制模块app-gromore下libs-adn到你的项目模块根目录下，可跟根据需要保留第三方聚合adapter和第三方原始广告SDK，更多广告SDK，请前往[官方下载][4]<br>
+* 3.3、兼容Android10及以上设备建议集成模块app-gromore下libs目录中的oaid_sdk_1.0.25.aar<br>
+* 3.4、完成文件拷贝后在模块build.gradle配置中添加下列配置：<br>
+```
+    dependencies {
+        //引入libs、libs_gromore、libs-adn目录下的所有.aar文件和.jar文件
+        implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs')
+        implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs_gromore')
+        implementation fileTree(include: ['*.jar', '*.aar'], dir: 'libs-adn')
+
+        /**
+         * 如果集成了快手：
+         */
+        //Support：
+        //implementation "com.android.support:design:28.0.0"
+        //AndroidX：
         implementation "androidx.recyclerview:recyclerview:1.2.0"
         implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     }
 ```
-##### 3、第三方聚合平台SDK及第三方广告平台SDK配置
-###### 3.1、复制模块app-gromore下libs_gromore目录内的mediation_ad_sdk_4.0.0.1.aar文件到你的项目中并依赖
-###### 3.2、根据需要集成的广告平台复制模块app-gromore下libs-adn第三方平台SDK及适配器SDK到你的项目中并依赖。更多广告SDK，请前往[下载][4]
-###### 3.3、demo中libs目录下的oaid_sdk_1.0.25.aar为可选SDK，适配Android10及以上系统建议集成
 
-* 请尽可能的申明下列权限
+* 请尽可能的申明下列权限，以免影响ECPM
 ```
     <!--GroMore SDK-BEGIN-通用 必要权限-->
     <uses-permission android:name="android.permission.INTERNET" />
@@ -94,8 +102,8 @@
 ```
 #### 二、广告展示、拉取、缓存、混淆等请阅读[接入文档][5]
 [1]:https://www.csjplatform.com/union/media/union/download/detail?id=84&osType=android&locale=zh-CN "GroMore官方文档"
-[2]:https://www.csjplatform.com/union/media/union/download?doc_sort=mediation "第三方广告SDK下载"
+[2]:https://www.csjplatform.com/union/media/union/download?doc_sort=mediation "第三方广告SDK"
 [3]:https://www.csjplatform.com/union/media/union/download/detail?id=84&docId=27211&osType=android "官方文档"
-[4]:https://www.csjplatform.com/union/media/union/download?doc_sort=mediation "下载"
-[5]:https://github.com/hty527/advert/wiki/GroMore平台接入文档 "接入文档"
+[4]:https://www.csjplatform.com/union/media/union/download?doc_sort=mediation "官方下载"
+[5]:https://github.com/hty527/advert/wiki/GroMore统一SDK接入文档 "接入文档"
 [6]:https://www.csjplatform.com/union/media/union "GroMore后台"
