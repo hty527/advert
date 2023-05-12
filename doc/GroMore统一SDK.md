@@ -21,7 +21,7 @@
     dependencies {
 
         //GroMore统一SDK
-        implementation 'com.github.hty527.advert:gromore:1.1.5.2'
+        implementation 'com.github.hty527.advert:gromore:1.1.5.3'
 
         /**
          * 如果是Support环境
