@@ -28,8 +28,8 @@ public class RewardActivity extends Activity implements Application.ActivityLife
     private LoadingView mLoadingView;
     //播放场景(由宿主传入，sdk将回调给宿主这个标识场景)、广告位ID、此视频广告的ECPM、是否全自动模式、自定义透传字段
     private String play_scene,ad_code, mCpmInfo,is_auto="1",mCustomData;
-    //是否播放成功、是否点击了
-    private boolean success=false,isClick=false;
+    //是否播放成功、是否点击了、是否是一个有效的播放
+    private boolean success=false,isClick=false,rewardVerify;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,6 +112,7 @@ public class RewardActivity extends Activity implements Application.ActivityLife
         @Override
         public void onRewardVerify() {
             success=true;
+            rewardVerify=true;
 //            Logger.d("onRewardVerify-->");
             PlayManager.getInstance().onRewardVerify();
         }
@@ -180,6 +181,7 @@ public class RewardActivity extends Activity implements Application.ActivityLife
             status.setCpmInfo(mCpmInfo);
             status.setPlatformId(PlatformManager.getInstance().getAdnPlatformId());
             status.setCustomData(mCustomData);
+            status.setRewardVerify(rewardVerify);
             PlayManager.getInstance().onClose(status);
         }else{
             PlayManager.getInstance().onClose(null);
