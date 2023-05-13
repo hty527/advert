@@ -1,11 +1,11 @@
 # 统一SDK
 
 ### 一、项目及名称释义
-* 第三方的GroMore SDK 和 TopOn SDK 称为聚合SDK，此项目SDK称为统一SDK，如：GroMore统一SDK 和 TopOn统一SDK。
+* 第三方的GroMore SDK 和 TopOn SDK 称为聚合SDK，此项目SDK称为统一SDK，如：GroMore统一SDK 和 TopOn统一SDK；第三方广告称之为广告SDK。
 ### 二、项目介绍
 * 此项目对第三方聚合GroMore和TopOn进行了统一API标准二次封装<br>
-* 项目下有两个SDK，分别对GroMore、TopOn两家聚合平台，适用于Android客户端，极大的方便首次集成上述第三方聚合以及两个聚合SDK更换的应用场景。<br>
-* 项目下两个SDK分别为GroMore统一SDK和TopOn统一SDK，两个SDK已分别基于穿山甲、快手、优量汇等第三方原始广告调试通过，其它平台广告请按照各聚合平台官方文档添加受支持的原始广告SDK及聚合平台提供的adapter进行自测！链接可见各统一SDK接入文档内的聚合平台官方下载地址。
+* 适用于Android客户端，极大的方便首次集成上述第三方聚合以及聚合更换的应用场景。<br>
+* 项目下两个SDK分别为GroMore统一SDK和TopOn统一SDK，已分别基于穿山甲、快手、优量汇等第三方广告调试通过，其它厂家广告请按照各聚合平台官方文档添加受支持的广告SDK及聚合平台提供的adapter进行自测！第三方广告支持列表可见各统一SDK接入文档内的聚合平台官方下载地址。
 ### 三、功能特性
 * 开屏广告(xml或动态new对象填充)
 * 激励视频广告(一句话快速展示广告)
