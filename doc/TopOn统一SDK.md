@@ -43,11 +43,12 @@
         implementation 'androidx.multidex:multidex:2.0.1'
     }
 ```
-##### 3、第三方聚合平台SDK及第三方原始广告SDK配置
+##### 3、第三方聚合SDK及第三方广告SDK配置
 * 3.1、复制模块app-topon下libs_topon到你的项目模块根目录下<br>
-* 3.2、复制模块app-topon下libs-adn到你的项目模块根目录下，可跟根据需要保留第三方聚合adapter和第三方原始广告SDK，更多广告SDK，请前往[官方下载][4]<br>
+* 3.2、复制模块app-topon下libs-adn到你的项目模块根目录下，可根据需要保留第三方聚合adapter和第三方广告SDK，更多广告SDK，请前往[官方下载][4]<br>
 * 3.3、兼容Android10及以上设备建议集成模块app-topon下libs目录中的oaid_sdk_1.0.25.aar<br>
-* 3.4、完成文件拷贝后在模块build.gradle配置中添加下列配置：此示例仅针对集成了穿山甲、优量汇、快手等三家SDK<br>
+* 3.4、完成文件拷贝后在模块build.gradle配置中添加下列配置<br>
+* 下列配置示例仅适配了穿山甲、快手、优量汇三家广告，其它广告配置请参阅[TopOn官方文档][1]
 ```
     dependencies {
         //引入libs、libs_gromore、libs-adn目录下的所有.aar文件和.jar文件
