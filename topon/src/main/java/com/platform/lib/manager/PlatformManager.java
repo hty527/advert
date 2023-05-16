@@ -592,6 +592,12 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
         mAtRewardVideoAd.setAdListener(mATRewardVideoListener);
         if(null!=mAdvertEventListener&&null!=mAdvertEventListener.localExtra()){
             mAtRewardVideoAd.setLocalExtra(mAdvertEventListener.localExtra());//设置自定义参数
+        }else{
+            if(!TextUtils.isEmpty(getUserId())){
+                Map<String, Object> localMap = new HashMap<>();
+                localMap.put(ATAdConst.KEY.USER_ID, getUserId());
+                mAtRewardVideoAd.setLocalExtra(localMap);
+            }
         }
         mAtRewardVideoAd.load();
     }
