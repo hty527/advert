@@ -41,14 +41,14 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="缓存激励视频"
-                android:onClick="cacheReward"/>
+                android:text="激励视频"
+                android:onClick="rewardVideo"/>
             <Button
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="展示激励视频"
-                android:onClick="showReward"/>
+                android:text="全自动激励视频"
+                android:onClick="autoRewardVideo"/>
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
@@ -60,20 +60,20 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="缓存插屏广告"
-                android:onClick="cacheInsert"/>
+                android:text="插屏"
+                android:onClick="insert"/>
             <Button
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="展示插屏广告"
-                android:onClick="showInsert"/>
+                android:text="全自动插屏"
+                android:onClick="autoInsert"/>
         </LinearLayout>
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="原生信息流(自定义渲染UI)"
-            android:onClick="showCoustomNativeStream"
+            android:onClick="showCustomNativeStream"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"/>
         <com.platform.lib.widget.ExpressView

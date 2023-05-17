@@ -8,12 +8,12 @@ ext {
     ]
     topon = [
             applicationId: "com.anythink.sdk.demo",
-            versionCode  : 4,
-            versionName  : "1.1.5.4"
+            versionCode  : 6,
+            versionName  : "1.1.6"
     ]
     gromore = [
             applicationId: "com.distributor.never.thumb",
-            versionCode  : 4,
-            versionName  : "1.1.5.4"
+            versionCode  : 6,
+            versionName  : "1.1.6"
     ]
 }

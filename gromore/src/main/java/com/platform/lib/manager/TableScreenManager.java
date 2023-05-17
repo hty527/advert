@@ -149,6 +149,11 @@ public final class TableScreenManager {
     private OnTabScreenListener onInsertListener=new OnTabScreenListener() {
 
         @Override
+        public void onLoading() {
+//            Logger.d("onLoading");
+        }
+
+        @Override
         public void onSuccess(GMInterstitialFullAd interactionAd) {
 //            Logger.d("onSuccess");
             Activity tempActivity = PlatformUtils.getInstance().getActivity();

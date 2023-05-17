@@ -45,7 +45,7 @@ public class PlatformPreferences {
     }
 
     public boolean getBoolean(String key) {
-        return this.prefs.getBoolean(key, false);
+        return getBoolean(key,false);
     }
 
 
@@ -119,6 +119,12 @@ public class PlatformPreferences {
 
     public PlatformPreferences putInt(String key, int value) {
         editor.putInt(key, value);
+        editor.commit();
+        return this;
+    }
+
+    public PlatformPreferences putBoolean(String key, boolean value) {
+        editor.putBoolean(key, value);
         editor.commit();
         return this;
     }

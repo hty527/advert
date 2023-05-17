@@ -4,7 +4,7 @@
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "com.anythink.sdk.demo",
+  "applicationId": "com.distributor.never.thumb",
   "variantName": "appRelease",
   "elements": [
     {
@@ -14,7 +14,7 @@
       "versionCode": 6,
       "versionName": "1.1.6",
       "enabled": true,
-      "outputFile": "app-topon-app-release.apk"
+      "outputFile": "app-gromore-app-release.apk"
     }
   ]
 }

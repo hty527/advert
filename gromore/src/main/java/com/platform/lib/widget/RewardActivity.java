@@ -27,8 +27,8 @@ public class RewardActivity extends Activity implements Application.ActivityLife
     private LoadingView mLoadingView;
     //播放场景(由宿主传入，sdk将回调给宿主这个标识场景)、广告位ID、此视频广告的ECPM、自定义透传字段
     private String play_scene,ad_code,mCpmInfo,mCustomData;
-    //是否播放成功、是否点击了、是否是一个有效的播放
-    private boolean success=false,isClick=false,rewardVerify;
+    //是否播放成功、是否点击了、是否是一个有效的播放、是否正在播放中
+    private boolean success,isClick,rewardVerify,isPlay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +60,7 @@ public class RewardActivity extends Activity implements Application.ActivityLife
             error(PlatformManager.getInstance().getText(AdConstance.CODE_DEVELOP)+",id:"+ad_code);
             return;
         }
-        isClick=false;
+        isClick=false;isPlay=false;
         playRewardVideo(ad_code);
     }
 
@@ -68,18 +68,29 @@ public class RewardActivity extends Activity implements Application.ActivityLife
      * 开始准备播放激励视频广告
      */
     private void playRewardVideo(String ad_code) {
-        loading(PlatformManager.getInstance().getText(AdConstance.CODE_AD_LOADING));
         PlatformManager.getInstance().loadRewardVideo(this,ad_code,play_scene,onRewardVideoListener);
     }
 
     private OnRewardVideoListener onRewardVideoListener=new OnRewardVideoListener() {
 
         @Override
+        public void onLoading() {
+            loading(PlatformManager.getInstance().getText(AdConstance.CODE_AD_LOADING));
+        }
+
+        @Override
         public void onSuccess(GMRewardAd gmRewardAd) {
+            if(isPlay) return;
             if(!isFinishing()){
-                if(null!=gmRewardAd&&gmRewardAd.isReady()){
-                    gmRewardAd.showRewardAd(RewardActivity.this);
-                    PlayManager.getInstance().onSuccess(gmRewardAd);
+                if(null!=gmRewardAd){
+                    try {
+                        gmRewardAd.showRewardAd(RewardActivity.this);
+                        isPlay=true;
+                        PlayManager.getInstance().onSuccess(gmRewardAd);
+                    }catch (Throwable e){
+                        e.printStackTrace();
+                        error("reward play error,"+e.getMessage());
+                    }
                 }else{
                     error("reward info invalid");
                 }
@@ -102,6 +113,7 @@ public class RewardActivity extends Activity implements Application.ActivityLife
         public void onShow() {
             success=true;
             mCustomData=null;
+            isPlay=true;
 //            Logger.d("onShow-->");
             PlayManager.getInstance().onShow();
         }
@@ -165,11 +177,11 @@ public class RewardActivity extends Activity implements Application.ActivityLife
     }
 
     @Override
-    public void finish() {
+    protected void onDestroy() {
         getApplication().unregisterActivityLifecycleCallbacks(this);
         PlayManager.getInstance().setShowing(false);
         PlatformManager.getInstance().onResetReward();
-        super.finish();
+        super.onDestroy();
         if(PlatformManager.getInstance().isDevelop()||success){
             Result status = new Result();
             status.setAdCode(TextUtils.isEmpty(ad_code)?"0":ad_code);
@@ -182,12 +194,6 @@ public class RewardActivity extends Activity implements Application.ActivityLife
         }else{
             PlayManager.getInstance().onClose(null);
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-//        Logger.d("onDestroy-->");
     }
 
     @Override

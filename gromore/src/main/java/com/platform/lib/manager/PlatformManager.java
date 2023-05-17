@@ -711,6 +711,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
             if(null!=listener) listener.onError(AdConstance.CODE_CONFIG_LOADING, getText(AdConstance.CODE_CONFIG_LOADING), id);
             return;
         }
+        if(null!=mRewardVideoListener) mRewardVideoListener.onLoading();
         if(isConfigAvailable(listener,id,"loadRewardVideo")){
             mGMRewardAd = new GMRewardAd(context, id);
             mGMRewardAd.loadAd(buildRewardConfig(rewardName), new GMRewardedAdLoadCallback() {
@@ -734,13 +735,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
                             public void onRewardedAdShow() {
 //                                Logger.d("loadRewardVideo-->onRewardedAdShow");
                                 if(null!=mGMRewardAd) setPlatformId(mGMRewardAd.getAdNetworkPlatformId());
-                                if(null!= mRewardVideoListener){
-                                    if(null!=mGMRewardAd){
-                                        mRewardVideoListener.onShow();
-                                    }else{
-                                        mRewardVideoListener.onShow();
-                                    }
-                                }
+                                if(null!= mRewardVideoListener) mRewardVideoListener.onShow();
                             }
 
                             @Override
@@ -750,7 +745,6 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
                                 OnRewardVideoListener listener=mRewardVideoListener;
                                 onResetReward();
                                 if(null!= listener) listener.onError(adError.code,adError.message, mSplashCode);
-
                             }
 
                             @Override

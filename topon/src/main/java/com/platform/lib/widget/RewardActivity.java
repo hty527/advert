@@ -28,8 +28,8 @@ public class RewardActivity extends Activity implements Application.ActivityLife
     private LoadingView mLoadingView;
     //播放场景(由宿主传入，sdk将回调给宿主这个标识场景)、广告位ID、此视频广告的ECPM、是否全自动模式、自定义透传字段
     private String play_scene,ad_code, mCpmInfo,is_auto="1",mCustomData;
-    //是否播放成功、是否点击了、是否是一个有效的播放
-    private boolean success=false,isClick=false,rewardVerify;
+    //是否播放成功、是否点击了、是否是一个有效的播放、是否正在播放中
+    private boolean success,isClick,rewardVerify,isPlay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,12 +63,11 @@ public class RewardActivity extends Activity implements Application.ActivityLife
             error(PlatformManager.getInstance().getText(AdConstance.CODE_DEVELOP)+",id:"+ad_code);
             return;
         }
-        isClick=false;
+        isClick=false;isPlay=false;
         playRewardVideo(ad_code);
     }
 
     private void playRewardVideo(String ad_code) {
-        loading(PlatformManager.getInstance().getText(AdConstance.CODE_AD_LOADING));
         if("1".equals(is_auto)){
             PlatformManager.getInstance().showAutoRewardVideo(this,ad_code,play_scene,onRewardVideoListener);
         }else{
@@ -79,11 +78,23 @@ public class RewardActivity extends Activity implements Application.ActivityLife
     private OnRewardVideoListener onRewardVideoListener=new OnRewardVideoListener() {
 
         @Override
+        public void onLoading() {
+            loading(PlatformManager.getInstance().getText(AdConstance.CODE_AD_LOADING));
+        }
+
+        @Override
         public void onSuccess(ATRewardVideoAd atRewardVideoAd) {
+            if(isPlay) return;//如果已经在播放了，拦截Topon的BUG
             if(!isFinishing()){
-                if(null!=atRewardVideoAd&&atRewardVideoAd.isAdReady()){
-                    atRewardVideoAd.show(RewardActivity.this);
-                    PlayManager.getInstance().onSuccess(atRewardVideoAd);
+                if(null!=atRewardVideoAd){//atRewardVideoAd.isAdReady()
+                    try {
+                        atRewardVideoAd.show(RewardActivity.this);
+                        isPlay=true;
+                        PlayManager.getInstance().onSuccess(atRewardVideoAd);
+                    }catch (Throwable e){
+                        e.printStackTrace();
+                        error("reward play error,"+e.getMessage());
+                    }
                 }else{
                     error("reward info invalid");
                 }
@@ -94,6 +105,7 @@ public class RewardActivity extends Activity implements Application.ActivityLife
         public void onShow() {
             success=true;
             mCustomData=null;
+            isPlay=true;
             PlayManager.getInstance().onShow();
         }
 
@@ -168,13 +180,14 @@ public class RewardActivity extends Activity implements Application.ActivityLife
     }
 
     @Override
-    public void finish() {
+    protected void onDestroy() {
         getApplication().unregisterActivityLifecycleCallbacks(this);
         PlayManager.getInstance().setShowing(false);
         PlatformManager.getInstance().onResetReward();
-        super.finish();
+        isPlay=false;
+        super.onDestroy();
         if(PlatformManager.getInstance().isDevelop()||success){
-//            Logger.d("finish-->cpmInfo:"+mCpmInfo+",customData:"+mCustomData);
+//            Logger.d("onDestroy-->cpmInfo:"+mCpmInfo+",customData:"+mCustomData);
             Result status = new Result();
             status.setAdCode(TextUtils.isEmpty(ad_code)?"0":ad_code);
             status.setIsClick(PlatformManager.getInstance().isDevelop()?"1":isClick?"1":"0");

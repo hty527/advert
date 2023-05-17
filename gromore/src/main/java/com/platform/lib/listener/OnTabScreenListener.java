@@ -10,6 +10,11 @@ import com.bytedance.msdk.api.v2.ad.interstitialFull.GMInterstitialFullAd;
 public interface OnTabScreenListener extends BaseListener {
 
     /**
+     * 插屏广告加载中
+     */
+    void onLoading();
+
+    /**
      * 加载插屏广告成功了
      * @param interactionAd
      */
