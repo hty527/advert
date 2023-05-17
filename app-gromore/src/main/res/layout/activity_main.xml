@@ -73,7 +73,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="原生信息流(自定义渲染UI)"
-            android:onClick="showCoustomNativeStream"
+            android:onClick="showCustomNativeStream"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"/>
         <com.platform.lib.widget.ExpressView

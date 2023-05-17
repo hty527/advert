@@ -327,6 +327,12 @@
      * @param listener 状态监听器，如果监听器为空内部回自动缓存一条激励视频广告
      */
     PlatformManager.getInstance().loadRewardVideo(AdConfig.AD_CODE_REWARD_ID, new OnRewardVideoListener() {
+
+        @Override
+        public void onLoading() {
+            //广告正在请求中
+        }
+
         @Override
         public void onSuccess(ATRewardVideoAd atRewardVideoAd) {
             //在这里播放激励视频广告
@@ -479,6 +485,11 @@
      * @param listener 状态监听器，如果监听器为空内部回自动缓存一条插屏广告
      */
     PlatformManager.getInstance().loadInsert(AdConfig.AD_CODE_INSERT_ID, new OnTabScreenListener() {
+
+        @Override
+        public void onLoading() {
+            //广告正在请求中
+        }
         @Override
         public void onSuccess(ATInterstitial interactionAd) {
             //在这里展示插屏广告

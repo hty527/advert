@@ -177,16 +177,16 @@ public final class TableScreenManager {
         if(mIsAutoModel){
             PlatformManager.getInstance().showAutoInsert(PlatformUtils.getInstance().getActivity(),mCurrentId,scene,onInsertListener);
         }else{
-            //优先检查缓存,如果缓存为空,直接拉取穿山甲的广告
-            if(PlatformManager.getInstance().hasInsertAd()){
-                PlatformManager.getInstance().showInsertAd(PlatformUtils.getInstance().getActivity(),onInsertListener);
-                return;
-            }
             PlatformManager.getInstance().loadInsert(mCurrentId,scene,onInsertListener);
         }
     }
 
     private OnTabScreenListener onInsertListener=new OnTabScreenListener() {
+
+        @Override
+        public void onLoading() {
+//            Logger.d("onLoading");
+        }
 
         @Override
         public void onSuccess(ATInterstitial interactionAd) {
@@ -226,16 +226,12 @@ public final class TableScreenManager {
         public void onClose() {
             setShow(false);
 //            Logger.d("onClose");
-            PlatformManager.getInstance().onResetInsert();
             OnPlayListener onInsertListener=mPlayerListener;
             mPlayerListener=null;
             Result status=new Result();
             status.setAdCode(mCurrentId);
             status.setIsClick(isClick?"1":"0");
             if(null!=onInsertListener) onInsertListener.onClose(status);
-            if(!mIsAutoModel&& TextUtils.isEmpty(mCurrentId)){
-                cacheInsertAd(mCurrentId);
-            }
         }
     };
 

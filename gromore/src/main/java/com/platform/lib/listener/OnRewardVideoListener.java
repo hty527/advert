@@ -10,6 +10,11 @@ import com.bytedance.msdk.api.v2.ad.reward.GMRewardAd;
 public interface OnRewardVideoListener {
 
     /**
+     * 广告正在加载中
+     */
+    void onLoading();
+
+    /**
      * 加载视频广告成功
      * @param gmRewardAd
      */

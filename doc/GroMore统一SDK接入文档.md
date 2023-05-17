@@ -243,8 +243,8 @@
         //..更多回调事件请实现OnPlayListener中的方法
     });
 ```
-##### 2.2、常规激励视频
-* 2.3.1、激励视频预缓存
+##### 2.2、自加载激励视频
+* 2.3.1、自加载激励视频缓存
 ```
     /**
      * 加载激励视频广告
@@ -256,7 +256,7 @@
      */
     PlatformManager.getInstance().loadRewardVideo(this,AdConfig.AD_CODE_REWARD_ID,null)
 ```
-* 2.3.2、常规激励视频播放
+* 2.3.2、自加载激励视频播放
 ```
     /**
      * 加载激励视频广告
@@ -267,6 +267,11 @@
      * @param listener 状态监听器，如果监听器为空内部回自动缓存一条激励视频广告
      */
     PlatformManager.getInstance().loadRewardVideo(AdConfig.AD_CODE_REWARD_ID, new OnRewardVideoListener() {
+
+        @Override
+        public void onLoading() {
+            //广告正在请求中
+        }
         
         @Override
         public void onSuccess(GMRewardAd gmRewardAd) {
@@ -336,7 +341,7 @@
         //..更多回调事件请实现OnPlayListener中的方法
     });
 ```
-##### 3.2、常规插屏广告
+##### 3.2、自加载插屏广告
 * 3.3.1、插屏广告缓存
 ```
     /**
@@ -348,7 +353,7 @@
      */
     PlatformManager.getInstance().loadInsert(this,AdConfig.AD_CODE_INSERT_ID,null);
 ```
-* 3.3.2、常规插屏广告播放
+* 3.3.2、自加载插屏广告播放
 ```
     /**
      * 加载插屏广告
@@ -358,6 +363,12 @@
      * @param listener 状态监听器
      */
     PlatformManager.getInstance().loadInsert(this,AdConfig.AD_CODE_INSERT_ID, new OnTabScreenListener() {
+
+        @Override
+        public void onLoading() {
+            //广告正在请求中
+        }
+
         @Override
         public void onSuccess(GMInterstitialFullAd interactionAd) {
             //在这里展示插屏广告

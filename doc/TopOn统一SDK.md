@@ -21,7 +21,7 @@
     dependencies {
 
         //TopOn统一SDK
-        implementation 'com.github.hty527.advert:topon:1.1.5.4'
+        implementation 'com.github.hty527.advert:topon:1.1.6'
     
         /**
          * 如果是Support环境

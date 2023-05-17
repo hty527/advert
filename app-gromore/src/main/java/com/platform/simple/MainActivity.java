@@ -11,12 +11,10 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.bytedance.msdk.api.v2.ad.reward.GMRewardAd;
 import com.platform.lib.bean.Result;
 import com.platform.lib.constants.AdConstance;
 import com.platform.lib.listener.OnExpressAdListener;
 import com.platform.lib.listener.OnPlayListener;
-import com.platform.lib.listener.OnRewardVideoListener;
 import com.platform.lib.manager.PlatformManager;
 import com.platform.lib.manager.PlayManager;
 import com.platform.lib.manager.TableScreenManager;
@@ -119,8 +117,6 @@ public class MainActivity extends AppCompatActivity {
      * @param view
      */
     public void showReward(View view) {
-
-        //常规缓存激励视频加载\缓存\展示激励视频广告
         /**
          * 加载激励视频广告
          * @param context Activity类型上下文
@@ -128,48 +124,53 @@ public class MainActivity extends AppCompatActivity {
          * @param scene 广告展示场景
          * @param listener 状态监听器，如果监听器为空内部回自动缓存一条激励视频广告
          */
-        PlatformManager.getInstance().loadRewardVideo(this,AdConfig.AD_CODE_REWARD_ID, new OnRewardVideoListener() {
-
-            @Override
-            public void onSuccess(GMRewardAd gmRewardAd) {
-                //在这里播放激励视频广告
-                gmRewardAd.showRewardAd(MainActivity.this);
-            }
-
-            @Override
-            public void onRewardVerify() {
-                //广告有效性验证
-            }
-
-            @Override
-            public void onShow() {
-                //广告被显示了
-            }
-
-            @Override
-            public void onClick(GMRewardAd rewardAd) {
-                //广告被点击了
-            }
-
-            /**
-             * @param code 错误码，参考：AdConstance 和 https://www.csjplatform.com/union/media/union/download/detail?id=106&docId=62e23367a0556d002fd3caa6&osType=android
-             * @param message 错误信息
-             * @param adCode 广告位ID
-             */
-            @Override
-            public void onError(int code, String message, String adCode) {
-                //广告加载失败了
-            }
-
-            /**
-             * @param cpmInfo cpm/cpm精度/展示单价等json字段,例如格式：{"price":"20.28470431","precision":"exact","pre_price":"0.02028470431"}
-             * @param customData 自定义透传参数
-             */
-            @Override
-            public void onClose(String cpmInfo, String customData) {
-                //广告被关闭了
-            }
-        });
+//        PlatformManager.getInstance().loadRewardVideo(this,AdConfig.AD_CODE_REWARD_ID, new OnRewardVideoListener() {
+//
+//            @Override
+//            public void onLoading() {
+//                //广告正在请求中
+//            }
+//
+//            @Override
+//            public void onSuccess(GMRewardAd gmRewardAd) {
+//                //在这里播放激励视频广告
+//                gmRewardAd.showRewardAd(MainActivity.this);
+//            }
+//
+//            @Override
+//            public void onRewardVerify() {
+//                //广告有效性验证
+//            }
+//
+//            @Override
+//            public void onShow() {
+//                //广告被显示了
+//            }
+//
+//            @Override
+//            public void onClick(GMRewardAd rewardAd) {
+//                //广告被点击了
+//            }
+//
+//            /**
+//             * @param code 错误码，参考：AdConstance 和 https://www.csjplatform.com/union/media/union/download/detail?id=106&docId=62e23367a0556d002fd3caa6&osType=android
+//             * @param message 错误信息
+//             * @param adCode 广告位ID
+//             */
+//            @Override
+//            public void onError(int code, String message, String adCode) {
+//                //广告加载失败了
+//            }
+//
+//            /**
+//             * @param cpmInfo cpm/cpm精度/展示单价等json字段,例如格式：{"price":"20.28470431","precision":"exact","pre_price":"0.02028470431"}
+//             * @param customData 自定义透传参数
+//             */
+//            @Override
+//            public void onClose(String cpmInfo, String customData) {
+//                //广告被关闭了
+//            }
+//        });
 
         //封装的便捷播放入口
         /**
@@ -224,33 +225,39 @@ public class MainActivity extends AppCompatActivity {
      */
     public void showInsert(View view) {
 //        PlatformManager.getInstance().loadInsert(this,AdConfig.AD_CODE_INSERT_ID, new OnTabScreenListener() {
+//
+//            @Override
+//            public void onLoading() {
+//                //广告正在请求中
+//            }
+//
 //            @Override
 //            public void onSuccess(GMInterstitialFullAd interactionAd) {
+//                //在这里展示插屏广告
 //                interactionAd.showAd(MainActivity.this);
 //            }
 //
 //            @Override
 //            public void onShow() {
-//
+//                //广告被显示了
 //            }
 //
 //            @Override
 //            public void onClick() {
-//
+//                //广告被点击了
 //            }
 //
 //            @Override
 //            public void onClose() {
-//
+//                //广告被关闭了
 //            }
 //
 //            @Override
 //            public void onError(int code, String message, String adCode) {
-//
+//                //广告加载失败了
 //            }
 //        });
 
-        //使用全自动模式播放插屏广告
         /**
          * 尝试播放一个插屏广告
          * @param id 广告ID
@@ -273,7 +280,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void showCoustomNativeStream(View view) {
+    public void showCustomNativeStream(View view) {
         ExpressView expressView = (ExpressView) findViewById(R.id.adv_coustom_native_stream);
         expressView.setAdType(AdConstance.TYPE_STREAM);//设置广告类型，参考AdConstance定义，1：信息流，3：banner
         expressView.setAdCode(AdConfig.AD_CODE_STREAM_NATIVE_ID);//设置广告位ID

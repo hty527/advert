@@ -11,6 +11,11 @@ import com.anythink.rewardvideo.api.ATRewardVideoAd;
 public interface OnRewardVideoListener {
 
     /**
+     * 广告正在加载中
+     */
+    void onLoading();
+
+    /**
      * 加载视频广告成功
      * @param atRewardVideoAd
      */

@@ -8,17 +8,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import com.anythink.core.api.ATSDK;
 import com.anythink.core.api.DeviceInfoCallback;
 import com.anythink.interstitial.api.ATInterstitialAutoLoadListener;
-import com.anythink.rewardvideo.api.ATRewardVideoAutoLoadListener;
 import com.platform.lib.bean.Result;
 import com.platform.lib.constants.AdConstance;
 import com.platform.lib.listener.OnExpressAdListener;
-import com.platform.lib.listener.OnInitListener;
 import com.platform.lib.listener.OnPlayListener;
 import com.platform.lib.listener.OnRewardVideoListener;
 import com.platform.lib.listener.OnTabScreenListener;
@@ -114,16 +110,17 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG,"deviceInfo："+s);
             }
         });
+        /**普通激励视频-提前缓存激励视频广告(只需要调用一次，内部会自动缓存下一条激励视频广告)**/
+        PlatformManager.getInstance().loadRewardVideo(AdConfig.AD_CODE_REWARD_ID,null);//推荐使用全自动加载模式：initReward()
 
-        //缓存激励视频广告
-        //PlatformManager.getInstance().loadRewardVideo(AdConfig.AD_CODE_REWARD_ID,null);//推荐使用全自动加载模式：initReward()
-        //初始化激励视频广告
+        /**初始化全自动激励视频广告！！！普通激励视频和全自动激励视频二选一使用，不建议混合使用！！！**/
         PlayManager.getInstance().initAutoReward(this,AdConfig.AD_CODE_REWARD_ID,null);
 
-        //缓存插屏广告
-        //PlatformManager.getInstance().loadInsert(AdConfig.AD_CODE_INSERT_ID,null);//推荐使用全自动加载模式：initInsert()
-        //初始化插屏广告
+        /**普通插屏-提前缓存插屏广告(只需要调用一次，内部会自动缓存下一条插屏广告)**/
+        PlatformManager.getInstance().loadInsert(AdConfig.AD_CODE_INSERT_ID,null);//推荐使用全自动加载模式：initInsert()
+        /**初始化全自动插屏广告！！！普通插屏和全自动插屏二选一使用，不建议混合使用！！！**/
         TableScreenManager.getInstance().initAutoInsert(this,AdConfig.AD_CODE_INSERT_ID,null);
+
         //缓存原生自渲染信息流广告
 //        PlatformManager.getInstance().loadStream(this,AdConfig.AD_CODE_STREAM_NATIVE_ID,null);
         //缓存模板信息流广告
@@ -147,51 +144,51 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * 缓存激励视频
+     * 常规激励视频
      * @param view
      */
-    public void cacheReward(View view) {
-        //常规缓存激励视频
-        /**
-         * 加载激励视频广告
-         * 此方法已废弃不推荐使用
-         * 请使用{@link #initReward(Activity, String, ATRewardVideoAutoLoadListener)} + {@link #showAutoRewardVideo(Activity,String,String, OnRewardVideoListener)}
-         * @param context 上下文
-         * @param id 广告位ID
-         * @param scene 播放广告的场景
-         * @param listener 状态监听器，如果监听器为空内部回自动缓存一条激励视频广告
-         */
-//        PlatformManager.getInstance().loadRewardVideo(AdConfig.AD_CODE_REWARD_ID,null);
+    public void rewardVideo(View view) {
+        //普通激励视频提前缓存,只需要调用一次即可，内部会在未禁用自动缓存广告并且广告结束后自动缓存下一条广告。
+        //PlatformManager.getInstance().loadRewardVideo(AdConfig.AD_CODE_REWARD_ID,null);
 
-        //全自动模式缓存激励视频
+        //禁用内部自动缓存激励视频广告，默认开启
+//        PlatformManager.getInstance().enableAutoCacheVideo(false);
         /**
-         * 初始化/开始缓存全自动类型激励视频
-         * @param activity 上下文
-         * @param id 广告ID
-         * @param scene 广告加载/处理的场景
-         * @param listener 监听器
+         * 开始播放激励视屏
+         * @param ad_code 广告位ID
+         * @param scene 播放场景
+         * @param isAutoModel 是否启用全自动模式，内部自动加载激励视频广告并且在合适的时机自动缓存下一个激励视频广告实例
+         * @param listener 状态监听器
          */
-        PlatformManager.getInstance().initAutoReward(this, AdConfig.AD_CODE_REWARD_ID, new OnInitListener() {
+        PlayManager.getInstance().startVideo(AdConfig.AD_CODE_REWARD_ID,new OnPlayListener() {
+
+            /**
+             * 无论播放成功或失败，都将回调此方法，当播放成功或开启develop模式时，此result对象不会为空。
+             * @param result 本次播放广告的基础信息(原始广告平台、是否已点击、)，可使用toString输出打印
+             */
             @Override
-            public void onSuccess(String id) {
-                Toast.makeText(getApplicationContext(),"已准备好激励视频广告",Toast.LENGTH_SHORT).show();
+            public void onClose(Result result) {
+                if(null!=result){
+                    Log.d(TAG,"onClose-->result:"+result.toString());
+                    //播放成功并关闭了
+                    Toast.makeText(getApplicationContext(),"播放结束",Toast.LENGTH_SHORT).show();
+                }
             }
 
             @Override
-            public void onError(int code, String message) {
-                Log.e(TAG,"initReward-->error,code:"+code+",error:"+message);
+            public void onShow() {
+                Toast.makeText(getApplicationContext(),"开始播放",Toast.LENGTH_SHORT).show();
             }
+
+            @Override
+            public void onRewardVerify() {
+                Toast.makeText(getApplicationContext(),"此激励视频有效",Toast.LENGTH_SHORT).show();
+            }
+
+            //..更多回调事件请实现OnPlayListener中的方法
         });
-    }
 
-    /**
-     * 展示激励视频，推荐使用PlayerManager提供的api来直接播放激励视频广告
-     * 请注意，当启用全自动激励视频广告之前，必须线调用PlatformManager.getInstance().initReward()
-     * @param view
-     */
-    public void showReward(View view) {
-
-        //常规缓存激励视频加载\缓存\展示激励视频广告
+        //或者使用下列方式开始播放激励视频，以达到自定义UI交互的效果
         /**
          * 加载激励视频广告
          * 此方法已废弃不推荐使用
@@ -202,6 +199,11 @@ public class MainActivity extends AppCompatActivity {
          * @param listener 状态监听器，如果监听器为空内部回自动缓存一条激励视频广告
          */
 //        PlatformManager.getInstance().loadRewardVideo(AdConfig.AD_CODE_REWARD_ID, new OnRewardVideoListener() {
+//
+//            @Override
+//            public void onLoading() {
+//                //广告正在请求中
+//            }
 //
 //            @Override
 //            public void onSuccess(ATRewardVideoAd atRewardVideoAd) {
@@ -243,7 +245,16 @@ public class MainActivity extends AppCompatActivity {
 //                //广告被关闭了
 //            }
 //        });
-        //封装的便捷播放入口
+    }
+
+    /**
+     * 全自动激励视频
+     * @param view
+     */
+    public void autoRewardVideo(View view) {
+        //播放全自动模式激励视频广告前需要先初始化，只需初始化一次
+        //PlayManager.getInstance().initAutoReward(this,AdConfig.AD_CODE_REWARD_ID,null);
+
         /**
          * 开始播放激励视屏
          * @param ad_code 广告位ID
@@ -281,10 +292,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * 缓存插屏广告
+     * 插屏广告
      * @param view
      */
-    public void cacheInsert(View view) {
+    public void insert(View view) {
         /**
          * 加载插屏广告
          * 此方法已废弃不推荐使用
@@ -294,9 +305,71 @@ public class MainActivity extends AppCompatActivity {
          * @param scene 播放广告的场景标识
          * @param listener 状态监听器，如果监听器为空内部回自动缓存一条插屏广告
          */
-//        PlatformManager.getInstance().loadInsert(AdConfig.AD_CODE_INSERT_ID,null);
+        //普通插屏提前缓存,只需要调用一次即可，内部会在广告关闭后自动缓存下一条广告。
+        //PlatformManager.getInstance().loadInsert(AdConfig.AD_CODE_REWARD_ID,null);
 
-        //使用全自动模式缓存插屏广告
+        /**
+         * 尝试播放一个插屏广告
+         * @param id 广告ID
+         * @param isAutoModel 是否启用全自动模式，内部自动加载激励视频广告并且在合适的时机自动缓存下一个激励视频广告实例
+         * @param scene 广告播放的场景标识
+         * @param delayed 延时多久后开始展示插屏，单位：毫秒
+         * @param listener 监听器
+         */
+        TableScreenManager.getInstance().showInsert(AdConfig.AD_CODE_INSERT_ID ,new OnPlayListener() {
+            @Override
+            public void onClose(Result status) {
+
+            }
+
+            @Override
+            public void onError(int code, String message, String adCode) {
+
+            }
+
+            //..更多回调事件请实现OnPlayListener中的方法
+        });
+
+        //或者使用下列方式开始插屏
+//        PlatformManager.getInstance().loadInsert(AdConfig.AD_CODE_INSERT_ID, new OnTabScreenListener() {
+//            @Override
+//            public void onLoading() {
+//                //广告正在请求中
+//            }
+//            @Override
+//            public void onSuccess(ATInterstitial interactionAd) {
+//                //在这里展示插屏广告
+//                interactionAd.show(MainActivity.this);
+//            }
+//
+//            @Override
+//            public void onShow() {
+//                //广告被显示了
+//            }
+//
+//            @Override
+//            public void onClick() {
+//                //广告被点击了
+//            }
+//
+//            @Override
+//            public void onClose() {
+//                //广告被关闭了
+//            }
+//
+//            @Override
+//            public void onError(int code, String message, String adCode) {
+//                //广告加载失败了
+//            }
+//        });
+    }
+
+    /**
+     * 全自动插屏广告
+     * @param view
+     */
+    public void autoInsert(View view) {
+        //播放全自动模式激励视频广告前需要先初始化，只需初始化一次
         /**
          * 缓存/直接显示插屏广告
          * @param activity 显示插屏广告的宿主Activity
@@ -304,50 +377,7 @@ public class MainActivity extends AppCompatActivity {
          * @param scene 播放场景标识
          * @param listener 状态监听器
          */
-        PlatformManager.getInstance().initAutoInsert(this, AdConfig.AD_CODE_INSERT_ID, new OnInitListener() {
-            @Override
-            public void onSuccess(String id) {
-                Toast.makeText(getApplicationContext(),"已准备好插屏广告",Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onError(int code, String message) {
-                Log.e(TAG,"initInsert-->error,code:"+code+",error:"+message);
-            }
-        });
-    }
-
-    /**
-     * 展示插屏广告
-     * @param view
-     */
-    public void showInsert(View view) {
-//        PlatformManager.getInstance().loadInsert(AdConfig.AD_CODE_INSERT_ID, new OnTabScreenListener() {
-//            @Override
-//            public void onSuccess(ATInterstitial interactionAd) {
-//                interactionAd.show(MainActivity.this);
-//            }
-//
-//            @Override
-//            public void onShow() {
-//
-//            }
-//
-//            @Override
-//            public void onClick() {
-//
-//            }
-//
-//            @Override
-//            public void onClose() {
-//
-//            }
-//
-//            @Override
-//            public void onError(int code, String message, String adCode) {
-//
-//            }
-//        });
+        //PlatformManager.getInstance().initAutoInsert(this, AdConfig.AD_CODE_INSERT_ID, null);
 
         //使用全自动模式播放插屏广告
         /**
@@ -373,7 +403,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void showCoustomNativeStream(View view) {
+    public void showCustomNativeStream(View view) {
         ExpressView expressView = (ExpressView) findViewById(R.id.adv_coustom_native_stream);
         expressView.setAdType(AdConstance.TYPE_STREAM);//设置广告类型，参考AdConstance定义，1：信息流，3：banner
         expressView.setAdCode(AdConfig.AD_CODE_STREAM_NATIVE_ID);//设置广告位ID

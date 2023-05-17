@@ -78,7 +78,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     private volatile static PlatformManager mInstance;
     private OnEventListener mAdvertEventListener;//广告状态监听
     private boolean isDevelop =false;//是否处于开发模式，开发模式情况下激励视频广告免播放，也不会去缓存激励视频广告
-    private String appId, appSecrecy,userId;//APP_ID\APP_KEY\穿山甲的兜底开屏代码位\用户ID(Gromore需要)
+    private String appId, appSecrecy,userId,autoCacheVideo="1";//APP_ID\APP_KEY\穿山甲的兜底开屏代码位\用户ID(Gromore需要)\是否自动缓存激励视频广告
     private boolean DEBUG = false;
     private Map<Integer,String> mUIText=new HashMap<>();
     //激励视频
@@ -239,6 +239,18 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     private void setAppSecrecy(String appSecrecy) {
         this.appSecrecy = appSecrecy;
         PlatformPreferences.getInstance().putString("app_secrecy", appSecrecy);
+    }
+
+    public void enableAutoCacheVideo(boolean enable) {
+        this.autoCacheVideo = enable?"1":"0";
+        PlatformPreferences.getInstance().putString("auto_cache_video", autoCacheVideo);
+    }
+
+    public boolean isAutoCacheVideo() {
+        if (TextUtils.isEmpty(autoCacheVideo)){
+            autoCacheVideo = PlatformPreferences.getInstance().getString("auto_cache_video", "1");
+        }
+        return "1".equals(autoCacheVideo);
     }
 
     private int parseErrorCode(AdError adError) {
@@ -493,7 +505,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     //==========================================激励视频==============================================
 
     public void onResetReward() {
-        mAtRewardVideoAd=null;mRewardVideoListener=null;mOnRewardInitListener=null;
+        mRewardVideoListener=null;
     }
 
     public void setOnRewardVideoListener(OnRewardVideoListener listener) {
@@ -513,12 +525,19 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
             if(null!=listener) listener.onError(AdConstance.CODE_ACTIVITY_INVALID, getText(AdConstance.CODE_ACTIVITY_INVALID), null);
             return;
         }
-        this.mRewardVideoListener=listener;
         if(null==mAtRewardVideoAd){
-            if(null!=mRewardVideoListener) mRewardVideoListener.onError(AdConstance.CODE_ADINFO_INVALID, getText(AdConstance.CODE_ADINFO_INVALID), null);
+            if(null!=listener) listener.onError(AdConstance.CODE_ADINFO_INVALID, getText(AdConstance.CODE_ADINFO_INVALID), null);
             return;
         }
-        mAtRewardVideoAd.show(activity);
+        this.mRewardVideoListener=listener;
+        try {
+            mAtRewardVideoAd.show(activity);
+        }catch (Throwable e){
+            e.printStackTrace();
+            OnRewardVideoListener listener1=mRewardVideoListener;
+            onResetReward();
+            if(null!= listener1) listener1.onError(0,e.getMessage(),null);
+        }
     }
 
     /**
@@ -580,16 +599,67 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
             return;
         }
         this.mRewardVideoListener=listener;
-        if(null!=mAtRewardVideoAd&&mAtRewardVideoAd.isAdReady()){
+        if(null==mAtRewardVideoAd){
+//            Logger.d("loadRewardVideo-->创建广告对象");
+            mAtRewardVideoAd = new ATRewardVideoAd(context, id);
+        }
+        this.mVideoCode=id;this.mVideoScene=scene;
+        mAtRewardVideoAd.setAdListener(mATRewardVideoListener);
+        if(mAtRewardVideoAd.isAdReady()){
+//            Logger.d("loadRewardVideo-->存在可展示的广告1");
+            //存在可展示的广告
             Logger.d("loadRewardVideo-->"+getText(AdConstance.CODE_EXIST_CACHE));
             if(null!=mRewardVideoListener){
                 mRewardVideoListener.onSuccess(mAtRewardVideoAd);
             }
             return;
         }
-        this.mVideoCode=id;this.mVideoScene=scene;
-        mAtRewardVideoAd = new ATRewardVideoAd(context, id);
-        mAtRewardVideoAd.setAdListener(mATRewardVideoListener);
+        ATAdStatusInfo adStatusInfo = mAtRewardVideoAd.checkAdStatus();
+        if(null!=adStatusInfo&&adStatusInfo.isReady()){
+//            Logger.d("loadRewardVideo-->存在可展示的广告2");
+            //存在可展示的广告
+            Logger.d("loadRewardVideo-->"+getText(AdConstance.CODE_EXIST_CACHE));
+            if(null!=mRewardVideoListener){
+                mRewardVideoListener.onSuccess(mAtRewardVideoAd);
+            }
+            return;
+        }
+        if(null!=mRewardVideoListener) mRewardVideoListener.onLoading();
+        if(null!=adStatusInfo&&adStatusInfo.isLoading()){
+//            Logger.d("loadRewardVideo-->广告正在加载中");
+            //广告正在加载中
+            return;
+        }
+        //立即前往加载广告
+        readyLoadRewardAd(true);
+    }
+
+    /**
+     * 缓存广告
+     * @param rightNow 是否立即执行
+     */
+    private void readyLoadRewardAd(boolean rightNow) {
+//        Logger.d("loadRewardAd-->缓存广告");
+        if(null!=mAtRewardVideoAd){
+            if(rightNow){
+                loadRewardAd();
+            }else{
+                if(!mAtRewardVideoAd.isAdReady()){
+                    ATAdStatusInfo adStatusInfo = mAtRewardVideoAd.checkAdStatus();
+                    if(null!=adStatusInfo&&!adStatusInfo.isLoading()){
+                        loadRewardAd();
+                    }
+                }
+            }
+        }else{
+            OnRewardVideoListener listener=mRewardVideoListener;
+            onResetReward();
+            if(null!=listener) listener.onError(0,"cache error",null);
+        }
+    }
+
+    private void loadRewardAd() {
+        if(null==mAtRewardVideoAd) return;
         if(null!=mAdvertEventListener&&null!=mAdvertEventListener.localExtra()){
             mAtRewardVideoAd.setLocalExtra(mAdvertEventListener.localExtra());//设置自定义参数
         }else{
@@ -599,7 +669,8 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
                 mAtRewardVideoAd.setLocalExtra(localMap);
             }
         }
-        mAtRewardVideoAd.load();
+        Logger.d("loadRewardAd-->cache");
+        mAtRewardVideoAd.load();//缓存广告
     }
 
     private ATRewardVideoListener mATRewardVideoListener = new ATRewardVideoListener() {
@@ -641,9 +712,9 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
         public void onRewardedVideoAdPlayFailed(AdError adError, ATAdInfo atAdInfo) {
 //            Logger.d("loadRewardVideo-->onRewardedVideoAdPlayFailed,code:"+adError.getCode()+",message:"+adError.getDesc());
             event(mVideoScene, AdConstance.TYPE_REWARD_VIDEO,mVideoCode, AdConstance.STATUS_SHOW_ERROR, parseErrorCode(adError),adError.getFullErrorInfo());
-            OnRewardVideoListener listener=mRewardVideoListener;
-            onResetReward();
-            if(null!=listener) listener.onError(parseErrorCode(adError),adError.getDesc(), mVideoCode);
+//            OnRewardVideoListener listener=mRewardVideoListener;
+//            onResetReward();
+            if(null!=mRewardVideoListener) mRewardVideoListener.onError(parseErrorCode(adError),adError.getDesc(), mVideoCode);
         }
 
         @Override
@@ -652,8 +723,11 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
             setPlatformId(atAdInfo.getNetworkFirmId());
             OnRewardVideoListener listener=mRewardVideoListener;
             onResetReward();
+//            String customData = atAdInfo.getRewardUserCustomData();
+//            Logger.d("onRewardedVideoAdClosed-->customData:"+customData);
             String cpmInfo="{\"price\":\""+atAdInfo.getEcpm()+"\",\"precision\":\""+atAdInfo.getEcpmPrecision()+"\",\"pre_price\":\""+atAdInfo.getPublisherRevenue()+"\"}";
             if(null!=listener) listener.onClose(cpmInfo,atAdInfo.getRewardUserCustomData());
+            if(isAutoCacheVideo()) readyLoadRewardAd(false);//如果不存在可播的广告则尝试去缓存
         }
 
         @Override
@@ -801,6 +875,8 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
         if(adStatusInfo.isReady()){
             ATRewardVideoAutoAd.show(activity,id,mATRewardVideoAutoEventListener);
         }else{
+            //第一次初始化或者在加载中，都认为正在缓存广告中
+            if(null!=mRewardVideoListener) mRewardVideoListener.onLoading();
             if(adStatusInfo.isLoading()){
                 //加载中不理会，等带加载完成时自动展示
             }else{
@@ -871,7 +947,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     //==========================================插屏广告==============================================
 
     public void onResetInsert() {
-        mInsertListener=null;mInterstitialAD=null;mOnInsertInitListener=null;
+        mInsertListener=null;mOnInsertInitListener=null;
     }
 
     public boolean hasInsertAd() {
@@ -972,17 +1048,55 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
             return;
         }
         this.mInsertListener=listener;
-        if(null!=mInterstitialAD){
+        if(null==mInterstitialAD){
+            mInterstitialAD = new ATInterstitial(context, id);
+        }
+        this.mInsertCode=id;this.mInsertScene=scene;
+        mInterstitialAD.setAdListener(mATInterstitialListener);
+        if(mInterstitialAD.isAdReady()){
             Logger.d("loadInsert-->"+getText(AdConstance.CODE_EXIST_CACHE));
             if(null!=mInsertListener){
                 mInsertListener.onSuccess(mInterstitialAD);
             }
             return;
         }
-        this.mInsertCode=id;this.mInsertScene=scene;
-        mInterstitialAD = new ATInterstitial(context, id);
-        mInterstitialAD.setAdListener(mATInterstitialListener);
-        mInterstitialAD.load();
+        ATAdStatusInfo adStatusInfo = mInterstitialAD.checkAdStatus();
+        if(null!=adStatusInfo&&adStatusInfo.isReady()){
+            Logger.d("loadInsert-->"+getText(AdConstance.CODE_EXIST_CACHE));
+            if(null!=mInsertListener){
+                mInsertListener.onSuccess(mInterstitialAD);
+            }
+            return;
+        }
+        if(null!=mInsertListener) mInsertListener.onLoading();
+        if(null!=adStatusInfo&&adStatusInfo.isLoading()){
+            return;
+        }
+        loadInsertAd(true);
+    }
+
+    /**
+     * 缓存广告
+     * @param rightNow 是否立即执行
+     */
+    private void loadInsertAd(boolean rightNow) {
+//        Logger.d("loadRewardAd-->缓存广告");
+        if(null!=mInterstitialAD){
+            if(rightNow){
+                mInterstitialAD.load();
+            }else{
+                if(!mInterstitialAD.isAdReady()){
+                    ATAdStatusInfo adStatusInfo = mInterstitialAD.checkAdStatus();
+                    if(null!=adStatusInfo&&!adStatusInfo.isLoading()){
+                        mInterstitialAD.load();
+                    }
+                }
+            }
+        }else{
+            OnTabScreenListener listener=mInsertListener;
+            onResetInsert();
+            if(null!=listener) listener.onError(0,"cache error",null);
+        }
     }
 
     private ATInterstitialListener mATInterstitialListener= new ATInterstitialListener() {
@@ -1028,6 +1142,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
             OnTabScreenListener listener=mInsertListener;
             onResetInsert();
             if(null!=listener) listener.onClose();
+            loadInsertAd(false);
         }
 
         @Override
