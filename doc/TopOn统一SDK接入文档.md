@@ -50,6 +50,15 @@
                 .setOnEventListener(new OnEventListener() {
 
                     /**
+                     * 返回广告的缓存、展示等是否可用
+                     * @return
+                     */
+                    @Override
+                    public boolean isAvailable() {
+                        return true;
+                    }
+
+                    /**
                      * 根据错误码返回文字文案
                      * @param code 错误码参考AdConstance定义的“错误码”
                      * @return 如果返回的文字为空，则使用SDK内部默认文案

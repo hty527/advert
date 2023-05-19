@@ -94,12 +94,20 @@ public class AdvertApplication extends MultiDexApplication {
         PlatformManager.getInstance()
                 .setDevelop(false)//是否开启开发者模式，开启后调用PlayManager和TableScreenManager来播放激励视频和插屏广告时，内部将自动跳过广告并回调有效结果。
                 .setOnEventListener(new OnEventListener() {
+                    /**
+                     * 返回广告SDK是否可用
+                     * @return
+                     */
+                    @Override
+                    public boolean isAvailable() {
+                        return true;
+                    }
 
                     /**
                      * 根据错误码返回文字文案
                      * @param code 错误码参考AdConstance定义的“错误码”
                      * @return 如果返回的文字为空，则使用SDK内部默认文案
-                     *     int CODE_CONTEXT_INVALID            = 1; //上下文无效
+                     *    int CODE_CONTEXT_INVALID            = 1; //上下文无效
                      *     int CODE_ACTIVITY_INVALID           = 2; //Activity无效或已被关闭
                      *     int CODE_VIEWGROUP_INVALID          = 3; //ViewGroup容器无效
                      *     int CODE_APPID_INVALID              = 4; //app_id无效
@@ -116,6 +124,7 @@ public class AdvertApplication extends MultiDexApplication {
                      *     int CODE_APPLY_FAIL                 = 15;//广告应用到布局失败
                      *     int CODE_DEVELOP                    = 16;//开发者模式，跳过广告
                      *     int CODE_CONFIG_LOADING             = 17;//广告配置正在加载中
+                     *     int CODE_AD_DISABLED                = 18;//广告不可用
                      */
                     @Override
                     public String getText(int code) {

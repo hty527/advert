@@ -10,6 +10,12 @@ import java.util.Map;
 public interface OnEventListener {
 
     /**
+     * 广告的缓存、展示功能是否可用
+     * @return 广告的缓存、展示功能是否可用，true：可用，false：被禁用
+     */
+    boolean isAvailable();
+
+    /**
      * 根据错误码返回文字文案
      * @param code 错误码参考AdConstance定义的"错误码"
      * @return 如果返回的文字为空，则使用SDK内部默认文案

@@ -118,6 +118,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
         mUIText.put(AdConstance.CODE_APPLY_FAIL,AdConstance.ERROR_APPLY_FAIL);
         mUIText.put(AdConstance.CODE_DEVELOP,AdConstance.ERROR_DEVELOP);
         mUIText.put(AdConstance.CODE_CONFIG_LOADING,AdConstance.ERROR_CONFIG_LOADING);
+        mUIText.put(AdConstance.CODE_AD_DISABLED,AdConstance.ERROR_AD_DISABLED);
     }
 
     public static PlatformManager getInstance() {
@@ -239,6 +240,17 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     private void setAppSecrecy(String appSecrecy) {
         this.appSecrecy = appSecrecy;
         PlatformPreferences.getInstance().putString("app_secrecy", appSecrecy);
+    }
+
+    /**
+     * 广告是否可用，默认是可用的
+     * @return
+     */
+    private boolean isAvailable() {
+        if(null!=mAdvertEventListener){
+            return mAdvertEventListener.isAvailable();
+        }
+        return true;
     }
 
     public void enableAutoCacheVideo(boolean enable) {
@@ -427,6 +439,10 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
             if(null!=listener) listener.onError(AdConstance.CODE_ID_UNKNOWN, getText(AdConstance.CODE_ID_UNKNOWN), id);
             return;
         }
+        if(!isAvailable()){
+            if(null!=listener) listener.onError(AdConstance.CODE_AD_DISABLED, getText(AdConstance.CODE_AD_DISABLED), id);
+            return;
+        }
         this.mSplashListener =listener;
         if(null!=mAdSdkSplash){
             Logger.d("loadSplash-->"+getText(AdConstance.CODE_EXIST_CACHE));
@@ -529,6 +545,10 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
             if(null!=listener) listener.onError(AdConstance.CODE_ADINFO_INVALID, getText(AdConstance.CODE_ADINFO_INVALID), null);
             return;
         }
+        if(!isAvailable()){
+            if(null!=listener) listener.onError(AdConstance.CODE_AD_DISABLED, getText(AdConstance.CODE_AD_DISABLED), null);
+            return;
+        }
         this.mRewardVideoListener=listener;
         try {
             mAtRewardVideoAd.show(activity);
@@ -598,6 +618,10 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
             if(null!=listener) listener.onError(AdConstance.CODE_ID_UNKNOWN, getText(AdConstance.CODE_ID_UNKNOWN), id);
             return;
         }
+        if(!isAvailable()){
+            if(null!=listener) listener.onError(AdConstance.CODE_AD_DISABLED, getText(AdConstance.CODE_AD_DISABLED), id);
+            return;
+        }
         this.mRewardVideoListener=listener;
         if(null==mAtRewardVideoAd){
 //            Logger.d("loadRewardVideo-->创建广告对象");
@@ -659,6 +683,9 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     }
 
     private void loadRewardAd() {
+        if(!isAvailable()){
+            return;
+        }
         if(null==mAtRewardVideoAd) return;
         if(null!=mAdvertEventListener&&null!=mAdvertEventListener.localExtra()){
             mAtRewardVideoAd.setLocalExtra(mAdvertEventListener.localExtra());//设置自定义参数
@@ -788,6 +815,10 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
             if(null!=listener) listener.onError(AdConstance.CODE_ID_UNKNOWN,getText(AdConstance.CODE_ID_UNKNOWN));
             return;
         }
+        if(!isAvailable()){
+            if(null!=listener) listener.onError(AdConstance.CODE_AD_DISABLED, getText(AdConstance.CODE_AD_DISABLED));
+            return;
+        }
         this.mOnRewardInitListener =listener;
         updateLocalExtra(id);
         ATAdStatusInfo adStatusInfo = ATRewardVideoAutoAd.checkAdStatus(id);
@@ -866,6 +897,10 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
         }
         if(TextUtils.isEmpty(id)){
             if(null!=listener) listener.onError(AdConstance.CODE_ID_UNKNOWN, getText(AdConstance.CODE_ID_UNKNOWN), id);
+            return;
+        }
+        if(!isAvailable()){
+            if(null!=listener) listener.onError(AdConstance.CODE_AD_DISABLED, getText(AdConstance.CODE_AD_DISABLED), id);
             return;
         }
         this.mRewardVideoListener=listener;
@@ -979,6 +1014,10 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
             if(null!=listener) listener.onError(AdConstance.CODE_ADINFO_INVALID, getText(AdConstance.CODE_ADINFO_INVALID), null);
             return;
         }
+        if(!isAvailable()){
+            if(null!=listener) listener.onError(AdConstance.CODE_AD_DISABLED, getText(AdConstance.CODE_AD_DISABLED), null);
+            return;
+        }
         try {
             mInterstitialAD.show(activity);
         }catch (Throwable e){
@@ -1047,6 +1086,10 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
             if(null!=listener) listener.onError(AdConstance.CODE_ID_UNKNOWN, getText(AdConstance.CODE_ID_UNKNOWN), id);
             return;
         }
+        if(!isAvailable()){
+            if(null!=listener) listener.onError(AdConstance.CODE_AD_DISABLED, getText(AdConstance.CODE_AD_DISABLED), id);
+            return;
+        }
         this.mInsertListener=listener;
         if(null==mInterstitialAD){
             mInterstitialAD = new ATInterstitial(context, id);
@@ -1082,6 +1125,9 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     private void loadInsertAd(boolean rightNow) {
 //        Logger.d("loadRewardAd-->缓存广告");
         if(null!=mInterstitialAD){
+            if(!isAvailable()){
+                return;
+            }
             if(rightNow){
                 mInterstitialAD.load();
             }else{
@@ -1194,6 +1240,10 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
             if(null!=listener) listener.onError(AdConstance.CODE_ID_UNKNOWN, getText(AdConstance.CODE_ID_UNKNOWN));
             return;
         }
+        if(!isAvailable()){
+            if(null!=listener) listener.onError(AdConstance.CODE_AD_DISABLED, getText(AdConstance.CODE_AD_DISABLED));
+            return;
+        }
         this.mOnInsertInitListener =listener;
         ATAdStatusInfo adStatusInfo = ATInterstitialAutoAd.checkAdStatus(id);
         Logger.d("initInsert-->isReady:"+adStatusInfo.isReady()+",isLoading:"+adStatusInfo.isLoading());
@@ -1254,6 +1304,10 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
         }
         if(TextUtils.isEmpty(id)){
             if(null!=listener) listener.onError(AdConstance.CODE_ID_UNKNOWN, getText(AdConstance.CODE_ID_UNKNOWN), id);
+            return;
+        }
+        if(!isAvailable()){
+            if(null!=listener) listener.onError(AdConstance.CODE_AD_DISABLED, getText(AdConstance.CODE_AD_DISABLED), id);
             return;
         }
         this.mInsertListener=listener;
@@ -1359,6 +1413,10 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
         }
         if(TextUtils.isEmpty(id)){
             if(null!=listener) listener.onError(AdConstance.CODE_ID_UNKNOWN, getText(AdConstance.CODE_ID_UNKNOWN), id);
+            return;
+        }
+        if(!isAvailable()){
+            if(null!=listener) listener.onError(AdConstance.CODE_AD_DISABLED, getText(AdConstance.CODE_AD_DISABLED), id);
             return;
         }
         new Banner().loadBanner(id,viewGroup,scene,adWidth,adHeight,listener);
@@ -1480,6 +1538,10 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
         }
         if(TextUtils.isEmpty(id)){
             if(null!=listener) listener.onError(AdConstance.CODE_ID_UNKNOWN, getText(AdConstance.CODE_ID_UNKNOWN), id);
+            return;
+        }
+        if(!isAvailable()){
+            if(null!=listener) listener.onError(AdConstance.CODE_AD_DISABLED, getText(AdConstance.CODE_AD_DISABLED), id);
             return;
         }
         new Stream().loadStream(context,id,scene,adWidth,adHeight,listener);
