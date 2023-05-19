@@ -53,6 +53,8 @@ public interface AdConstance {
     int CODE_APPLY_FAIL                 = 15;//广告应用到布局失败
     int CODE_DEVELOP                    = 16;//开发者模式，跳过广告
     int CODE_CONFIG_LOADING             = 17;//广告配置正在加载中
+    int CODE_AD_DISABLED                = 18;//广告不可用
+
     /**
      * 错误描述信息
      */
@@ -73,6 +75,7 @@ public interface AdConstance {
     String ERROR_APPLY_FAIL             = "express apply fail";//广告应用到布局失败
     String ERROR_DEVELOP                = "develop mode,skip";//开发者模式，跳过广告
     String ERROR_CONFIG_LOADING         = "config loading";//广告配置正在加载中
+    String ERROR_AD_DISABLED            = "ad disabled";//广告不可用
 
     int LOAD_ERROR = 40000;
     int AD_ERROR = 40001;

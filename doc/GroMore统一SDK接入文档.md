@@ -55,6 +55,14 @@
                 .setDevelop(true)//是否开启开发者模式，开启后调用PlayManager和TableScreenManager来播放激励视频和插屏广告时，内部将自动跳过广告并回调有效结果。
                 .setOnEventListener(new OnEventListener() {
 
+                    /**
+                     * 返回广告的缓存、展示等是否可用
+                     * @return
+                     */
+                    @Override
+                    public boolean isAvailable() {
+                        return true;
+                    }
                   /**
                    * 根据错误码返回文字文案
                    * @param code 错误码参考AdConstance定义的“错误码”

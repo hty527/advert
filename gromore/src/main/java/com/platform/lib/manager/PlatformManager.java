@@ -131,6 +131,7 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
         mUIText.put(AdConstance.CODE_APPLY_FAIL,AdConstance.ERROR_APPLY_FAIL);
         mUIText.put(AdConstance.CODE_DEVELOP,AdConstance.ERROR_DEVELOP);
         mUIText.put(AdConstance.CODE_CONFIG_LOADING,AdConstance.ERROR_CONFIG_LOADING);
+        mUIText.put(AdConstance.CODE_AD_DISABLED,AdConstance.ERROR_AD_DISABLED);
     }
 
     public static PlatformManager getInstance() {
@@ -440,6 +441,17 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
         }
     }
 
+    /**
+     * 广告是否可用，默认是可用的
+     * @return
+     */
+    private boolean isAvailable() {
+        if(null!=mAdvertEventListener){
+            return mAdvertEventListener.isAvailable();
+        }
+        return true;
+    }
+
 //============================================开屏广告===========================================
 
     /**
@@ -503,6 +515,10 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
         }
         if(TextUtils.isEmpty(id)){
             if(null!=listener) listener.onError(AdConstance.CODE_ID_UNKNOWN, getText(AdConstance.CODE_ID_UNKNOWN), id);
+            return;
+        }
+        if(!isAvailable()){
+            if(null!=listener) listener.onError(AdConstance.CODE_AD_DISABLED, getText(AdConstance.CODE_AD_DISABLED), id);
             return;
         }
         this.mSplashListener =listener;
@@ -634,6 +650,10 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
             if(null!=mRewardVideoListener) mRewardVideoListener.onError(AdConstance.CODE_ADINFO_INVALID, getText(AdConstance.CODE_ADINFO_INVALID), null);
             return;
         }
+        if(!isAvailable()){
+            if(null!=listener) listener.onError(AdConstance.CODE_AD_DISABLED, getText(AdConstance.CODE_AD_DISABLED), null);
+            return;
+        }
         mGMRewardAd.showRewardAd(activity);
     }
 
@@ -695,6 +715,10 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
         }
         if(TextUtils.isEmpty(id)){
             if(null!=listener) listener.onError(AdConstance.CODE_ID_UNKNOWN, getText(AdConstance.CODE_ID_UNKNOWN), id);
+            return;
+        }
+        if(!isAvailable()){
+            if(null!=listener) listener.onError(AdConstance.CODE_AD_DISABLED, getText(AdConstance.CODE_AD_DISABLED), id);
             return;
         }
         this.mRewardVideoListener=listener;
@@ -998,6 +1022,10 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
     public void showInsertAd(Activity activity,OnTabScreenListener listener) {
         mInsertListener = listener;
         try {
+            if(!isAvailable()){
+                if(null!=listener) listener.onError(AdConstance.CODE_AD_DISABLED, getText(AdConstance.CODE_AD_DISABLED), null);
+                return;
+            }
             if(null!=mInterstitialAd&&null!=activity&&!activity.isFinishing()){
                 mInterstitialAd.showAd(activity);
             }else{
@@ -1039,6 +1067,10 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
         }
         if(TextUtils.isEmpty(id)){
             if(null!=listener) listener.onError(AdConstance.CODE_ID_UNKNOWN, getText(AdConstance.CODE_ID_UNKNOWN), id);
+            return;
+        }
+        if(!isAvailable()){
+            if(null!=listener) listener.onError(AdConstance.CODE_AD_DISABLED, getText(AdConstance.CODE_AD_DISABLED), id);
             return;
         }
         this.mInsertListener =listener;
@@ -1234,6 +1266,10 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
             if(null!=listener) listener.onError(AdConstance.CODE_ID_UNKNOWN, getText(AdConstance.CODE_ID_UNKNOWN), id);
             return;
         }
+        if(!isAvailable()){
+            if(null!=listener) listener.onError(AdConstance.CODE_AD_DISABLED, getText(AdConstance.CODE_AD_DISABLED), id);
+            return;
+        }
         if(null==listener&&!GMMediationAdSdk.configLoadSuccess()){
             Logger.e("loadStream-->config loading");
             if(null!=listener) listener.onError(AdConstance.CODE_CONFIG_LOADING, getText(AdConstance.CODE_CONFIG_LOADING), id);
@@ -1355,6 +1391,10 @@ public final class PlatformManager implements Application.ActivityLifecycleCallb
         }
         if(TextUtils.isEmpty(id)){
             if(null!=listener) listener.onError(AdConstance.CODE_ID_UNKNOWN, getText(AdConstance.CODE_ID_UNKNOWN), id);
+            return;
+        }
+        if(!isAvailable()){
+            if(null!=listener) listener.onError(AdConstance.CODE_AD_DISABLED, getText(AdConstance.CODE_AD_DISABLED), id);
             return;
         }
         if(null==listener&&!GMMediationAdSdk.configLoadSuccess()){
